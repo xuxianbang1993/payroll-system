@@ -1,0 +1,2304 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>薪酬管理系统</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+:root {
+  --bg: #F6F5F1;
+  --surface: #FFFFFF;
+  --border: #E9E7E2;
+  --border-light: #F2F0EC;
+  --text-1: #1C1C1A;
+  --text-2: #6B6860;
+  --text-3: #A09D95;
+  --text-4: #C5C2BA;
+  --accent: #2C5F4A;
+  --accent-light: #EDF3F0;
+  --danger: #B5453A;
+  --danger-light: #FDF2F1;
+  --mono: 'DM Mono', monospace;
+  --sans: 'Noto Sans SC', system-ui, sans-serif;
+  --radius: 10px;
+  --radius-sm: 6px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--sans); background: var(--bg); color: var(--text-1); font-size: 14px; line-height: 1.5; min-height: 100vh; }
+
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--text-4); border-radius: 10px; }
+
+/* ---- Layout ---- */
+.header { background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
+.header-inner { max-width: 1280px; margin: 0 auto; padding: 0 36px; display: flex; align-items: center; justify-content: space-between; height: 60px; }
+.logo { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+.logo-icon { width: 30px; height: 30px; border-radius: 7px; background: var(--text-1); display: flex; align-items: center; justify-content: center; color: var(--bg); font-size: 13px; font-weight: 700; }
+.logo-text { font-size: 14px; font-weight: 600; letter-spacing: -0.3px; }
+.logo-sub { font-size: 10px; color: var(--text-3); font-weight: 400; margin-top: -2px; }
+
+.main { max-width: 1280px; margin: 0 auto; padding: 28px 36px 80px; }
+
+/* ---- Nav Tabs ---- */
+.nav-tabs { display: flex; gap: 3px; background: #ECEAE5; border-radius: 9px; padding: 3px; }
+.nav-tab { display: flex; align-items: center; gap: 6px; padding: 7px 16px; border: none; border-radius: 7px; font-size: 12.5px; font-weight: 500; font-family: var(--sans); cursor: pointer; transition: all 0.18s; background: transparent; color: var(--text-3); }
+.nav-tab:hover { color: var(--text-2); }
+.nav-tab.active { background: var(--surface); color: var(--text-1); box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+
+.sub-tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border); margin-bottom: 24px; }
+.sub-tab { padding: 10px 20px; border: none; background: transparent; font-size: 13px; font-weight: 500; font-family: var(--sans); cursor: pointer; color: var(--text-3); border-bottom: 2px solid transparent; transition: all 0.15s; }
+.sub-tab:hover { color: var(--text-2); }
+.sub-tab.active { color: var(--text-1); border-bottom-color: var(--text-1); }
+
+/* ---- Cards & Containers ---- */
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+.stats-row { display: flex; gap: 14px; margin-bottom: 28px; }
+.stat-card { flex: 1; padding: 18px 20px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); }
+.stat-label { font-size: 11px; color: var(--text-3); font-weight: 500; letter-spacing: 0.5px; }
+.stat-num { font-family: var(--mono); font-size: 26px; font-weight: 500; color: var(--text-1); margin-top: 6px; letter-spacing: -1px; }
+
+.grid-2col { display: grid; grid-template-columns: 1fr 370px; gap: 20px; }
+
+/* ---- Form Elements ---- */
+.field { margin-bottom: 14px; }
+.field-label { font-size: 10.5px; font-weight: 600; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.7px; margin-bottom: 5px; display: block; }
+.field-input { width: 100%; padding: 9px 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 13px; font-family: var(--sans); background: var(--surface); color: var(--text-1); transition: border-color 0.15s, box-shadow 0.15s; }
+.field-input:focus { outline: none; border-color: var(--text-1); box-shadow: 0 0 0 3px rgba(28,28,26,0.05); }
+.field-input::placeholder { color: var(--text-4); }
+.field-input.mono { font-family: var(--mono); font-size: 12.5px; }
+.field-input[readonly] { background: #FAFAF8; color: var(--text-2); }
+.field-input-wrap { position: relative; }
+.field-prefix { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); font-size: 12px; color: var(--text-4); pointer-events: none; }
+.field-suffix { position: absolute; right: 11px; top: 50%; transform: translateY(-50%); font-size: 11px; color: var(--text-4); pointer-events: none; }
+.field-input.has-prefix { padding-left: 24px; }
+.field-input.has-suffix { padding-right: 36px; }
+select.field-input { appearance: none; background-image: url("data:image/svg+xml,%3Csvg width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23A09D95' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; padding-right: 30px; }
+
+/* ---- Buttons ---- */
+.btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 18px; border: none; border-radius: var(--radius-sm); font-size: 12.5px; font-weight: 500; font-family: var(--sans); cursor: pointer; transition: all 0.15s; }
+.btn-primary { background: var(--text-1); color: var(--bg); }
+.btn-primary:hover { background: #333; transform: translateY(-1px); box-shadow: 0 3px 10px rgba(0,0,0,0.12); }
+.btn-ghost { background: transparent; color: var(--text-2); border: 1px solid var(--border); }
+.btn-ghost:hover { border-color: var(--text-1); color: var(--text-1); }
+.btn-sm { padding: 5px 10px; font-size: 11.5px; }
+.btn-danger { background: var(--danger-light); color: var(--danger); border: 1px solid transparent; }
+.btn-danger:hover { border-color: var(--danger); }
+.btn-icon { width: 30px; height: 30px; padding: 0; display: flex; align-items: center; justify-content: center; border-radius: var(--radius-sm); border: none; background: transparent; color: var(--text-4); cursor: pointer; transition: all 0.12s; }
+.btn-icon:hover { background: var(--border-light); color: var(--text-1); }
+.btn-icon.danger:hover { background: var(--danger-light); color: var(--danger); }
+
+/* ---- Table ---- */
+.tbl-header { display: flex; padding: 10px 18px; border-bottom: 1px solid var(--border); background: #FAFAF8; }
+.tbl-header span { font-size: 10.5px; font-weight: 600; color: var(--text-3); letter-spacing: 0.6px; text-transform: uppercase; }
+.emp-row { display: flex; align-items: center; padding: 14px 18px; border-bottom: 1px solid var(--border-light); cursor: pointer; transition: background 0.12s; }
+.emp-row:hover { background: #FAFAF8; }
+.emp-row:last-child { border-bottom: none; }
+.avatar { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; flex-shrink: 0; }
+.tag { display: inline-flex; padding: 2px 9px; border-radius: 100px; font-size: 10.5px; font-weight: 500; }
+.tag-a { background: #EFEEE9; color: var(--text-2); }
+.tag-b { background: var(--accent-light); color: var(--accent); }
+
+/* ---- Payroll card ---- */
+.pay-card { margin-bottom: 10px; }
+.pay-card-header { display: flex; align-items: center; padding: 14px 20px; cursor: pointer; transition: background 0.12s; }
+.pay-card-header:hover { background: #FAFAF8; }
+.pay-card-body { border-top: 1px solid var(--border-light); padding: 24px; background: #FAFAF8; }
+.pay-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+.slip-section-title { font-size: 10.5px; font-weight: 600; color: var(--text-3); letter-spacing: 0.7px; text-transform: uppercase; margin-bottom: 8px; margin-top: 14px; }
+.slip-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border-light); font-size: 13px; }
+.slip-row:last-child { border-bottom: none; }
+.slip-label { color: var(--text-2); }
+.slip-val { font-family: var(--mono); font-size: 12px; font-weight: 500; color: var(--text-1); }
+.slip-val.neg { color: var(--danger); }
+.slip-val.pos { color: var(--accent); }
+.slip-total { margin-top: 14px; padding: 14px 16px; background: var(--text-1); border-radius: 8px; display: flex; justify-content: space-between; align-items: center; }
+.slip-total .label { font-size: 13px; color: var(--text-4); }
+.slip-total .val { font-family: var(--mono); font-size: 20px; font-weight: 500; color: var(--bg); }
+.slip-empty { padding: 48px 20px; text-align: center; color: var(--text-4); font-size: 13px; border: 1px dashed var(--border); border-radius: var(--radius); }
+
+/* Perf buttons */
+.perf-group { display: flex; gap: 5px; }
+.perf-btn { padding: 5px 13px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); font-size: 12px; font-family: var(--mono); cursor: pointer; color: var(--text-3); transition: all 0.12s; }
+.perf-btn:hover { border-color: var(--text-3); }
+.perf-btn.active { background: var(--text-1); color: var(--bg); border-color: var(--text-1); }
+
+/* ---- Detail Table (for HR) ---- */
+.detail-table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); }
+.detail-table { width: 100%; border-collapse: collapse; font-size: 12px; white-space: nowrap; }
+.detail-table th { padding: 10px 12px; text-align: left; font-size: 10px; font-weight: 600; color: var(--text-3); letter-spacing: 0.5px; text-transform: uppercase; background: #FAFAF8; border-bottom: 1px solid var(--border); position: sticky; top: 0; }
+.detail-table td { padding: 9px 12px; border-bottom: 1px solid var(--border-light); color: var(--text-2); }
+.detail-table td.num { font-family: var(--mono); font-size: 11.5px; text-align: right; color: var(--text-1); }
+.detail-table td.neg { color: var(--danger); }
+.detail-table tr:last-child td { border-bottom: none; }
+.detail-table tr.total-row td { font-weight: 600; background: #F6F5F1; border-top: 2px solid var(--border); color: var(--text-1); }
+.detail-table .group-header { background: #FAFAF8; font-weight: 600; color: var(--text-1); font-size: 11px; }
+.detail-table .group-header td { padding: 7px 12px; border-bottom: 1px solid var(--border); }
+
+/* Section divider */
+.divider { height: 1px; background: linear-gradient(90deg, transparent, var(--border), transparent); margin: 18px 0; }
+.section-dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; margin-right: 7px; }
+
+/* ---- Chevron ---- */
+.chevron { transition: transform 0.2s; display: inline-flex; }
+.chevron.open { transform: rotate(90deg); }
+
+/* ---- Modal ---- */
+.modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.25); z-index: 200; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.2s; pointer-events: none; }
+.modal-backdrop.show { opacity: 1; pointer-events: all; }
+.modal { background: var(--surface); border-radius: 14px; padding: 28px; width: 480px; max-height: 90vh; overflow-y: auto; transform: translateY(12px); transition: transform 0.2s; box-shadow: 0 20px 60px rgba(0,0,0,0.15); }
+.modal-backdrop.show .modal { transform: translateY(0); }
+.modal h3 { font-size: 16px; font-weight: 600; margin-bottom: 20px; }
+.modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 24px; }
+
+/* ---- Name Editor ---- */
+.name-edit-input { font-size: 14px; font-weight: 600; border: none; border-bottom: 1.5px solid var(--text-1); background: transparent; padding: 2px 0; font-family: var(--sans); color: var(--text-1); outline: none; width: 220px; }
+
+/* ---- Animations ---- */
+@keyframes fadeSlide { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+.anim { animation: fadeSlide 0.25s ease forwards; }
+
+/* ---- Dropdown ---- */
+.dropdown-wrap { position: relative; display: inline-block; }
+.dropdown-menu { position: absolute; top: calc(100% + 4px); right: 0; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,0.12); min-width: 200px; z-index: 50; opacity: 0; transform: translateY(-4px); pointer-events: none; transition: all 0.15s; }
+.dropdown-menu.open { opacity: 1; transform: translateY(0); pointer-events: all; }
+.dropdown-item { display: flex; align-items: center; gap: 8px; width: 100%; padding: 10px 14px; border: none; background: transparent; font-size: 12.5px; font-family: var(--sans); color: var(--text-2); cursor: pointer; text-align: left; transition: background 0.1s; }
+.dropdown-item:first-child { border-radius: 8px 8px 0 0; }
+.dropdown-item:last-child { border-radius: 0 0 8px 8px; }
+.dropdown-item:hover { background: #F6F5F1; color: var(--text-1); }
+.dropdown-item .item-sub { font-size: 10.5px; color: var(--text-4); margin-top: 1px; }
+.dropdown-divider { height: 1px; background: var(--border-light); margin: 2px 0; }
+
+/* ---- PDF hidden render ---- */
+#pdf-render-zone { position: fixed; left: -9999px; top: 0; z-index: -1; }
+.pdf-slip { width: 595px; padding: 48px 42px; background: #fff; font-family: 'Noto Sans SC', sans-serif; color: #1C1C1A; font-size: 12px; line-height: 1.6; }
+.pdf-slip .pdf-header { display: flex; justify-content: space-between; align-items: flex-start; padding-bottom: 14px; border-bottom: 2.5px solid #1C1C1A; margin-bottom: 18px; }
+.pdf-slip .pdf-org { font-size: 17px; font-weight: 700; }
+.pdf-slip .pdf-subtitle { font-size: 12px; color: #6B6860; margin-top: 2px; }
+.pdf-slip .pdf-period { text-align: right; }
+.pdf-slip .pdf-period-label { font-size: 10px; color: #A09D95; }
+.pdf-slip .pdf-period-val { font-size: 15px; font-weight: 600; font-family: 'DM Mono', monospace; }
+.pdf-slip .pdf-info { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px 16px; margin-bottom: 18px; padding: 14px 16px; background: #F6F5F1; border-radius: 6px; }
+.pdf-slip .pdf-info-label { font-size: 9px; color: #A09D95; font-weight: 600; letter-spacing: 0.5px; }
+.pdf-slip .pdf-info-val { font-size: 11.5px; font-weight: 500; }
+.pdf-slip .pdf-sec-title { font-size: 9.5px; font-weight: 700; color: #A09D95; letter-spacing: 0.8px; margin: 14px 0 6px; }
+.pdf-slip .pdf-row { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid #ECEAE5; font-size: 11.5px; }
+.pdf-slip .pdf-row:last-child { border-bottom: none; }
+.pdf-slip .pdf-row-label { color: #6B6860; }
+.pdf-slip .pdf-row-val { font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 500; }
+.pdf-slip .pdf-row-val.neg { color: #B5453A; }
+.pdf-slip .pdf-row-val.pos { color: #2C5F4A; }
+.pdf-slip .pdf-total { margin-top: 16px; padding: 14px 18px; background: #1C1C1A; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; color: #F6F5F1; }
+.pdf-slip .pdf-total-label { font-size: 13px; }
+.pdf-slip .pdf-total-val { font-size: 22px; font-weight: 600; font-family: 'DM Mono', monospace; letter-spacing: -1px; }
+.pdf-slip .pdf-footer { margin-top: 28px; padding-top: 12px; border-top: 1px solid #ECEAE5; display: flex; justify-content: space-between; font-size: 9px; color: #C5C2BA; }
+.pdf-slip .pdf-summary td { font-weight: 600; border-bottom: none; padding-top: 8px; }
+
+/* ---- Toast ---- */
+.toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: var(--text-1); color: var(--bg); padding: 12px 24px; border-radius: 10px; font-size: 13px; font-weight: 500; z-index: 300; display: flex; align-items: center; gap: 10px; box-shadow: 0 8px 30px rgba(0,0,0,0.2); transition: opacity 0.3s, transform 0.3s; }
+.toast.hide { opacity: 0; transform: translateX(-50%) translateY(10px); }
+
+/* ---- Footer ---- */
+.footer { text-align: center; padding: 20px; font-size: 10.5px; color: var(--text-4); border-top: 1px solid var(--border); }
+
+/* ---- Voucher Styles ---- */
+.voucher-card { margin-bottom: 20px; }
+.voucher-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; background: #FAFAF8; border-bottom: 1px solid var(--border-light); }
+.voucher-title { font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+.voucher-num { width: 24px; height: 24px; border-radius: 50%; background: var(--text-1); color: var(--bg); font-size: 11px; font-weight: 600; display: flex; align-items: center; justify-content: center; }
+.voucher-summary { font-size: 12px; color: var(--text-3); }
+.voucher-body { padding: 0; }
+.voucher-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.voucher-table th { padding: 10px 16px; text-align: left; font-size: 10px; font-weight: 600; color: var(--text-3); letter-spacing: 0.5px; text-transform: uppercase; background: #FAFAF8; border-bottom: 1px solid var(--border); }
+.voucher-table td { padding: 10px 16px; border-bottom: 1px solid var(--border-light); color: var(--text-2); }
+.voucher-table tr:last-child td { border-bottom: none; }
+.voucher-table td.num { font-family: var(--mono); font-size: 12px; text-align: right; color: var(--text-1); }
+.voucher-table td.dir { font-weight: 600; text-align: center; }
+.voucher-table td.dir.debit { color: var(--accent); }
+.voucher-table td.dir.credit { color: var(--danger); }
+.voucher-table tr.section-divider td { border-top: 2px solid var(--border); background: #FAFAF8; font-size: 11px; color: var(--text-3); font-style: italic; padding: 6px 16px; }
+.voucher-footer { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: #FAFAF8; border-top: 1px solid var(--border-light); font-size: 12px; }
+.voucher-balance { display: flex; align-items: center; gap: 12px; }
+.voucher-balance-item { display: flex; align-items: center; gap: 6px; }
+.voucher-balance-label { color: var(--text-3); }
+.voucher-balance-val { font-family: var(--mono); font-weight: 600; color: var(--text-1); }
+.voucher-balance-ok { color: var(--accent); font-weight: 500; }
+.voucher-balance-err { color: var(--danger); font-weight: 500; }
+
+.company-tabs { display: flex; gap: 4px; margin-bottom: 24px; flex-wrap: wrap; }
+.company-tab { padding: 8px 16px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); font-size: 12.5px; font-weight: 500; font-family: var(--sans); cursor: pointer; transition: all 0.15s; color: var(--text-2); }
+.company-tab:hover { border-color: var(--text-3); }
+.company-tab.active { background: var(--text-1); color: var(--bg); border-color: var(--text-1); }
+
+/* ---- Responsive ---- */
+@media (max-width: 1024px) {
+  .grid-2col { grid-template-columns: 1fr; }
+  .header-inner, .main { padding-left: 20px; padding-right: 20px; }
+}
+
+/* ---- Data Management ---- */
+.data-mgmt { margin-top: 24px; }
+.data-mgmt-title { font-size: 15px; font-weight: 600; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+.data-mgmt-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.data-mgmt-card { padding: 18px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); cursor: pointer; transition: all 0.15s; }
+.data-mgmt-card:hover { border-color: var(--text-3); transform: translateY(-1px); box-shadow: 0 3px 12px rgba(0,0,0,0.06); }
+.data-mgmt-card .card-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 10px; }
+.data-mgmt-card .card-title { font-size: 13px; font-weight: 600; margin-bottom: 3px; }
+.data-mgmt-card .card-desc { font-size: 11px; color: var(--text-3); line-height: 1.5; }
+.data-mgmt-card.danger-card:hover { border-color: var(--danger); }
+.data-mgmt-card.danger-card:hover .card-title { color: var(--danger); }
+
+/* ---- Import Section ---- */
+.import-section { margin-top: 20px; }
+.import-btns { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+
+/* ---- Conflict Modal ---- */
+.conflict-modal { width: 640px; max-height: 85vh; }
+.conflict-list { max-height: 400px; overflow-y: auto; margin: 16px 0; }
+.conflict-item { padding: 12px 16px; border: 1px solid var(--border); border-radius: var(--radius-sm); margin-bottom: 8px; background: #FAFAF8; }
+.conflict-item-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.conflict-item-name { font-size: 14px; font-weight: 600; }
+.conflict-item-id { font-size: 11px; color: var(--text-3); font-family: var(--mono); }
+.conflict-compare { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 11.5px; }
+.conflict-old { padding: 8px 10px; background: var(--danger-light); border-radius: 4px; }
+.conflict-new { padding: 8px 10px; background: var(--accent-light); border-radius: 4px; }
+.conflict-old .compare-label, .conflict-new .compare-label { font-size: 10px; font-weight: 600; color: var(--text-3); margin-bottom: 4px; }
+.conflict-actions-row { display: flex; gap: 6px; margin-top: 8px; }
+.conflict-actions-row .btn { font-size: 11px; padding: 4px 12px; }
+.batch-actions { display: flex; gap: 8px; margin-bottom: 12px; padding: 10px 14px; background: #FAFAF8; border-radius: var(--radius-sm); border: 1px solid var(--border); }
+.batch-actions span { font-size: 12px; color: var(--text-3); margin-right: auto; display: flex; align-items: center; }
+
+/* ---- Auto-save indicator ---- */
+.save-indicator { font-size: 10px; color: var(--text-4); display: flex; align-items: center; gap: 4px; transition: opacity 0.3s; }
+.save-indicator.saving { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<div id="app"></div>
+
+<script>
+// ============================================================
+// DATA MODEL
+// ============================================================
+const DEFAULT_STATE = {
+  orgName: "公司名称",
+  employees: [],
+  social: {
+    compPension: 16, compLocalPension: 1, compUnemploy: 0.8, compMedical: 5, compInjury: 0.4, compMaternity: 0.5,
+    workerPension: 8, workerUnemploy: 0.2, workerMedical: 2,
+    pensionBase: 4775, unemploymentBase: 3000, medicalBase: 6727, injuryBase: 3000, maternityBase: 6727,
+  },
+  companies: []
+};
+
+// State
+let S = JSON.parse(JSON.stringify(DEFAULT_STATE));
+
+// Auto-load from localStorage
+try {
+  const saved = window.localStorage?.getItem?.('payroll_data');
+  if (saved) {
+    const parsed = JSON.parse(saved);
+    // Merge with defaults to ensure new fields exist
+    S = { ...JSON.parse(JSON.stringify(DEFAULT_STATE)), ...parsed };
+    if (parsed.social) S.social = { ...DEFAULT_STATE.social, ...parsed.social };
+    if (parsed.employees) S.employees = parsed.employees;
+    if (parsed.companies) S.companies = parsed.companies;
+    console.log('✓ 数据已从本地存储加载，共 ' + S.employees.length + ' 名员工');
+  }
+} catch(e) { console.warn('加载本地数据失败:', e); }
+
+let activeTab = 'settings';
+let paySubTab = 'employee';
+let editingEmpId = null;
+let expandedPayId = null;
+let payYear = new Date().getFullYear();
+let payMonth = new Date().getMonth() + 1; // 1-12
+let payrollInput = {}; // { empId: { perfGrade, perfSalary, commission, bonus, absentHours, tax, otherAdj } }
+let generatedSlips = {}; // { empId: calculated slip }
+let showAddModal = false;
+let editNameMode = false;
+let selectedEmpId = null;
+let voucherCompany = 'all'; // 'all' or companyShort
+
+// 获取格式化的年月字符串 (YYYY-MM)
+function getPayMonthStr() {
+  return `${payYear}-${String(payMonth).padStart(2, '0')}`;
+}
+
+let showImportConflictModal = false;
+let importConflicts = [];
+let importNewEmps = [];
+let conflictDecisions = {}; // { index: 'overwrite' | 'skip' }
+
+function save() {
+  try {
+    window.localStorage?.setItem?.('payroll_data', JSON.stringify(S));
+    // Flash save indicator
+    const ind = document.getElementById('saveIndicator');
+    if (ind) { ind.classList.add('saving'); ind.textContent = '✓ 已保存'; setTimeout(() => { ind.classList.remove('saving'); ind.textContent = '自动保存'; }, 1200); }
+  } catch(e) { console.warn('保存失败:', e); }
+}
+
+// ============================================================
+// CALCULATIONS
+// ============================================================
+function calcSlip(emp, input) {
+  const sc = S.social;
+  // 精确四舍五入到2位小数，避免浮点精度问题
+  const r2 = (n) => Math.round(n * 100) / 100;
+
+  const base = r2(emp.baseSalary + emp.subsidy);
+  const perfSalary = r2(input.perfSalary || 0);
+  const commission = r2(input.commission || 0);
+  const bonus = r2(input.bonus || 0);
+  const totalPerf = r2(perfSalary + commission + bonus);
+  const absentH = input.absentHours || 0;
+  const tax = r2(input.tax || 0);
+  const otherAdj = r2(input.otherAdj || 0);
+  const hourlyRate = base / 21.75 / 8;
+  const absentDeduct = r2(absentH * hourlyRate);
+
+  // fullGrossPay = 应计工资（不含缺勤扣款）
+  const fullGrossPay = r2(base + totalPerf + otherAdj);
+  // grossPay = 应发工资（含缺勤扣款）
+  const grossPay = r2(fullGrossPay - absentDeduct);
+
+  // Worker deductions (auto) - 逐项取整后再求和
+  const wPension = r2(emp.hasSocial ? sc.pensionBase * sc.workerPension / 100 : 0);
+  const wUnemploy = r2(emp.hasSocial ? sc.unemploymentBase * sc.workerUnemploy / 100 : 0);
+  const wMedical = r2(emp.hasSocial ? sc.medicalBase * sc.workerMedical / 100 : 0);
+  const wSocial = r2(wPension + wUnemploy + wMedical);
+  const wFund = r2(emp.fundAmount || 0);
+
+  // Company (auto) - 逐项取整后再求和
+  const cPension = r2(emp.hasSocial ? sc.pensionBase * sc.compPension / 100 : 0);
+  const cLocalPension = r2((emp.hasSocial && emp.hasLocalPension) ? sc.pensionBase * sc.compLocalPension / 100 : 0);
+  const cUnemploy = r2(emp.hasSocial ? sc.unemploymentBase * sc.compUnemploy / 100 : 0);
+  const cMedical = r2(emp.hasSocial ? sc.medicalBase * sc.compMedical / 100 : 0);
+  const cInjury = r2(emp.hasSocial ? sc.injuryBase * sc.compInjury / 100 : 0);
+  const cMaternity = r2(emp.hasSocial ? sc.maternityBase * sc.compMaternity / 100 : 0);
+  const cSocial = r2(cPension + cLocalPension + cUnemploy + cMedical + cInjury + cMaternity);
+  const cFund = r2(emp.fundAmount || 0);
+
+  const totalDeduct = r2(wSocial + wFund + tax);
+  const netPay = r2(grossPay - totalDeduct);
+
+  return {
+    base, perfSalary, commission, bonus, totalPerf, absentH, absentDeduct, tax, otherAdj, hourlyRate,
+    fullGrossPay, grossPay,
+    wPension, wUnemploy, wMedical, wSocial, wFund,
+    cPension, cLocalPension, cUnemploy, cMedical, cInjury, cMaternity, cSocial, cFund,
+    cTotal: r2(cSocial + cFund),
+    totalDeduct, netPay,
+    perfGrade: input.perfGrade || '-',
+    type: emp.type,
+    companyShort: emp.companyShort
+  };
+}
+
+// ============================================================
+// HELPERS
+// ============================================================
+const $ = (sel) => document.querySelector(sel);
+const fmt = (n) => (n || 0).toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const hue = (id) => (id * 67 + 20) % 360;
+const nextId = () => S.employees.length ? Math.max(...S.employees.map(e => e.id)) + 1 : 1;
+
+function chevronSvg(open) {
+  return `<span class="chevron ${open ? 'open' : ''}"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg></span>`;
+}
+
+// 年份选择器状态
+let yearPickerOpen = false;
+let monthPickerOpen = false;
+let yearPickerBase = new Date().getFullYear(); // 年份面板基准年
+
+// 渲染年份月份选择器（仿 Ant Design 样式）
+function renderYearMonthSelector() {
+  const monthNames = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'];
+  
+  return `
+  <div class="date-picker-wrap" style="position:relative;display:inline-block;" onclick="stopPropagation(event)">
+    <div style="display:flex;align-items:center;gap:8px;">
+      <button type="button" class="date-picker-trigger" onclick="event.stopPropagation();toggleYearPicker()" style="padding:7px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--surface);font-size:13px;cursor:pointer;display:flex;align-items:center;gap:6px;">
+        ${payYear}年
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <button type="button" class="date-picker-trigger" onclick="event.stopPropagation();toggleMonthPicker()" style="padding:7px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--surface);font-size:13px;cursor:pointer;display:flex;align-items:center;gap:6px;">
+        ${monthNames[payMonth - 1]}
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+    </div>
+    ${yearPickerOpen ? renderYearPicker() : ''}
+    ${monthPickerOpen ? renderMonthPicker() : ''}
+  </div>`;
+}
+
+// 渲染年份选择面板
+function renderYearPicker() {
+  // 生成12个年份（当前基准年附近的12年）
+  const startYear = yearPickerBase - 4; // 基准年前4年
+  const years = [];
+  for (let i = 0; i < 12; i++) {
+    years.push(startYear + i);
+  }
+  
+  return `
+  <div class="year-picker-panel" style="position:absolute;top:calc(100% + 4px);left:0;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:0 4px 12px rgba(0,0,0,0.15);padding:12px;z-index:100;min-width:200px;" onclick="event.stopPropagation()">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border-light);">
+      <button type="button" onclick="event.stopPropagation();changeYearRange(-12)" style="border:none;background:transparent;cursor:pointer;padding:4px 8px;border-radius:4px;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <span style="font-size:13px;font-weight:600;">${years[0]}年 - ${years[11]}年</span>
+      <button type="button" onclick="event.stopPropagation();changeYearRange(12)" style="border:none;background:transparent;cursor:pointer;padding:4px 8px;border-radius:4px;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+      </button>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:8px;">
+      ${years.map(y => `
+        <button type="button" onclick="event.stopPropagation();selectYear(${y})" style="padding:8px 4px;border:1px solid ${y === payYear ? 'var(--accent)' : 'transparent'};border-radius:4px;background:${y === payYear ? 'var(--accent-light)' : 'transparent'};color:${y === payYear ? 'var(--accent)' : 'var(--text-2)'};cursor:pointer;font-size:13px;transition:all 0.2s;"
+          onmouseover="this.style.background='var(--bg)'" onmouseout="this.style.background='${y === payYear ? 'var(--accent-light)' : 'transparent'}'">
+          ${y}年
+        </button>
+      `).join('')}
+    </div>
+  </div>`;
+}
+
+// 渲染月份选择面板
+function renderMonthPicker() {
+  const monthNames = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'];
+  
+  return `
+  <div class="month-picker-panel" style="position:absolute;top:calc(100% + 4px);right:0;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:0 4px 12px rgba(0,0,0,0.15);padding:12px;z-index:100;min-width:200px;" onclick="event.stopPropagation()">
+    <div style="display:flex;align-items:center;justify-content:center;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border-light);">
+      <span style="font-size:13px;font-weight:600;">${payYear}年</span>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:8px;">
+      ${monthNames.map((m, idx) => `
+        <button type="button" onclick="event.stopPropagation();selectMonth(${idx + 1})" style="padding:8px 4px;border:1px solid ${idx + 1 === payMonth ? 'var(--accent)' : 'transparent'};border-radius:4px;background:${idx + 1 === payMonth ? 'var(--accent-light)' : 'transparent'};color:${idx + 1 === payMonth ? 'var(--accent)' : 'var(--text-2)'};cursor:pointer;font-size:13px;transition:all 0.2s;"
+          onmouseover="this.style.background='var(--bg)'" onmouseout="this.style.background='${idx + 1 === payMonth ? 'var(--accent-light)' : 'transparent'}'">
+          ${m}
+        </button>
+      `).join('')}
+    </div>
+  </div>`;
+}
+
+// 切换年份选择器
+function toggleYearPicker() {
+  yearPickerOpen = !yearPickerOpen;
+  monthPickerOpen = false;
+  if (yearPickerOpen) {
+    yearPickerBase = payYear; // 打开时以当前选中年为基准
+  }
+  render();
+}
+
+// 切换月份选择器
+function toggleMonthPicker() {
+  monthPickerOpen = !monthPickerOpen;
+  yearPickerOpen = false;
+  render();
+}
+
+// 切换年份范围
+function changeYearRange(delta) {
+  yearPickerBase += delta;
+  render();
+}
+
+// 选择年份
+function selectYear(year) {
+  payYear = year;
+  yearPickerOpen = false;
+  render();
+}
+
+// 选择月份
+function selectMonth(month) {
+  payMonth = month;
+  monthPickerOpen = false;
+  render();
+}
+
+// 关闭所有日期选择器
+function closeDatePickers() {
+  yearPickerOpen = false;
+  monthPickerOpen = false;
+}
+
+// ============================================================
+// RENDER
+// ============================================================
+let isClickOutsideBound = false;
+
+function render() {
+  const app = document.getElementById('app');
+  app.innerHTML = `
+    ${renderHeader()}
+    <main class="main">
+      ${activeTab === 'settings' ? renderSettings() : activeTab === 'payroll' ? renderPayroll() : renderVoucher()}
+    </main>
+    <footer class="footer">${S.orgName} · 薪酬管理系统 · 仅限内部使用</footer>
+    ${showAddModal ? renderAddModal() : ''}
+    ${showImportConflictModal ? renderImportConflictModal() : ''}
+  `;
+  bindEvents();
+  
+  // 只绑定一次点击外部事件
+  if (!isClickOutsideBound) {
+    document.addEventListener('click', handleClickOutside);
+    isClickOutsideBound = true;
+  }
+}
+
+// 处理点击外部关闭选择器
+function handleClickOutside(e) {
+  const datePickerWrap = document.querySelector('.date-picker-wrap');
+  if (datePickerWrap && !datePickerWrap.contains(e.target)) {
+    if (yearPickerOpen || monthPickerOpen) {
+      closeDatePickers();
+      // 使用 requestAnimationFrame 避免在事件处理中直接 render
+      requestAnimationFrame(() => render());
+    }
+  }
+}
+
+// 阻止事件冒泡
+function stopPropagation(e) {
+  e.stopPropagation();
+}
+
+function renderHeader() {
+  const firstChar = S.orgName[0] || '薪';
+  return `
+  <header class="header">
+    <div class="header-inner">
+      <div class="logo" onclick="toggleEditName()">
+        <div class="logo-icon">${firstChar}</div>
+        <div>
+          ${editNameMode
+            ? `<input class="name-edit-input" id="nameInput" value="${S.orgName}" onblur="saveOrgName()" onkeydown="if(event.key==='Enter')saveOrgName()" autofocus />`
+            : `<div class="logo-text">${S.orgName}</div>`
+          }
+          <div class="logo-sub">薪酬管理系统 ${editNameMode ? '' : '<span style="font-size:9px;color:var(--text-4);margin-left:4px">点击修改名称</span>'}</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:16px">
+        <span class="save-indicator" id="saveIndicator">自动保存</span>
+        <nav class="nav-tabs">
+        <button class="nav-tab ${activeTab === 'settings' ? 'active' : ''}" onclick="switchTab('settings')">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+          人员设置
+        </button>
+        <button class="nav-tab ${activeTab === 'payroll' ? 'active' : ''}" onclick="switchTab('payroll')">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="3" width="20" height="18" rx="2"/><path d="M2 9h20M8 3v18"/></svg>
+          工资单生成
+        </button>
+        <button class="nav-tab ${activeTab === 'voucher' ? 'active' : ''}" onclick="switchTab('voucher')">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          会计凭证
+        </button>
+      </nav>
+      </div>
+    </div>
+  </header>`;
+}
+
+// ============================================================
+// SETTINGS TAB
+// ============================================================
+function renderSettings() {
+  const emps = S.employees;
+  const r2 = (n) => Math.round(n * 100) / 100;
+  const totalBase = r2(emps.reduce((s, e) => s + (e.baseSalary || 0) + (e.subsidy || 0), 0));
+  const companies = [...new Set(emps.map(e => e.companyShort))];
+  return `
+  <div class="anim">
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-label">在职人员</div><div class="stat-num">${emps.length}</div></div>
+      <div class="stat-card"><div class="stat-label">公司主体</div><div class="stat-num">${companies.length}</div></div>
+      <div class="stat-card"><div class="stat-label">月度基础薪资总额</div><div class="stat-num">¥${totalBase.toLocaleString()}</div></div>
+    </div>
+    <div class="grid-2col">
+      <div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+          <h2 style="font-size:15px;font-weight:600">人员信息管理</h2>
+          <div style="display:flex;gap:8px">
+            <div class="dropdown-wrap">
+              <button class="btn btn-ghost" onclick="toggleDropdown('empImportMenu')">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+                Excel导入/导出
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>
+              </button>
+              <div class="dropdown-menu" id="empImportMenu">
+                <button class="dropdown-item" onclick="downloadExcelTemplate();closeDropdowns()">
+                  <div>
+                    <div>📥 下载导入模板</div>
+                    <div class="item-sub">下载 Excel 模板，填写后导入</div>
+                  </div>
+                </button>
+                <div class="dropdown-divider"></div>
+                <button class="dropdown-item" onclick="triggerImportExcel();closeDropdowns()">
+                  <div>
+                    <div>📤 从 Excel 导入人员</div>
+                    <div class="item-sub">选择填好的模板文件导入</div>
+                  </div>
+                </button>
+                <div class="dropdown-divider"></div>
+                <button class="dropdown-item" onclick="exportEmployeesToExcel();closeDropdowns()">
+                  <div>
+                    <div>📊 导出当前人员数据</div>
+                    <div class="item-sub">导出所有人员信息为 Excel</div>
+                  </div>
+                </button>
+              </div>
+            </div>
+            <button class="btn btn-primary" onclick="openAddModal()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+              新增人员
+            </button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="tbl-header">
+            <span style="flex:1.6">姓名</span><span style="flex:1">公司主体</span><span style="flex:0.9">职位</span><span style="flex:0.7;text-align:right">基本工资</span><span style="flex:0.7;text-align:right">补助</span><span style="flex:0.6;text-align:right">公积金</span><span style="flex:0.4"></span>
+          </div>
+          ${emps.map(e => renderEmpRow(e)).join('')}
+        </div>
+        ${selectedEmpId ? renderEmpDetail() : ''}
+      </div>
+      <div>
+        <h2 style="font-size:15px;font-weight:600;margin-bottom:14px">社保 & 公积金系数</h2>
+        ${renderSocialConfig()}
+      </div>
+    </div>
+
+    <!-- 数据管理面板 -->
+    <div class="data-mgmt">
+      <div class="data-mgmt-title">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+        数据管理
+      </div>
+      <div class="data-mgmt-grid">
+        <div class="data-mgmt-card" onclick="backupData()">
+          <div class="card-icon" style="background:var(--accent-light);color:var(--accent)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+          </div>
+          <div class="card-title">备份数据</div>
+          <div class="card-desc">将所有数据导出为 JSON 文件，保存到本地文件夹以便备份和恢复</div>
+        </div>
+        <div class="data-mgmt-card" onclick="triggerRestoreData()">
+          <div class="card-icon" style="background:#EDF0F8;color:#4A6EC8">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+          </div>
+          <div class="card-title">恢复数据</div>
+          <div class="card-desc">从之前备份的 JSON 文件中恢复所有数据（人员、社保配置等）</div>
+        </div>
+        <div class="data-mgmt-card danger-card" onclick="clearAllData()">
+          <div class="card-icon" style="background:var(--danger-light);color:var(--danger)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+          </div>
+          <div class="card-title">清空数据</div>
+          <div class="card-desc">删除所有数据并恢复到初始状态（此操作不可撤销，建议先备份）</div>
+        </div>
+        <div class="data-mgmt-card" onclick="showStorageInfo()">
+          <div class="card-icon" style="background:#F5F0E8;color:#A68B5B">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+          </div>
+          <div class="card-title">存储信息</div>
+          <div class="card-desc">查看当前本地存储使用情况和数据统计</div>
+        </div>
+      </div>
+    </div>
+
+  </div>`;
+}
+
+function renderEmpRow(e) {
+  const isEditing = editingEmpId === e.id;
+  if (isEditing) return renderEmpEditRow(e);
+  return `
+  <div class="emp-row" onclick="selectEmp(${e.id})">
+    <div style="flex:1.6;display:flex;align-items:center;gap:9px">
+      <div class="avatar" style="background:hsl(${hue(e.id)},22%,90%);color:hsl(${hue(e.id)},25%,42%)">${e.name[0]}</div>
+      <div>
+        <div style="font-size:13px;font-weight:500">${e.name}</div>
+        <div style="font-size:10.5px;color:var(--text-3)">${e.dept}</div>
+      </div>
+    </div>
+    <div style="flex:1"><span class="tag ${e.companyShort === '万物互联' ? 'tag-a' : 'tag-b'}">${e.companyShort}</span></div>
+    <div style="flex:0.9;font-size:12.5px;color:var(--text-2)">${e.position}</div>
+    <div style="flex:0.7;text-align:right;font-family:var(--mono);font-size:12px">¥${e.baseSalary.toLocaleString()}</div>
+    <div style="flex:0.7;text-align:right;font-family:var(--mono);font-size:12px">¥${(e.subsidy||0).toLocaleString()}</div>
+    <div style="flex:0.6;text-align:right;font-family:var(--mono);font-size:12px">¥${(e.fundAmount||0).toLocaleString()}</div>
+    <div style="flex:0.4;display:flex;gap:4px;justify-content:flex-end">
+      <button class="btn-icon" onclick="event.stopPropagation();startEditEmp(${e.id})" title="编辑">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+      </button>
+      <button class="btn-icon danger" onclick="event.stopPropagation();deleteEmp(${e.id})" title="删除">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+      </button>
+    </div>
+  </div>`;
+}
+
+function renderEmpEditRow(e) {
+  return `
+  <div style="padding:16px 18px;border-bottom:1px solid var(--border-light);background:#FDFCFA">
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px">
+      <div class="field"><label class="field-label">姓名</label><input class="field-input" id="ed_name" value="${e.name}"></div>
+      <div class="field"><label class="field-label">身份证号</label><input class="field-input mono" id="ed_idCard" value="${e.idCard}"></div>
+      <div class="field"><label class="field-label">部门</label><input class="field-input" id="ed_dept" value="${e.dept}"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1.2fr 1fr 1fr 1fr 1fr;gap:10px;margin-bottom:10px">
+      <div class="field"><label class="field-label">公司主体 <span style="font-weight:400;color:var(--text-4);font-size:9.5px;letter-spacing:0">简称</span></label><input class="field-input" id="ed_company" value="${e.companyShort}" placeholder="如：万物互联"></div>
+      <div class="field"><label class="field-label">职位</label><input class="field-input" id="ed_position" value="${e.position}"></div>
+      <div class="field"><label class="field-label">基本工资</label><div class="field-input-wrap"><span class="field-prefix">¥</span><input class="field-input mono has-prefix" id="ed_baseSalary" type="number" value="${e.baseSalary}"></div></div>
+      <div class="field"><label class="field-label">岗位补助</label><div class="field-input-wrap"><span class="field-prefix">¥</span><input class="field-input mono has-prefix" id="ed_subsidy" type="number" value="${e.subsidy}"></div></div>
+      <div class="field"><label class="field-label">个人公积金/月</label><div class="field-input-wrap"><span class="field-prefix">¥</span><input class="field-input mono has-prefix" id="ed_fund" type="number" value="${e.fundAmount||0}"></div></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:14px">
+      <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-2);cursor:pointer">
+        <input type="checkbox" id="ed_hasSocial" ${e.hasSocial ? 'checked' : ''} style="accent-color:var(--text-1)"> 参加社保
+      </label>
+      <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-2);cursor:pointer">
+        <input type="checkbox" id="ed_hasLocalPension" ${e.hasLocalPension ? 'checked' : ''} style="accent-color:#C87F4A"> 参加地方养老补贴
+      </label>
+      <div style="flex:1"></div>
+      <button class="btn btn-ghost btn-sm" onclick="cancelEditEmp()">取消</button>
+      <button class="btn btn-primary btn-sm" onclick="saveEditEmp(${e.id})">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>
+        保存
+      </button>
+    </div>
+  </div>`;
+}
+
+function renderEmpDetail() {
+  const e = S.employees.find(x => x.id === selectedEmpId);
+  if (!e) return '';
+  const sc = S.social;
+  const wP = e.hasSocial ? sc.pensionBase * sc.workerPension / 100 : 0;
+  const wU = e.hasSocial ? sc.unemploymentBase * sc.workerUnemploy / 100 : 0;
+  const wM = e.hasSocial ? sc.medicalBase * sc.workerMedical / 100 : 0;
+  return `
+  <div class="card anim" style="margin-top:14px;padding:22px">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px">
+      <div class="avatar" style="width:40px;height:40px;font-size:15px;background:hsl(${hue(e.id)},22%,90%);color:hsl(${hue(e.id)},25%,42%)">${e.name[0]}</div>
+      <div>
+        <div style="font-size:15px;font-weight:600">${e.name}</div>
+        <div style="font-size:11.5px;color:var(--text-3)">${e.company}</div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px">
+      ${[['身份证号', e.idCard], ['职位', e.position], ['部门', e.dept], ['类型', e.type],
+        ['基本工资', '¥'+e.baseSalary.toLocaleString()], ['岗位补助', '¥'+(e.subsidy||0).toLocaleString()],
+        ['社保状态', e.hasSocial ? '✓ 已参保' : '✗ 未参保'],
+        ['地方养老补贴', e.hasLocalPension ? '✓ 已参加' : '✗ 未参加'],
+        ['个人公积金/月', '¥'+(e.fundAmount||0).toLocaleString()],
+        ['个人养老(自动)', '¥'+fmt(wP)], ['个人失业(自动)', '¥'+fmt(wU)], ['个人医疗(自动)', '¥'+fmt(wM)],
+        ['个人社保合计', '¥'+fmt(wP+wU+wM)],
+      ].map(([l,v]) => `<div><div class="field-label">${l}</div><div style="font-size:13px;font-weight:500">${v}</div></div>`).join('')}
+    </div>
+  </div>`;
+}
+
+function renderSocialConfig() {
+  const sc = S.social;
+  function row(label, key, unit, color) {
+    return `<div class="field">
+      <label class="field-label">${label}</label>
+      <div class="field-input-wrap">
+        <input class="field-input mono has-suffix" type="number" step="0.1" value="${sc[key]}" onchange="updateSocial('${key}', this.value)">
+        <span class="field-suffix">${unit}</span>
+      </div>
+    </div>`;
+  }
+  return `
+  <div class="card" style="padding:22px">
+    <div style="font-size:12px;font-weight:600;margin-bottom:14px"><span class="section-dot" style="background:#C87F4A"></span>单位承担（六险）</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      ${row('养老保险','compPension','%')}
+      ${row('地方养老补贴','compLocalPension','%')}
+      ${row('失业保险','compUnemploy','%')}
+      ${row('医疗保险','compMedical','%')}
+      ${row('工伤保险','compInjury','%')}
+      ${row('生育保险','compMaternity','%')}
+    </div>
+    <div class="divider"></div>
+    <div style="font-size:12px;font-weight:600;margin-bottom:14px"><span class="section-dot" style="background:#4A7EC8"></span>个人承担（三险）</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+      ${row('养老保险','workerPension','%')}
+      ${row('失业保险','workerUnemploy','%')}
+      ${row('医疗保险','workerMedical','%')}
+    </div>
+    <div class="divider"></div>
+    <div style="font-size:12px;font-weight:600;margin-bottom:14px"><span class="section-dot" style="background:#5AAA7B"></span>缴费基数设置</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      ${['pensionBase','unemploymentBase','medicalBase','injuryBase','maternityBase'].map((k, i) => {
+        const labels = ['养老基数','失业基数','医疗基数','工伤基数','生育基数'];
+        return `<div class="field"><label class="field-label">${labels[i]}</label><div class="field-input-wrap"><span class="field-prefix">¥</span><input class="field-input mono has-prefix" type="number" value="${sc[k]}" onchange="updateSocial('${k}', this.value)"></div></div>`;
+      }).join('')}
+    </div>
+    <div class="divider"></div>
+    <div style="font-size:11px;color:var(--text-3);line-height:1.6">
+      <strong style="color:var(--text-2)">自动计算示例：</strong><br>
+      单位养老 = 养老基数 × ${sc.compPension}% = ¥${fmt(sc.pensionBase * sc.compPension / 100)}<br>
+      个人养老 = 养老基数 × ${sc.workerPension}% = ¥${fmt(sc.pensionBase * sc.workerPension / 100)}<br>
+      单位地方养老补贴 = 养老基数 × ${sc.compLocalPension}% = ¥${fmt(sc.pensionBase * sc.compLocalPension / 100)}<br>
+      <span style="color:var(--text-4)">* 地方养老补贴按员工勾选情况计算，未勾选则不参与</span>
+    </div>
+  </div>`;
+}
+
+// ============================================================
+// PAYROLL TAB
+// ============================================================
+function renderPayroll() {
+  return `
+  <div class="anim">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+      <div style="display:flex;align-items:center;gap:14px">
+        <h2 style="font-size:16px;font-weight:600">工资单生成</h2>
+        <div style="display:flex;align-items:center;gap:6px">
+          <span class="field-label" style="margin:0">工资月份</span>
+          ${renderYearMonthSelector()}
+        </div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <div class="dropdown-wrap">
+          <button class="btn btn-ghost" onclick="toggleDropdown('csvMenu')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+            导出CSV
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+          <div class="dropdown-menu" id="csvMenu">
+            <button class="dropdown-item" onclick="exportEmployeeCSV();closeDropdowns()">
+              <div>
+                <div>员工薪资单明细</div>
+                <div class="item-sub">仅含员工个人项（发给员工）</div>
+              </div>
+            </button>
+            <div class="dropdown-divider"></div>
+            <button class="dropdown-item" onclick="exportAllCSV();closeDropdowns()">
+              <div>
+                <div>全部工资明细总表</div>
+                <div class="item-sub">含单位承担部分（发给人事/会计）</div>
+              </div>
+            </button>
+          </div>
+        </div>
+        <button class="btn btn-ghost" onclick="exportAllPDF()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          导出全部PDF
+        </button>
+        <button class="btn btn-primary" onclick="generateAll()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>
+          一键生成全部
+        </button>
+      </div>
+    </div>
+    <div class="sub-tabs">
+      <button class="sub-tab ${paySubTab === 'employee' ? 'active' : ''}" onclick="paySubTab='employee';render()">员工工资单</button>
+      <button class="sub-tab ${paySubTab === 'detail' ? 'active' : ''}" onclick="paySubTab='detail';render()">工资明细总表</button>
+    </div>
+    ${paySubTab === 'employee' ? renderPayrollEmployee() : renderPayrollDetail()}
+  </div>`;
+}
+
+function renderPayrollEmployee() {
+  return `<div>${S.employees.map((e, i) => renderPayCard(e, i)).join('')}</div>`;
+}
+
+function renderPayCard(emp, idx) {
+  const isOpen = expandedPayId === emp.id;
+  const pi = payrollInput[emp.id] || {};
+  const slip = generatedSlips[emp.id];
+  return `
+  <div class="card pay-card anim" style="animation-delay:${idx * 0.03}s">
+    <div class="pay-card-header" onclick="togglePayCard(${emp.id})">
+      ${chevronSvg(isOpen)}
+      <div class="avatar" style="width:30px;height:30px;font-size:11px;margin:0 10px;background:hsl(${hue(emp.id)},22%,90%);color:hsl(${hue(emp.id)},25%,42%)">${emp.name[0]}</div>
+      <div style="flex:1">
+        <span style="font-size:13px;font-weight:500">${emp.name}</span>
+        <span style="font-size:11.5px;color:var(--text-3);margin-left:8px">${emp.position}</span>
+      </div>
+      <span class="tag ${emp.companyShort === '万物互联' ? 'tag-a' : 'tag-b'}" style="margin-right:14px">${emp.companyShort}</span>
+      <span style="font-family:var(--mono);font-size:12px;color:var(--text-3);margin-right:14px">基础 ¥${(emp.baseSalary + emp.subsidy).toLocaleString()}</span>
+      ${slip ? `<span style="font-family:var(--mono);font-size:14px;font-weight:600">实发 ¥${fmt(slip.netPay)}</span>` : `<span style="font-size:11.5px;color:var(--text-4);font-style:italic">待生成</span>`}
+    </div>
+    ${isOpen ? `
+    <div class="pay-card-body">
+      <div class="pay-grid">
+        <div>
+          <div style="font-size:13px;font-weight:600;margin-bottom:16px">手动录入项</div>
+          <div class="field"><label class="field-label">绩效等级</label>
+            <div class="perf-group">
+              ${['S','A','B','C','D'].map(g => `<button class="perf-btn ${pi.perfGrade === g ? 'active' : ''}" onclick="setPayInput(${emp.id},'perfGrade','${g}')">${g}</button>`).join('')}
+            </div>
+          </div>
+          <div class="field"><label class="field-label">绩效工资</label>
+            <div class="field-input-wrap"><span class="field-prefix">¥</span><input class="field-input mono has-prefix" type="number" placeholder="0.00" value="${pi.perfSalary||''}" onchange="setPayInput(${emp.id},'perfSalary',+this.value)"></div>
+          </div>
+          <div class="field"><label class="field-label">提成</label>
+            <div class="field-input-wrap"><span class="field-prefix">¥</span><input class="field-input mono has-prefix" type="number" placeholder="0.00" value="${pi.commission||''}" onchange="setPayInput(${emp.id},'commission',+this.value)"></div>
+          </div>
+          <div class="field"><label class="field-label">奖金 <span style="font-weight:400;color:var(--text-4);font-size:10px;letter-spacing:0">包括节日红包、年终奖</span></label>
+            <div class="field-input-wrap"><span class="field-prefix">¥</span><input class="field-input mono has-prefix" type="number" placeholder="0.00" value="${pi.bonus||''}" onchange="setPayInput(${emp.id},'bonus',+this.value)"></div>
+          </div>
+          <div class="field"><label class="field-label">实际缺勤小时数</label>
+            <div class="field-input-wrap"><input class="field-input mono has-suffix" type="number" placeholder="0" value="${pi.absentHours||''}" onchange="setPayInput(${emp.id},'absentHours',+this.value)"><span class="field-suffix">小时</span></div>
+          </div>
+          <div class="field"><label class="field-label">个人所得税（手动输入）</label>
+            <div class="field-input-wrap"><span class="field-prefix">¥</span><input class="field-input mono has-prefix" type="number" placeholder="0.00" value="${pi.tax||''}" onchange="setPayInput(${emp.id},'tax',+this.value)"></div>
+          </div>
+          <div class="field"><label class="field-label">其他调整（正数加 / 负数减）</label>
+            <div class="field-input-wrap"><span class="field-prefix">¥</span><input class="field-input mono has-prefix" type="number" placeholder="0.00" value="${pi.otherAdj||''}" onchange="setPayInput(${emp.id},'otherAdj',+this.value)"></div>
+          </div>
+          <button class="btn btn-primary" style="margin-top:4px" onclick="generateOne(${emp.id})">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>
+            生成工资单
+          </button>
+        </div>
+        <div>
+          <div style="font-size:13px;font-weight:600;margin-bottom:16px">工资单明细</div>
+          ${slip ? renderSlipPreview(emp, slip) : '<div class="slip-empty">请填入信息后点击「生成工资单」</div>'}
+        </div>
+      </div>
+    </div>` : ''}
+  </div>`;
+}
+
+function renderSlipPreview(emp, s) {
+  return `
+  <div class="card anim" style="padding:18px">
+    <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:12px;border-bottom:2px solid var(--text-1);margin-bottom:4px">
+      <div><div style="font-size:10.5px;color:var(--text-3)">工资所属期</div><div style="font-size:13px;font-weight:600">${getPayMonthStr()}</div></div>
+      <div style="text-align:right"><div style="font-size:10.5px;color:var(--text-3)">实发工资</div><div style="font-family:var(--mono);font-size:20px;font-weight:500;letter-spacing:-1px">¥${fmt(s.netPay)}</div></div>
+    </div>
+    <div class="slip-section-title">收入项</div>
+    <div class="slip-row"><span class="slip-label">基本工资</span><span class="slip-val">¥${fmt(emp.baseSalary)}</span></div>
+    <div class="slip-row"><span class="slip-label">岗位补助</span><span class="slip-val">¥${fmt(emp.subsidy)}</span></div>
+    <div class="slip-row"><span class="slip-label">绩效工资 (${s.perfGrade})</span><span class="slip-val">¥${fmt(s.perfSalary)}</span></div>
+    <div class="slip-row"><span class="slip-label">提成</span><span class="slip-val">¥${fmt(s.commission)}</span></div>
+    <div class="slip-row"><span class="slip-label">奖金</span><span class="slip-val">¥${fmt(s.bonus)}</span></div>
+    <div class="slip-section-title">扣除项</div>
+    <div class="slip-row"><span class="slip-label">缺勤扣款 (${s.absentH}h)</span><span class="slip-val neg">-¥${fmt(s.absentDeduct)}</span></div>
+    <div class="slip-row"><span class="slip-label">个人养老保险</span><span class="slip-val neg">-¥${fmt(s.wPension)}</span></div>
+    <div class="slip-row"><span class="slip-label">个人失业保险</span><span class="slip-val neg">-¥${fmt(s.wUnemploy)}</span></div>
+    <div class="slip-row"><span class="slip-label">个人医疗保险</span><span class="slip-val neg">-¥${fmt(s.wMedical)}</span></div>
+    <div class="slip-row"><span class="slip-label">个人公积金</span><span class="slip-val neg">-¥${fmt(s.wFund)}</span></div>
+    <div class="slip-row"><span class="slip-label">个人所得税</span><span class="slip-val neg">-¥${fmt(s.tax)}</span></div>
+    ${s.otherAdj !== 0 ? `<div class="slip-row"><span class="slip-label">其他调整</span><span class="slip-val ${s.otherAdj > 0 ? 'pos' : 'neg'}">${s.otherAdj > 0 ? '+' : '-'}¥${fmt(Math.abs(s.otherAdj))}</span></div>` : ''}
+    <div class="slip-section-title">汇总</div>
+    <div class="slip-row" style="font-weight:600"><span class="slip-label">应发工资</span><span class="slip-val">¥${fmt(s.grossPay)}</span></div>
+    <div class="slip-row" style="font-weight:600"><span class="slip-label">个人扣除合计</span><span class="slip-val neg">-¥${fmt(s.totalDeduct)}</span></div>
+    <div class="slip-total"><span class="label">实发工资</span><span class="val">¥${fmt(s.netPay)}</span></div>
+  </div>`;
+}
+
+// ============================================================
+// PAYROLL DETAIL TABLE (for HR/Accounting)
+// ============================================================
+function renderPayrollDetail() {
+  const emps = S.employees;
+  const groups = {};
+  emps.forEach(e => {
+    if (!groups[e.companyShort]) groups[e.companyShort] = [];
+    groups[e.companyShort].push(e);
+  });
+
+  // Ensure all have slips
+  emps.forEach(e => {
+    if (!generatedSlips[e.id]) {
+      generatedSlips[e.id] = calcSlip(e, payrollInput[e.id] || {});
+    }
+  });
+
+  let rows = '';
+  let grandTotal = { base: 0, subsidy: 0, perfSalary: 0, commission: 0, bonus: 0, absentDeduct: 0, otherAdj: 0, fullGrossPay: 0, grossPay: 0, cPension: 0, cLocalPension: 0, cUnemploy: 0, cMedical: 0, cInjury: 0, cMaternity: 0, cSocial: 0, cFund: 0, cTotal: 0, wPension: 0, wUnemploy: 0, wMedical: 0, wSocial: 0, wFund: 0, tax: 0, totalDeduct: 0, netPay: 0 };
+  const r2 = (n) => Math.round(n * 100) / 100;
+
+  for (const [comp, members] of Object.entries(groups)) {
+    rows += `<tr class="group-header"><td colspan="28">${comp}（${members.length}人）</td></tr>`;
+
+    // 单次遍历：渲染个人行 + 累加小计（使用原始值累加）
+    let st = {};
+    Object.keys(grandTotal).forEach(k => st[k] = 0);
+
+    members.forEach(e => {
+      const s = generatedSlips[e.id];
+      rows += `<tr>
+        <td>${e.name}</td><td>${e.position}</td>
+        <td class="num">¥${fmt(e.baseSalary)}</td><td class="num">¥${fmt(e.subsidy)}</td>
+        <td class="num">¥${fmt(s.perfSalary)}</td><td class="num">¥${fmt(s.commission)}</td><td class="num">¥${fmt(s.bonus)}</td>
+        <td class="num${s.absentDeduct > 0 ? ' neg' : ''}">${s.absentDeduct > 0 ? '-' : ''}¥${fmt(s.absentDeduct)}</td>
+        <td class="num${s.otherAdj < 0 ? ' neg' : ''}">${s.otherAdj < 0 ? '-' : ''}¥${fmt(Math.abs(s.otherAdj))}</td>
+        <td class="num" style="background:#FFF8F0">¥${fmt(s.fullGrossPay)}</td>
+        <td class="num" style="font-weight:600">¥${fmt(s.grossPay)}</td>
+        <td class="num">¥${fmt(s.cPension)}</td><td class="num">¥${fmt(s.cLocalPension)}</td>
+        <td class="num">¥${fmt(s.cUnemploy)}</td><td class="num">¥${fmt(s.cMedical)}</td>
+        <td class="num">¥${fmt(s.cInjury)}</td><td class="num">¥${fmt(s.cMaternity)}</td>
+        <td class="num" style="font-weight:600">¥${fmt(s.cSocial)}</td>
+        <td class="num">¥${fmt(s.cFund)}</td>
+        <td class="num" style="font-weight:600">¥${fmt(s.cTotal)}</td>
+        <td class="num">¥${fmt(s.wPension)}</td><td class="num">¥${fmt(s.wUnemploy)}</td><td class="num">¥${fmt(s.wMedical)}</td>
+        <td class="num" style="font-weight:600">¥${fmt(s.wSocial)}</td>
+        <td class="num">¥${fmt(s.wFund)}</td><td class="num">¥${fmt(s.tax)}</td>
+        <td class="num" style="font-weight:600">¥${fmt(s.totalDeduct)}</td>
+        <td class="num" style="font-weight:700;font-size:12px">¥${fmt(s.netPay)}</td>
+      </tr>`;
+
+      // 累加小计（使用原始值）
+      st.base += e.baseSalary; st.subsidy += e.subsidy;
+      st.perfSalary += s.perfSalary; st.commission += s.commission; st.bonus += s.bonus;
+      st.absentDeduct += s.absentDeduct; st.otherAdj += s.otherAdj;
+      st.fullGrossPay += s.fullGrossPay; st.grossPay += s.grossPay;
+      st.cPension += s.cPension; st.cLocalPension += s.cLocalPension; st.cUnemploy += s.cUnemploy; st.cMedical += s.cMedical;
+      st.cInjury += s.cInjury; st.cMaternity += s.cMaternity; st.cSocial += s.cSocial;
+      st.cFund += s.cFund; st.cTotal += s.cTotal; st.wPension += s.wPension; st.wUnemploy += s.wUnemploy;
+      st.wMedical += s.wMedical; st.wSocial += s.wSocial; st.wFund += s.wFund; st.tax += s.tax;
+      st.totalDeduct += s.totalDeduct; st.netPay += s.netPay;
+
+      // 同时累加总计（使用原始值）
+      grandTotal.base += e.baseSalary; grandTotal.subsidy += e.subsidy;
+      grandTotal.perfSalary += s.perfSalary; grandTotal.commission += s.commission; grandTotal.bonus += s.bonus;
+      grandTotal.absentDeduct += s.absentDeduct; grandTotal.otherAdj += s.otherAdj;
+      grandTotal.fullGrossPay += s.fullGrossPay; grandTotal.grossPay += s.grossPay;
+      grandTotal.cPension += s.cPension; grandTotal.cLocalPension += s.cLocalPension; grandTotal.cUnemploy += s.cUnemploy; grandTotal.cMedical += s.cMedical;
+      grandTotal.cInjury += s.cInjury; grandTotal.cMaternity += s.cMaternity; grandTotal.cSocial += s.cSocial;
+      grandTotal.cFund += s.cFund; grandTotal.cTotal += s.cTotal; grandTotal.wPension += s.wPension; grandTotal.wUnemploy += s.wUnemploy;
+      grandTotal.wMedical += s.wMedical; grandTotal.wSocial += s.wSocial; grandTotal.wFund += s.wFund; grandTotal.tax += s.tax;
+      grandTotal.totalDeduct += s.totalDeduct; grandTotal.netPay += s.netPay;
+    });
+
+    // 对小计做精确取整（仅用于显示）
+    Object.keys(st).forEach(k => st[k] = r2(st[k]));
+
+    rows += `<tr class="total-row">
+      <td colspan="2" style="text-align:right">${comp} 小计</td>
+      <td class="num">¥${fmt(st.base)}</td><td class="num">¥${fmt(st.subsidy)}</td>
+      <td class="num">¥${fmt(st.perfSalary)}</td><td class="num">¥${fmt(st.commission)}</td><td class="num">¥${fmt(st.bonus)}</td>
+      <td class="num${st.absentDeduct > 0 ? ' neg' : ''}">${st.absentDeduct > 0 ? '-' : ''}¥${fmt(st.absentDeduct)}</td>
+      <td class="num${st.otherAdj < 0 ? ' neg' : ''}">${st.otherAdj < 0 ? '-' : ''}¥${fmt(Math.abs(st.otherAdj))}</td>
+      <td class="num" style="background:#FFF8F0">¥${fmt(st.fullGrossPay)}</td>
+      <td class="num" style="font-weight:600">¥${fmt(st.grossPay)}</td>
+      <td class="num">¥${fmt(st.cPension)}</td><td class="num">¥${fmt(st.cLocalPension)}</td>
+      <td class="num">¥${fmt(st.cUnemploy)}</td><td class="num">¥${fmt(st.cMedical)}</td>
+      <td class="num">¥${fmt(st.cInjury)}</td><td class="num">¥${fmt(st.cMaternity)}</td>
+      <td class="num">¥${fmt(st.cSocial)}</td><td class="num">¥${fmt(st.cFund)}</td>
+      <td class="num">¥${fmt(st.cTotal)}</td><td class="num">¥${fmt(st.wPension)}</td>
+      <td class="num">¥${fmt(st.wUnemploy)}</td><td class="num">¥${fmt(st.wMedical)}</td>
+      <td class="num">¥${fmt(st.wSocial)}</td><td class="num">¥${fmt(st.wFund)}</td>
+      <td class="num">¥${fmt(st.tax)}</td><td class="num">¥${fmt(st.totalDeduct)}</td>
+      <td class="num">¥${fmt(st.netPay)}</td>
+    </tr>`;
+  }
+
+  // Grand total - 精确取整（总计使用原始累加值，不是小计的四舍五入值）
+  const gt = grandTotal;
+  Object.keys(gt).forEach(k => gt[k] = r2(gt[k]));
+  rows += `<tr class="total-row" style="background:#ECEAE5">
+    <td colspan="2" style="text-align:right;font-size:12px">全员合计</td>
+    <td class="num">¥${fmt(gt.base)}</td><td class="num">¥${fmt(gt.subsidy)}</td>
+    <td class="num">¥${fmt(gt.perfSalary)}</td><td class="num">¥${fmt(gt.commission)}</td><td class="num">¥${fmt(gt.bonus)}</td>
+    <td class="num${gt.absentDeduct > 0 ? ' neg' : ''}">${gt.absentDeduct > 0 ? '-' : ''}¥${fmt(gt.absentDeduct)}</td>
+    <td class="num${gt.otherAdj < 0 ? ' neg' : ''}">${gt.otherAdj < 0 ? '-' : ''}¥${fmt(Math.abs(gt.otherAdj))}</td>
+    <td class="num" style="background:#FFF8F0">¥${fmt(gt.fullGrossPay)}</td>
+    <td class="num" style="font-weight:600">¥${fmt(gt.grossPay)}</td>
+    <td class="num">¥${fmt(gt.cPension)}</td><td class="num">¥${fmt(gt.cLocalPension)}</td>
+    <td class="num">¥${fmt(gt.cUnemploy)}</td><td class="num">¥${fmt(gt.cMedical)}</td>
+    <td class="num">¥${fmt(gt.cInjury)}</td><td class="num">¥${fmt(gt.cMaternity)}</td>
+    <td class="num">¥${fmt(gt.cSocial)}</td><td class="num">¥${fmt(gt.cFund)}</td>
+    <td class="num">¥${fmt(gt.cTotal)}</td><td class="num">¥${fmt(gt.wPension)}</td>
+    <td class="num">¥${fmt(gt.wUnemploy)}</td><td class="num">¥${fmt(gt.wMedical)}</td>
+    <td class="num">¥${fmt(gt.wSocial)}</td><td class="num">¥${fmt(gt.wFund)}</td>
+    <td class="num">¥${fmt(gt.tax)}</td><td class="num">¥${fmt(gt.totalDeduct)}</td>
+    <td class="num" style="font-size:13px">¥${fmt(gt.netPay)}</td>
+  </tr>`;
+
+  return `
+  <div style="margin-bottom:12px;display:flex;align-items:center;justify-content:space-between">
+    <div style="font-size:12px;color:var(--text-3)">工资所属月份：<strong style="color:var(--text-1)">${getPayMonthStr()}</strong> · 包含单位承担部分，供人事与会计使用</div>
+  </div>
+  <div class="detail-table-wrap" style="max-height:70vh;overflow:auto">
+    <table class="detail-table">
+      <thead><tr>
+        <th>姓名</th><th>职位</th><th style="text-align:right">基本工资</th><th style="text-align:right">补助</th>
+        <th style="text-align:right">绩效工资</th><th style="text-align:right">提成</th><th style="text-align:right">奖金</th>
+        <th style="text-align:right">缺勤扣款</th><th style="text-align:right">其他调整</th>
+        <th style="text-align:right;background:#FFF8F0">应计工资</th>
+        <th style="text-align:right;background:#F3F1ED">应发工资</th>
+        <th style="text-align:right">单位养老</th><th style="text-align:right">地方补贴</th>
+        <th style="text-align:right">单位失业</th><th style="text-align:right">单位医疗</th>
+        <th style="text-align:right">单位工伤</th><th style="text-align:right">单位生育</th>
+        <th style="text-align:right;background:#FFF8F0">单位社保计</th><th style="text-align:right">单位公积金</th>
+        <th style="text-align:right;background:#FFF8F0">单位总额</th>
+        <th style="text-align:right">个人养老</th><th style="text-align:right">个人失业</th><th style="text-align:right">个人医疗</th>
+        <th style="text-align:right;background:#F0F5FF">个人社保计</th><th style="text-align:right">个人公积金</th>
+        <th style="text-align:right">所得税</th>
+        <th style="text-align:right;background:#F0F5FF">个人扣除计</th>
+        <th style="text-align:right;background:#F3F1ED">实发工资</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+  </div>`;
+}
+
+// ============================================================
+// VOUCHER TAB (NEW IN V1)
+// ============================================================
+function renderVoucher() {
+  // Ensure all slips are generated
+  S.employees.forEach(e => {
+    if (!generatedSlips[e.id]) {
+      generatedSlips[e.id] = calcSlip(e, payrollInput[e.id] || {});
+    }
+  });
+
+  const companies = ['all', ...new Set(S.employees.map(e => e.companyShort))];
+  const companyLabels = { 'all': '全部公司' };
+  S.companies.forEach(c => companyLabels[c.short] = c.short);
+
+  // Filter employees by company
+  const filteredEmps = voucherCompany === 'all' 
+    ? S.employees 
+    : S.employees.filter(e => e.companyShort === voucherCompany);
+
+  // Calculate aggregates
+  const agg = calcAggregates(filteredEmps);
+
+  return `
+  <div class="anim">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+      <div style="display:flex;align-items:center;gap:14px">
+        <h2 style="font-size:16px;font-weight:600">会计凭证</h2>
+        <div style="font-size:12px;color:var(--text-3)">工资月份：<strong style="color:var(--text-1)">${getPayMonthStr()}</strong></div>
+      </div>
+      <button class="btn btn-ghost" onclick="exportVoucherCSV()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+        导出凭证CSV
+      </button>
+    </div>
+    
+    <div class="company-tabs">
+      ${companies.map(c => `
+        <button class="company-tab ${voucherCompany === c ? 'active' : ''}" onclick="voucherCompany='${c}';render()">
+          ${companyLabels[c] || c}
+        </button>
+      `).join('')}
+    </div>
+
+    <div style="font-size:12px;color:var(--text-3);margin-bottom:16px">
+      ${voucherCompany === 'all' 
+        ? `显示全部 ${filteredEmps.length} 名员工的数据` 
+        : `${companyLabels[voucherCompany]} · ${filteredEmps.length} 人`}
+    </div>
+
+    ${renderVoucher1(agg)}
+    ${renderVoucher2(agg)}
+    ${renderVoucher3(agg)}
+    ${renderVoucher4(agg)}
+    ${renderVoucher5(agg)}
+  </div>`;
+}
+
+function calcAggregates(emps) {
+  const r2 = (n) => Math.round(n * 100) / 100;
+  const result = {
+    sale: { fullGrossPay: 0, cSocial: 0, cFund: 0, wSocial: 0, wFund: 0, tax: 0, netPay: 0, absentDeduct: 0 },
+    manage: { fullGrossPay: 0, cSocial: 0, cFund: 0, wSocial: 0, wFund: 0, tax: 0, netPay: 0, absentDeduct: 0 },
+    total: { fullGrossPay: 0, cSocial: 0, cFund: 0, wSocial: 0, wFund: 0, tax: 0, netPay: 0, absentDeduct: 0 }
+  };
+
+  emps.forEach(e => {
+    const s = generatedSlips[e.id];
+    const type = e.type === '销售' ? 'sale' : 'manage';
+    // 累加各类别（使用原始值）
+    result[type].fullGrossPay += s.fullGrossPay;
+    result[type].cSocial += s.cSocial;
+    result[type].cFund += s.cFund;
+    result[type].wSocial += s.wSocial;
+    result[type].wFund += s.wFund;
+    result[type].tax += s.tax;
+    result[type].netPay += s.netPay;
+    result[type].absentDeduct += s.absentDeduct;
+
+    // 同时累加总计（使用原始值，不是各类别四舍五入后的值）
+    result.total.fullGrossPay += s.fullGrossPay;
+    result.total.cSocial += s.cSocial;
+    result.total.cFund += s.cFund;
+    result.total.wSocial += s.wSocial;
+    result.total.wFund += s.wFund;
+    result.total.tax += s.tax;
+    result.total.netPay += s.netPay;
+    result.total.absentDeduct += s.absentDeduct;
+  });
+
+  // 精确取整（仅用于显示，确保借贷平衡检查正确）
+  ['sale','manage','total'].forEach(t => {
+    Object.keys(result[t]).forEach(k => result[t][k] = r2(result[t][k]));
+  });
+
+  return result;
+}
+
+function renderVoucher1(agg) {
+  const rows = [];
+  let debitTotal = 0;
+  let creditTotal = 0;
+
+  // 销售费用部分
+  if (agg.sale.fullGrossPay > 0) {
+    rows.push({ dir: '借', account: '销售费用-销售人员职工薪酬-人员工资', amount: agg.sale.fullGrossPay });
+    debitTotal += agg.sale.fullGrossPay;
+  }
+  if (agg.sale.cSocial > 0) {
+    rows.push({ dir: '借', account: '销售费用-销售人员职工薪酬-社保（单位部分）', amount: agg.sale.cSocial });
+    debitTotal += agg.sale.cSocial;
+  }
+  if (agg.sale.cFund > 0) {
+    rows.push({ dir: '借', account: '销售费用-销售人员职工薪酬-公积金（单位部分）', amount: agg.sale.cFund });
+    debitTotal += agg.sale.cFund;
+  }
+
+  // 管理费用部分
+  if (agg.manage.fullGrossPay > 0) {
+    rows.push({ dir: '借', account: '管理费用-管理人员职工薪酬-人员工资', amount: agg.manage.fullGrossPay });
+    debitTotal += agg.manage.fullGrossPay;
+  }
+  if (agg.manage.cSocial > 0) {
+    rows.push({ dir: '借', account: '管理费用-管理人员职工薪酬-社保（单位部分）', amount: agg.manage.cSocial });
+    debitTotal += agg.manage.cSocial;
+  }
+  if (agg.manage.cFund > 0) {
+    rows.push({ dir: '借', account: '管理费用-管理人员职工薪酬-公积金（单位部分）', amount: agg.manage.cFund });
+    debitTotal += agg.manage.cFund;
+  }
+
+  // 应付职工薪酬贷方
+  if (agg.total.fullGrossPay > 0) {
+    rows.push({ dir: '贷', account: '应付职工薪酬-人员工资', amount: agg.total.fullGrossPay });
+    creditTotal += agg.total.fullGrossPay;
+  }
+  if (agg.total.cSocial > 0) {
+    rows.push({ dir: '贷', account: '应付职工薪酬-社保（单位部分）', amount: agg.total.cSocial });
+    creditTotal += agg.total.cSocial;
+  }
+  if (agg.total.cFund > 0) {
+    rows.push({ dir: '贷', account: '应付职工薪酬-公积金（单位部分）', amount: agg.total.cFund });
+    creditTotal += agg.total.cFund;
+  }
+
+  // 个人代扣部分
+  const totalDeduct = agg.total.wSocial + agg.total.wFund + agg.total.tax;
+  if (totalDeduct > 0) {
+    rows.push({ section: '个人代扣部分' });
+    rows.push({ dir: '借', account: '应付职工薪酬-人员工资', amount: totalDeduct });
+    debitTotal += totalDeduct;
+    if (agg.total.wSocial > 0) {
+      rows.push({ dir: '贷', account: '其他应收款-社保（个人部分）', amount: agg.total.wSocial });
+      creditTotal += agg.total.wSocial;
+    }
+    if (agg.total.wFund > 0) {
+      rows.push({ dir: '贷', account: '其他应收款-公积金（个人部分）', amount: agg.total.wFund });
+      creditTotal += agg.total.wFund;
+    }
+    if (agg.total.tax > 0) {
+      rows.push({ dir: '贷', account: '应交税费-应交个人所得税', amount: agg.total.tax });
+      creditTotal += agg.total.tax;
+    }
+  }
+
+  const isBalanced = Math.abs(debitTotal - creditTotal) < 0.01;
+
+  return renderVoucherCard('①', `计提${getPayMonthStr()}月工资`, rows, debitTotal, creditTotal, isBalanced);
+}
+
+function renderVoucher2(agg) {
+  const rows = [];
+  let debitTotal = 0;
+  let creditTotal = 0;
+
+  if (agg.total.cSocial > 0) {
+    rows.push({ dir: '借', account: '应付职工薪酬-社保（单位部分）', amount: agg.total.cSocial });
+    debitTotal += agg.total.cSocial;
+  }
+  if (agg.total.wSocial > 0) {
+    rows.push({ dir: '借', account: '其他应收款-社保（个人部分）', amount: agg.total.wSocial });
+    debitTotal += agg.total.wSocial;
+  }
+  const totalSocial = agg.total.cSocial + agg.total.wSocial;
+  if (totalSocial > 0) {
+    rows.push({ dir: '贷', account: '银行存款', amount: totalSocial });
+    creditTotal += totalSocial;
+  }
+
+  const isBalanced = Math.abs(debitTotal - creditTotal) < 0.01;
+
+  return renderVoucherCard('②', `缴纳${getPayMonthStr()}社保`, rows, debitTotal, creditTotal, isBalanced);
+}
+
+function renderVoucher3(agg) {
+  const rows = [];
+  let debitTotal = 0;
+  let creditTotal = 0;
+
+  if (agg.total.cFund > 0) {
+    rows.push({ dir: '借', account: '应付职工薪酬-公积金（单位部分）', amount: agg.total.cFund });
+    debitTotal += agg.total.cFund;
+  }
+  if (agg.total.wFund > 0) {
+    rows.push({ dir: '借', account: '其他应收款-公积金（个人部分）', amount: agg.total.wFund });
+    debitTotal += agg.total.wFund;
+  }
+  const totalFund = agg.total.cFund + agg.total.wFund;
+  if (totalFund > 0) {
+    rows.push({ dir: '贷', account: '银行存款', amount: totalFund });
+    creditTotal += totalFund;
+  }
+
+  const isBalanced = Math.abs(debitTotal - creditTotal) < 0.01;
+
+  return renderVoucherCard('③', `支付${getPayMonthStr()}公积金`, rows, debitTotal, creditTotal, isBalanced);
+}
+
+function renderVoucher4(agg) {
+  const rows = [];
+  let debitTotal = 0;
+  let creditTotal = 0;
+
+  if (agg.total.tax > 0) {
+    rows.push({ dir: '借', account: '应交税费-应交个人所得税', amount: agg.total.tax });
+    debitTotal += agg.total.tax;
+    rows.push({ dir: '贷', account: '银行存款', amount: agg.total.tax });
+    creditTotal += agg.total.tax;
+  }
+
+  const isBalanced = Math.abs(debitTotal - creditTotal) < 0.01;
+
+  return renderVoucherCard('④', `缴纳${getPayMonthStr()}个税`, rows, debitTotal, creditTotal, isBalanced);
+}
+
+function renderVoucher5(agg) {
+  const rows = [];
+  let debitTotal = 0;
+  let creditTotal = 0;
+
+  if (agg.total.netPay > 0) {
+    rows.push({ dir: '借', account: '应付职工薪酬-人员工资', amount: agg.total.netPay });
+    debitTotal += agg.total.netPay;
+    rows.push({ dir: '贷', account: '银行存款', amount: agg.total.netPay });
+    creditTotal += agg.total.netPay;
+  }
+
+  // 缺勤扣款部分
+  if (agg.total.absentDeduct > 0) {
+    rows.push({ section: '缺勤扣款' });
+    rows.push({ dir: '借', account: '应付职工薪酬-人员工资', amount: agg.total.absentDeduct });
+    debitTotal += agg.total.absentDeduct;
+    rows.push({ dir: '贷', account: '营业外收入-违纪扣款', amount: agg.total.absentDeduct });
+    creditTotal += agg.total.absentDeduct;
+  }
+
+  const isBalanced = Math.abs(debitTotal - creditTotal) < 0.01;
+
+  return renderVoucherCard('⑤', `发放${getPayMonthStr()}月工资`, rows, debitTotal, creditTotal, isBalanced);
+}
+
+function renderVoucherCard(num, title, rows, debitTotal, creditTotal, isBalanced) {
+  if (rows.length === 0) return '';
+
+  const tableRows = rows.map(r => {
+    if (r.section) {
+      return `<tr class="section-divider"><td colspan="3">${r.section}</td></tr>`;
+    }
+    return `
+      <tr>
+        <td class="dir ${r.dir === '借' ? 'debit' : 'credit'}">${r.dir}</td>
+        <td>${r.account}</td>
+        <td class="num">¥${fmt(r.amount)}</td>
+      </tr>
+    `;
+  }).join('');
+
+  return `
+    <div class="card voucher-card anim">
+      <div class="voucher-header">
+        <div class="voucher-title">
+          <span class="voucher-num">${num}</span>
+          ${title}
+        </div>
+        <div class="voucher-summary">${getPayMonthStr()}</div>
+      </div>
+      <div class="voucher-body">
+        <table class="voucher-table">
+          <thead>
+            <tr>
+              <th style="width:60px">方向</th>
+              <th>科目</th>
+              <th style="width:150px;text-align:right">金额</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${tableRows}
+          </tbody>
+        </table>
+      </div>
+      <div class="voucher-footer">
+        <div class="voucher-balance">
+          <div class="voucher-balance-item">
+            <span class="voucher-balance-label">借方合计：</span>
+            <span class="voucher-balance-val">¥${fmt(debitTotal)}</span>
+          </div>
+          <div class="voucher-balance-item">
+            <span class="voucher-balance-label">贷方合计：</span>
+            <span class="voucher-balance-val">¥${fmt(creditTotal)}</span>
+          </div>
+        </div>
+        <div class="${isBalanced ? 'voucher-balance-ok' : 'voucher-balance-err'}">
+          ${isBalanced ? '✓ 借贷平衡' : '✗ 借贷不平衡'}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// ============================================================
+// ADD EMPLOYEE MODAL
+// ============================================================
+function renderAddModal() {
+  return `
+  <div class="modal-backdrop show" onclick="if(event.target===this){closeAddModal()}">
+    <div class="modal">
+      <h3>新增人员</h3>
+      <div class="field"><label class="field-label">姓名</label><input class="field-input" id="add_name" placeholder="请输入姓名"></div>
+      <div class="field"><label class="field-label">身份证号</label><input class="field-input mono" id="add_idCard" placeholder="请输入身份证号"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div class="field"><label class="field-label">公司主体 <span style="font-weight:400;color:var(--text-4);font-size:9.5px;letter-spacing:0">简称</span></label><input class="field-input" id="add_company" placeholder="如：万物互联"></div>
+        <div class="field"><label class="field-label">部门</label><input class="field-input" id="add_dept" placeholder="如：销售部"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div class="field"><label class="field-label">职位名称</label><input class="field-input" id="add_position" placeholder="如：销售经理"></div>
+        <div class="field"><label class="field-label">人员类型</label>
+          <select class="field-input" id="add_type"><option value="管理">管理</option><option value="销售">销售</option><option value="技术">技术</option><option value="其他">其他</option></select>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+        <div class="field"><label class="field-label">基本工资</label><div class="field-input-wrap"><span class="field-prefix">¥</span><input class="field-input mono has-prefix" id="add_baseSalary" type="number" placeholder="0"></div></div>
+        <div class="field"><label class="field-label">岗位补助</label><div class="field-input-wrap"><span class="field-prefix">¥</span><input class="field-input mono has-prefix" id="add_subsidy" type="number" placeholder="0"></div></div>
+        <div class="field"><label class="field-label">个人公积金/月</label><div class="field-input-wrap"><span class="field-prefix">¥</span><input class="field-input mono has-prefix" id="add_fund" type="number" placeholder="0"></div></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:16px;margin-top:4px">
+        <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-2);cursor:pointer">
+          <input type="checkbox" id="add_hasSocial" checked style="accent-color:var(--text-1)"> 参加社保
+        </label>
+        <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-2);cursor:pointer">
+          <input type="checkbox" id="add_hasLocalPension" checked style="accent-color:#C87F4A"> 参加地方养老补贴
+        </label>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" onclick="closeAddModal()">取消</button>
+        <button class="btn btn-primary" onclick="confirmAdd()">确认添加</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+// ============================================================
+// EVENT HANDLERS
+// ============================================================
+function switchTab(t) { activeTab = t; render(); }
+function toggleEditName() { editNameMode = !editNameMode; render(); if (editNameMode) setTimeout(() => { const el = document.getElementById('nameInput'); if(el) { el.focus(); el.select(); } }, 50); }
+function saveOrgName() { const v = document.getElementById('nameInput')?.value?.trim(); if (v) S.orgName = v; editNameMode = false; save(); render(); }
+function selectEmp(id) { selectedEmpId = selectedEmpId === id ? null : id; render(); }
+function startEditEmp(id) { editingEmpId = id; selectedEmpId = null; render(); }
+function cancelEditEmp() { editingEmpId = null; render(); }
+function saveEditEmp(id) {
+  const e = S.employees.find(x => x.id === id);
+  if (!e) return;
+  e.name = document.getElementById('ed_name').value.trim() || e.name;
+  e.idCard = document.getElementById('ed_idCard').value.trim() || e.idCard;
+  e.dept = document.getElementById('ed_dept').value.trim() || e.dept;
+  const compShort = document.getElementById('ed_company').value.trim();
+  e.companyShort = compShort || e.companyShort;
+  const compObj = S.companies.find(c => c.short === compShort);
+  e.company = compObj ? compObj.full : compShort;
+  e.position = document.getElementById('ed_position').value.trim() || e.position;
+  e.baseSalary = +document.getElementById('ed_baseSalary').value || 0;
+  e.subsidy = +document.getElementById('ed_subsidy').value || 0;
+  e.fundAmount = +document.getElementById('ed_fund').value || 0;
+  e.hasSocial = document.getElementById('ed_hasSocial').checked;
+  e.hasLocalPension = document.getElementById('ed_hasLocalPension').checked;
+  editingEmpId = null;
+  save(); render();
+}
+function deleteEmp(id) {
+  if (!confirm('确认删除该人员？')) return;
+  S.employees = S.employees.filter(e => e.id !== id);
+  if (selectedEmpId === id) selectedEmpId = null;
+  save(); render();
+}
+function updateSocial(key, val) {
+  S.social[key] = +val || 0;
+  save(); render();
+}
+function openAddModal() { showAddModal = true; render(); }
+function closeAddModal() { showAddModal = false; render(); }
+function confirmAdd() {
+  const name = document.getElementById('add_name').value.trim();
+  if (!name) { alert('请输入姓名'); return; }
+  const compShort = document.getElementById('add_company').value.trim() || '未设置';
+  const compObj = S.companies.find(c => c.short === compShort);
+  S.employees.push({
+    id: nextId(), name,
+    idCard: document.getElementById('add_idCard').value.trim(),
+    companyShort: compShort, company: compObj ? compObj.full : compShort,
+    dept: document.getElementById('add_dept').value.trim(),
+    position: document.getElementById('add_position').value.trim(),
+    type: document.getElementById('add_type').value,
+    baseSalary: +document.getElementById('add_baseSalary').value || 0,
+    subsidy: +document.getElementById('add_subsidy').value || 0,
+    hasSocial: document.getElementById('add_hasSocial').checked,
+    hasLocalPension: document.getElementById('add_hasLocalPension').checked,
+    fundAmount: +document.getElementById('add_fund').value || 0,
+  });
+  showAddModal = false;
+  save(); render();
+}
+
+// Payroll handlers
+function togglePayCard(id) { expandedPayId = expandedPayId === id ? null : id; render(); }
+function setPayInput(empId, key, val) {
+  if (!payrollInput[empId]) payrollInput[empId] = {};
+  payrollInput[empId][key] = val;
+  // 不自动 render，避免与生成按钮冲突
+}
+function generateOne(empId) {
+  const emp = S.employees.find(e => e.id === empId);
+  const pi = payrollInput[empId] || {};
+  generatedSlips[empId] = calcSlip(emp, pi);
+  render();
+}
+function generateAll() {
+  S.employees.forEach(e => {
+    generatedSlips[e.id] = calcSlip(e, payrollInput[e.id] || {});
+  });
+  render();
+}
+
+// Dropdown
+function toggleDropdown(id) {
+  const el = document.getElementById(id);
+  const isOpen = el.classList.contains('open');
+  closeDropdowns();
+  if (!isOpen) el.classList.add('open');
+}
+function closeDropdowns() {
+  document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.remove('open'));
+}
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.dropdown-wrap')) closeDropdowns();
+});
+
+// CSV Export - Employee slips only
+function exportEmployeeCSV() {
+  S.employees.forEach(e => {
+    if (!generatedSlips[e.id]) generatedSlips[e.id] = calcSlip(e, payrollInput[e.id] || {});
+  });
+  const headers = ['姓名','公司主体','职位','基本工资','岗位补助','绩效工资','提成','奖金','缺勤扣款','个人养老','个人失业','个人医疗','个人公积金','个人所得税','其他调整','应发工资','实发工资'];
+  let csv = '\uFEFF' + headers.join(',') + '\n';
+  S.employees.forEach(e => {
+    const s = generatedSlips[e.id];
+    csv += [e.name, e.companyShort, e.position, e.baseSalary, e.subsidy, s.perfSalary.toFixed(2), s.commission.toFixed(2), s.bonus.toFixed(2), s.absentDeduct.toFixed(2), s.wPension.toFixed(2), s.wUnemploy.toFixed(2), s.wMedical.toFixed(2), s.wFund.toFixed(2), s.tax.toFixed(2), s.otherAdj, s.grossPay.toFixed(2), s.netPay.toFixed(2)].join(',') + '\n';
+  });
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `员工薪资单_${getPayMonthStr()}.csv`;
+  a.click();
+}
+
+// CSV Export - Full detail
+function exportAllCSV() {
+  // Make sure all are generated
+  S.employees.forEach(e => {
+    if (!generatedSlips[e.id]) generatedSlips[e.id] = calcSlip(e, payrollInput[e.id] || {});
+  });
+  const headers = ['姓名','公司主体','职位','基本工资','岗位补助','绩效工资','提成','奖金','缺勤扣款','其他调整','应计工资','应发工资','单位养老','单位地方养老补贴','单位失业','单位医疗','单位工伤','单位生育','单位社保合计','单位公积金','单位承担总额','个人养老','个人失业','个人医疗','个人社保合计','个人公积金','个人所得税','个人扣除合计','实发工资'];
+  let csv = '\uFEFF' + headers.join(',') + '\n';
+  S.employees.forEach(e => {
+    const s = generatedSlips[e.id];
+    csv += [e.name, e.companyShort, e.position, e.baseSalary, e.subsidy, s.perfSalary.toFixed(2), s.commission.toFixed(2), s.bonus.toFixed(2), s.absentDeduct.toFixed(2), s.otherAdj, s.fullGrossPay.toFixed(2), s.grossPay.toFixed(2), s.cPension.toFixed(2), s.cLocalPension.toFixed(2), s.cUnemploy.toFixed(2), s.cMedical.toFixed(2), s.cInjury.toFixed(2), s.cMaternity.toFixed(2), s.cSocial.toFixed(2), s.cFund.toFixed(2), s.cTotal.toFixed(2), s.wPension.toFixed(2), s.wUnemploy.toFixed(2), s.wMedical.toFixed(2), s.wSocial.toFixed(2), s.wFund.toFixed(2), s.tax.toFixed(2), s.totalDeduct.toFixed(2), s.netPay.toFixed(2)].join(',') + '\n';
+  });
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `工资明细_${getPayMonthStr()}.csv`;
+  a.click();
+}
+
+// Voucher CSV Export
+function exportVoucherCSV() {
+  S.employees.forEach(e => {
+    if (!generatedSlips[e.id]) generatedSlips[e.id] = calcSlip(e, payrollInput[e.id] || {});
+  });
+
+  const filteredEmps = voucherCompany === 'all' 
+    ? S.employees 
+    : S.employees.filter(e => e.companyShort === voucherCompany);
+  const agg = calcAggregates(filteredEmps);
+
+  let csv = '\uFEFF凭证编号,凭证名称,行号,方向,科目,金额\n';
+  
+  // 凭证①
+  let rowNum = 1;
+  if (agg.sale.fullGrossPay > 0) csv += `①,计提${getPayMonthStr()}月工资,${rowNum++},借,销售费用-销售人员职工薪酬-人员工资,${agg.sale.fullGrossPay.toFixed(2)}\n`;
+  if (agg.sale.cSocial > 0) csv += `①,计提${getPayMonthStr()}月工资,${rowNum++},借,销售费用-销售人员职工薪酬-社保（单位部分）,${agg.sale.cSocial.toFixed(2)}\n`;
+  if (agg.sale.cFund > 0) csv += `①,计提${getPayMonthStr()}月工资,${rowNum++},借,销售费用-销售人员职工薪酬-公积金（单位部分）,${agg.sale.cFund.toFixed(2)}\n`;
+  if (agg.manage.fullGrossPay > 0) csv += `①,计提${getPayMonthStr()}月工资,${rowNum++},借,管理费用-管理人员职工薪酬-人员工资,${agg.manage.fullGrossPay.toFixed(2)}\n`;
+  if (agg.manage.cSocial > 0) csv += `①,计提${getPayMonthStr()}月工资,${rowNum++},借,管理费用-管理人员职工薪酬-社保（单位部分）,${agg.manage.cSocial.toFixed(2)}\n`;
+  if (agg.manage.cFund > 0) csv += `①,计提${getPayMonthStr()}月工资,${rowNum++},借,管理费用-管理人员职工薪酬-公积金（单位部分）,${agg.manage.cFund.toFixed(2)}\n`;
+  if (agg.total.fullGrossPay > 0) csv += `①,计提${getPayMonthStr()}月工资,${rowNum++},贷,应付职工薪酬-人员工资,${agg.total.fullGrossPay.toFixed(2)}\n`;
+  if (agg.total.cSocial > 0) csv += `①,计提${getPayMonthStr()}月工资,${rowNum++},贷,应付职工薪酬-社保（单位部分）,${agg.total.cSocial.toFixed(2)}\n`;
+  if (agg.total.cFund > 0) csv += `①,计提${getPayMonthStr()}月工资,${rowNum++},贷,应付职工薪酬-公积金（单位部分）,${agg.total.cFund.toFixed(2)}\n`;
+  const totalDeduct = agg.total.wSocial + agg.total.wFund + agg.total.tax;
+  if (totalDeduct > 0) {
+    csv += `①,计提${getPayMonthStr()}月工资,${rowNum++},借,应付职工薪酬-人员工资,${totalDeduct.toFixed(2)}\n`;
+    if (agg.total.wSocial > 0) csv += `①,计提${getPayMonthStr()}月工资,${rowNum++},贷,其他应收款-社保（个人部分）,${agg.total.wSocial.toFixed(2)}\n`;
+    if (agg.total.wFund > 0) csv += `①,计提${getPayMonthStr()}月工资,${rowNum++},贷,其他应收款-公积金（个人部分）,${agg.total.wFund.toFixed(2)}\n`;
+    if (agg.total.tax > 0) csv += `①,计提${getPayMonthStr()}月工资,${rowNum++},贷,应交税费-应交个人所得税,${agg.total.tax.toFixed(2)}\n`;
+  }
+
+  // 凭证②
+  rowNum = 1;
+  const totalSocial = agg.total.cSocial + agg.total.wSocial;
+  if (totalSocial > 0) {
+    if (agg.total.cSocial > 0) csv += `②,缴纳${getPayMonthStr()}社保,${rowNum++},借,应付职工薪酬-社保（单位部分）,${agg.total.cSocial.toFixed(2)}\n`;
+    if (agg.total.wSocial > 0) csv += `②,缴纳${getPayMonthStr()}社保,${rowNum++},借,其他应收款-社保（个人部分）,${agg.total.wSocial.toFixed(2)}\n`;
+    csv += `②,缴纳${getPayMonthStr()}社保,${rowNum++},贷,银行存款,${totalSocial.toFixed(2)}\n`;
+  }
+
+  // 凭证③
+  rowNum = 1;
+  const totalFund = agg.total.cFund + agg.total.wFund;
+  if (totalFund > 0) {
+    if (agg.total.cFund > 0) csv += `③,支付${getPayMonthStr()}公积金,${rowNum++},借,应付职工薪酬-公积金（单位部分）,${agg.total.cFund.toFixed(2)}\n`;
+    if (agg.total.wFund > 0) csv += `③,支付${getPayMonthStr()}公积金,${rowNum++},借,其他应收款-公积金（个人部分）,${agg.total.wFund.toFixed(2)}\n`;
+    csv += `③,支付${getPayMonthStr()}公积金,${rowNum++},贷,银行存款,${totalFund.toFixed(2)}\n`;
+  }
+
+  // 凭证④
+  rowNum = 1;
+  if (agg.total.tax > 0) {
+    csv += `④,缴纳${getPayMonthStr()}个税,${rowNum++},借,应交税费-应交个人所得税,${agg.total.tax.toFixed(2)}\n`;
+    csv += `④,缴纳${getPayMonthStr()}个税,${rowNum++},贷,银行存款,${agg.total.tax.toFixed(2)}\n`;
+  }
+
+  // 凭证⑤
+  rowNum = 1;
+  if (agg.total.netPay > 0) {
+    csv += `⑤,发放${getPayMonthStr()}月工资,${rowNum++},借,应付职工薪酬-人员工资,${agg.total.netPay.toFixed(2)}\n`;
+    csv += `⑤,发放${getPayMonthStr()}月工资,${rowNum++},贷,银行存款,${agg.total.netPay.toFixed(2)}\n`;
+  }
+  if (agg.total.absentDeduct > 0) {
+    csv += `⑤,发放${getPayMonthStr()}月工资,${rowNum++},借,应付职工薪酬-人员工资,${agg.total.absentDeduct.toFixed(2)}\n`;
+    csv += `⑤,发放${getPayMonthStr()}月工资,${rowNum++},贷,营业外收入-违纪扣款,${agg.total.absentDeduct.toFixed(2)}\n`;
+  }
+
+  const companySuffix = voucherCompany === 'all' ? '全部公司' : voucherCompany;
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `会计凭证_${getPayMonthStr()}_${companySuffix}.csv`;
+  a.click();
+}
+
+// PDF Export - individual files per employee
+function showToast(msg) {
+  let t = document.getElementById('pdfToast');
+  if (!t) { t = document.createElement('div'); t.id = 'pdfToast'; t.className = 'toast'; document.body.appendChild(t); }
+  t.innerHTML = msg;
+  t.classList.remove('hide');
+}
+function hideToast() {
+  const t = document.getElementById('pdfToast');
+  if (t) { t.classList.add('hide'); setTimeout(() => t.remove(), 400); }
+}
+
+function buildSlipHTML(emp, s) {
+  const fP = (n) => (n||0).toLocaleString('zh-CN', {minimumFractionDigits:2, maximumFractionDigits:2});
+  return `
+  <div class="pdf-header">
+    <div><div class="pdf-org">${S.orgName}</div><div class="pdf-subtitle">员工工资单</div></div>
+    <div class="pdf-period"><div class="pdf-period-label">工资所属期</div><div class="pdf-period-val">${getPayMonthStr()}</div></div>
+  </div>
+  <div class="pdf-info">
+    <div><div class="pdf-info-label">姓名</div><div class="pdf-info-val">${emp.name}</div></div>
+    <div><div class="pdf-info-label">公司主体</div><div class="pdf-info-val">${emp.companyShort}</div></div>
+    <div><div class="pdf-info-label">职位</div><div class="pdf-info-val">${emp.position}</div></div>
+    <div><div class="pdf-info-label">部门</div><div class="pdf-info-val">${emp.dept}</div></div>
+    <div><div class="pdf-info-label">身份证号</div><div class="pdf-info-val">${emp.idCard}</div></div>
+    <div><div class="pdf-info-label">绩效等级</div><div class="pdf-info-val">${s.perfGrade}</div></div>
+  </div>
+  <div class="pdf-sec-title">收入项</div>
+  <div class="pdf-row"><span class="pdf-row-label">基本工资</span><span class="pdf-row-val">¥${fP(emp.baseSalary)}</span></div>
+  <div class="pdf-row"><span class="pdf-row-label">岗位补助</span><span class="pdf-row-val">¥${fP(emp.subsidy)}</span></div>
+  <div class="pdf-row"><span class="pdf-row-label">绩效工资</span><span class="pdf-row-val">¥${fP(s.perfSalary)}</span></div>
+  <div class="pdf-row"><span class="pdf-row-label">提成</span><span class="pdf-row-val">¥${fP(s.commission)}</span></div>
+  <div class="pdf-row"><span class="pdf-row-label">奖金</span><span class="pdf-row-val">¥${fP(s.bonus)}</span></div>
+  <div class="pdf-sec-title">扣除项</div>
+  <div class="pdf-row"><span class="pdf-row-label">缺勤扣款 (${s.absentH}小时)</span><span class="pdf-row-val neg">-¥${fP(s.absentDeduct)}</span></div>
+  <div class="pdf-row"><span class="pdf-row-label">个人养老保险</span><span class="pdf-row-val neg">-¥${fP(s.wPension)}</span></div>
+  <div class="pdf-row"><span class="pdf-row-label">个人失业保险</span><span class="pdf-row-val neg">-¥${fP(s.wUnemploy)}</span></div>
+  <div class="pdf-row"><span class="pdf-row-label">个人医疗保险</span><span class="pdf-row-val neg">-¥${fP(s.wMedical)}</span></div>
+  <div class="pdf-row"><span class="pdf-row-label">个人公积金</span><span class="pdf-row-val neg">-¥${fP(s.wFund)}</span></div>
+  <div class="pdf-row"><span class="pdf-row-label">个人所得税</span><span class="pdf-row-val neg">-¥${fP(s.tax)}</span></div>
+  ${s.otherAdj !== 0 ? `<div class="pdf-row"><span class="pdf-row-label">其他调整</span><span class="pdf-row-val ${s.otherAdj > 0 ? 'pos' : 'neg'}">${s.otherAdj > 0 ? '+' : '-'}¥${fP(Math.abs(s.otherAdj))}</span></div>` : ''}
+  <div class="pdf-sec-title">汇总</div>
+  <div class="pdf-row" style="font-weight:600"><span class="pdf-row-label" style="color:#1C1C1A">应发工资</span><span class="pdf-row-val">¥${fP(s.grossPay)}</span></div>
+  <div class="pdf-row" style="font-weight:600"><span class="pdf-row-label" style="color:#1C1C1A">个人扣除合计</span><span class="pdf-row-val neg">-¥${fP(s.totalDeduct)}</span></div>
+  <div class="pdf-total"><span class="pdf-total-label">实发工资</span><span class="pdf-total-val">¥${fP(s.netPay)}</span></div>
+  <div class="pdf-footer"><span>${S.orgName} · 薪酬管理系统</span><span>生成时间：${new Date().toLocaleString('zh-CN')}</span></div>`;
+}
+
+async function exportAllPDF() {
+  // Ensure all slips generated
+  S.employees.forEach(e => {
+    if (!generatedSlips[e.id]) generatedSlips[e.id] = calcSlip(e, payrollInput[e.id] || {});
+  });
+
+  const total = S.employees.length;
+  showToast(`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation:spin 1s linear infinite"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg> 正在生成 PDF 0/${total} ...`);
+
+  // Add spin animation
+  if (!document.getElementById('spinStyle')) {
+    const sty = document.createElement('style');
+    sty.id = 'spinStyle';
+    sty.textContent = '@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}';
+    document.head.appendChild(sty);
+  }
+
+  // Create hidden render zone
+  let zone = document.getElementById('pdf-render-zone');
+  if (!zone) { zone = document.createElement('div'); zone.id = 'pdf-render-zone'; document.body.appendChild(zone); }
+
+  const { jsPDF } = window.jspdf;
+
+  for (let i = 0; i < total; i++) {
+    const emp = S.employees[i];
+    const s = generatedSlips[emp.id];
+    const fileName = `${emp.companyShort}-${getPayMonthStr()}-${emp.name}`;
+
+    showToast(`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation:spin 1s linear infinite"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg> 正在生成 PDF ${i+1}/${total}：${emp.name}`);
+
+    // Render slip in hidden zone
+    const slipEl = document.createElement('div');
+    slipEl.className = 'pdf-slip';
+    slipEl.innerHTML = buildSlipHTML(emp, s);
+    zone.innerHTML = '';
+    zone.appendChild(slipEl);
+
+    // Wait for fonts to render
+    await new Promise(r => setTimeout(r, 200));
+
+    try {
+      const canvas = await html2canvas(slipEl, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#ffffff',
+        logging: false,
+      });
+
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+      const pdfW = pdf.internal.pageSize.getWidth();
+      const pdfH = pdf.internal.pageSize.getHeight();
+      const imgW = pdfW - 20;
+      const imgH = (canvas.height * imgW) / canvas.width;
+      pdf.addImage(imgData, 'PNG', 10, 10, imgW, Math.min(imgH, pdfH - 20));
+      pdf.save(`${fileName}.pdf`);
+    } catch (err) {
+      console.error('PDF export error for', emp.name, err);
+    }
+
+    // Small delay between files to not overwhelm browser
+    await new Promise(r => setTimeout(r, 300));
+  }
+
+  zone.innerHTML = '';
+  showToast(`✓ 全部 ${total} 份 PDF 已生成完毕`);
+  setTimeout(hideToast, 2500);
+}
+
+function bindEvents() {
+  // Auto-focus name input on modal
+  if (showAddModal) setTimeout(() => document.getElementById('add_name')?.focus(), 50);
+}
+
+// ============================================================
+// DATA MANAGEMENT FUNCTIONS
+// ============================================================
+
+// Backup data to JSON file
+function backupData() {
+  const dataStr = JSON.stringify(S, null, 2);
+  const blob = new Blob([dataStr], { type: 'application/json;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  const dateStr = new Date().toISOString().slice(0, 10);
+  a.download = `薪酬数据备份_${S.orgName}_${dateStr}.json`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+  showToast('✓ 数据备份文件已下载');
+  setTimeout(hideToast, 2000);
+}
+
+// Restore data from JSON file
+function triggerRestoreData() {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.json';
+  input.style.display = 'none';
+  input.onchange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      try {
+        const parsed = JSON.parse(ev.target.result);
+        if (!parsed.employees && !parsed.social) {
+          alert('❌ 文件格式不正确，请选择有效的备份文件');
+          return;
+        }
+        if (!confirm(`确认恢复数据？\n\n备份信息：\n• 组织名称：${parsed.orgName || '未知'}\n• 员工数量：${(parsed.employees || []).length} 人\n• 公司主体：${(parsed.companies || []).length} 个\n\n⚠️ 当前数据将被完全替换！`)) return;
+        S = { ...JSON.parse(JSON.stringify(DEFAULT_STATE)), ...parsed };
+        if (parsed.social) S.social = { ...DEFAULT_STATE.social, ...parsed.social };
+        if (parsed.employees) S.employees = parsed.employees;
+        if (parsed.companies) S.companies = parsed.companies;
+        save();
+        generatedSlips = {};
+        payrollInput = {};
+        render();
+        showToast('✓ 数据已成功恢复');
+        setTimeout(hideToast, 2000);
+      } catch(err) {
+        alert('❌ 文件解析失败：' + err.message);
+      }
+    };
+    reader.readAsText(file);
+    input.remove();
+  };
+  document.body.appendChild(input);
+  input.click();
+}
+
+// Clear all data
+function clearAllData() {
+  if (!confirm('⚠️ 确认清空所有数据？\n\n这将删除：\n• 所有员工信息\n• 所有公司主体\n• 社保配置\n\n此操作不可撤销，建议先进行数据备份。')) return;
+  if (!confirm('再次确认：是否真的要清空所有数据？')) return;
+  S = JSON.parse(JSON.stringify(DEFAULT_STATE));
+  generatedSlips = {};
+  payrollInput = {};
+  save();
+  render();
+  showToast('✓ 所有数据已清空');
+  setTimeout(hideToast, 2000);
+}
+
+// Show storage info
+function showStorageInfo() {
+  let storageUsed = 0;
+  try {
+    const data = window.localStorage?.getItem?.('payroll_data');
+    storageUsed = data ? new Blob([data]).size : 0;
+  } catch(e) {}
+  const formatBytes = (b) => {
+    if (b < 1024) return b + ' B';
+    if (b < 1024 * 1024) return (b / 1024).toFixed(1) + ' KB';
+    return (b / (1024 * 1024)).toFixed(2) + ' MB';
+  };
+  const companies = [...new Set(S.employees.map(e => e.companyShort))];
+  alert(`📊 存储信息\n\n` +
+    `组织名称：${S.orgName}\n` +
+    `员工总数：${S.employees.length} 人\n` +
+    `公司主体：${companies.length} 个（${companies.join('、') || '无'}）\n` +
+    `数据大小：${formatBytes(storageUsed)}\n` +
+    `存储上限：约 5 MB (localStorage)\n` +
+    `使用率：${(storageUsed / (5 * 1024 * 1024) * 100).toFixed(2)}%`);
+}
+
+// ============================================================
+// EXCEL TEMPLATE & IMPORT/EXPORT
+// ============================================================
+
+// Download Excel template
+function downloadExcelTemplate() {
+  const headers = ['姓名', '公司主体简称', '部门', '职位', '身份证号', '基本工资', '岗位补助', '是否缴纳社保', '是否参加地方养老补贴', '公积金金额', '员工类型'];
+  const exampleRow = ['张三', '万物互联', '销售部', '销售经理', '110101199001011234', 8000, 1000, '是', '是', 500, '销售'];
+  const instructions = [
+    ['填写说明：'],
+    ['1. 姓名：必填，员工真实姓名'],
+    ['2. 公司主体简称：必填，必须是系统中已添加的公司名称'],
+    ['3. 部门：选填，如"销售部"、"行政部"'],
+    ['4. 职位：选填，如"销售经理"、"财务主管"'],
+    ['5. 身份证号：选填，用于唯一标识员工（重复时会提示）'],
+    ['6. 基本工资：必填，数字，单位为元'],
+    ['7. 岗位补助：选填，数字，默认为0'],
+    ['8. 是否缴纳社保：填"是"或"否"，默认为"是"'],
+    ['9. 是否参加地方养老补贴：填"是"或"否"，默认为"是"'],
+    ['10. 公积金金额：选填，个人每月公积金数字，默认为0'],
+    ['11. 员工类型：填"管理"、"销售"、"技术"或"其他"，默认为"管理"'],
+    [''],
+    ['⚠️ 注意：请勿修改第一行的表头名称，从第二行开始填写数据。示例行可删除。'],
+  ];
+
+  const wb = XLSX.utils.book_new();
+  
+  // Main data sheet
+  const wsData = [headers, exampleRow];
+  const ws = XLSX.utils.aoa_to_sheet(wsData);
+  
+  // Set column widths
+  ws['!cols'] = [
+    { wch: 10 }, { wch: 16 }, { wch: 12 }, { wch: 14 }, { wch: 22 },
+    { wch: 12 }, { wch: 10 }, { wch: 14 }, { wch: 18 }, { wch: 12 }, { wch: 10 }
+  ];
+  
+  XLSX.utils.book_append_sheet(wb, ws, '人员数据');
+
+  // Instructions sheet
+  const wsInst = XLSX.utils.aoa_to_sheet(instructions);
+  wsInst['!cols'] = [{ wch: 60 }];
+  XLSX.utils.book_append_sheet(wb, wsInst, '填写说明');
+  
+  XLSX.writeFile(wb, '人员导入模板.xlsx');
+  showToast('✓ 模板已下载');
+  setTimeout(hideToast, 2000);
+}
+
+// Export current employees to Excel
+function exportEmployeesToExcel() {
+  if (S.employees.length === 0) {
+    alert('暂无员工数据可导出');
+    return;
+  }
+  const headers = ['姓名', '公司主体简称', '部门', '职位', '身份证号', '基本工资', '岗位补助', '是否缴纳社保', '是否参加地方养老补贴', '公积金金额', '员工类型'];
+  const rows = S.employees.map(e => [
+    e.name, e.companyShort, e.dept, e.position, e.idCard,
+    e.baseSalary, e.subsidy || 0,
+    e.hasSocial ? '是' : '否',
+    e.hasLocalPension ? '是' : '否',
+    e.fundAmount || 0,
+    e.type || '管理'
+  ]);
+  
+  const wb = XLSX.utils.book_new();
+  const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]);
+  ws['!cols'] = [
+    { wch: 10 }, { wch: 16 }, { wch: 12 }, { wch: 14 }, { wch: 22 },
+    { wch: 12 }, { wch: 10 }, { wch: 14 }, { wch: 18 }, { wch: 12 }, { wch: 10 }
+  ];
+  XLSX.utils.book_append_sheet(wb, ws, '人员数据');
+  
+  const dateStr = new Date().toISOString().slice(0, 10);
+  XLSX.writeFile(wb, `人员数据_${S.orgName}_${dateStr}.xlsx`);
+  showToast('✓ 人员数据已导出');
+  setTimeout(hideToast, 2000);
+}
+
+// Trigger Excel import
+function triggerImportExcel() {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.xlsx,.xls';
+  input.style.display = 'none';
+  input.onchange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      try {
+        const wb = XLSX.read(ev.target.result, { type: 'array' });
+        const ws = wb.Sheets[wb.SheetNames[0]];
+        const data = XLSX.utils.sheet_to_json(ws, { header: 1 });
+        processImportData(data);
+      } catch(err) {
+        alert('❌ 文件读取失败：' + err.message);
+      }
+    };
+    reader.readAsArrayBuffer(file);
+    input.remove();
+  };
+  document.body.appendChild(input);
+  input.click();
+}
+
+// Process imported data
+function processImportData(data) {
+  if (data.length < 2) {
+    alert('❌ 文件中没有数据（至少需要表头和一行数据）');
+    return;
+  }
+
+  const headers = data[0].map(h => String(h).trim());
+  const expectedHeaders = ['姓名', '公司主体简称', '部门', '职位', '身份证号', '基本工资', '岗位补助', '是否缴纳社保', '是否参加地方养老补贴', '公积金金额', '员工类型'];
+  
+  // Check header mapping
+  const colMap = {};
+  expectedHeaders.forEach(eh => {
+    const idx = headers.indexOf(eh);
+    if (idx !== -1) colMap[eh] = idx;
+  });
+  
+  if (colMap['姓名'] === undefined) {
+    alert('❌ 找不到"姓名"列，请确认使用正确的模板');
+    return;
+  }
+
+  // Parse rows
+  const existingCompanies = [...new Set(S.employees.map(e => e.companyShort)), ...S.companies.map(c => c.short)];
+  const validTypes = ['管理', '销售', '技术', '其他'];
+  const newEmps = [];
+  const conflicts = [];
+  const errors = [];
+  const unknownCompanies = new Set();
+
+  for (let i = 1; i < data.length; i++) {
+    const row = data[i];
+    if (!row || row.length === 0 || !row[colMap['姓名']]) continue;
+
+    const name = String(row[colMap['姓名']] || '').trim();
+    if (!name) continue;
+
+    const compShort = String(row[colMap['公司主体简称']] || '').trim();
+    const dept = String(row[colMap['部门']] || '').trim();
+    const position = String(row[colMap['职位']] || '').trim();
+    const idCard = String(row[colMap['身份证号']] || '').trim();
+    const baseSalary = parseFloat(row[colMap['基本工资']]) || 0;
+    const subsidy = parseFloat(row[colMap['岗位补助']]) || 0;
+    const hasSocialStr = String(row[colMap['是否缴纳社保']] || '是').trim();
+    const hasLocalStr = String(row[colMap['是否参加地方养老补贴']] || '是').trim();
+    const fundAmount = parseFloat(row[colMap['公积金金额']]) || 0;
+    let type = String(row[colMap['员工类型']] || '管理').trim();
+    if (!validTypes.includes(type)) type = '管理';
+
+    // Check company exists
+    if (compShort && !existingCompanies.includes(compShort)) {
+      unknownCompanies.add(compShort);
+    }
+
+    const emp = {
+      name, companyShort: compShort || '未设置',
+      company: compShort || '未设置',
+      dept, position, idCard,
+      baseSalary, subsidy,
+      hasSocial: hasSocialStr !== '否',
+      hasLocalPension: hasLocalStr !== '否',
+      fundAmount, type,
+      _rowNum: i + 1
+    };
+
+    // Check for conflicts by idCard
+    if (idCard) {
+      const existing = S.employees.find(e => e.idCard && e.idCard === idCard);
+      if (existing) {
+        conflicts.push({ newEmp: emp, existingEmp: existing });
+        continue;
+      }
+    }
+
+    newEmps.push(emp);
+  }
+
+  // Check unknown companies
+  if (unknownCompanies.size > 0) {
+    const compList = [...unknownCompanies];
+    const shouldAdd = confirm(`以下公司主体在系统中不存在：\n\n• ${compList.join('\n• ')}\n\n是否自动添加这些公司并继续导入？\n\n点击「确定」自动添加，点击「取消」放弃导入。`);
+    
+    if (shouldAdd) {
+      // Auto-add these companies
+      compList.forEach(compName => {
+        if (!S.companies.find(c => c.short === compName)) {
+          S.companies.push({ short: compName, full: compName });
+        }
+      });
+      save();
+    } else {
+      return; // Cancel import entirely
+    }
+  }
+
+  // If there are conflicts, show conflict modal
+  if (conflicts.length > 0) {
+    importConflicts = conflicts;
+    importNewEmps = newEmps;
+    conflictDecisions = {};
+    conflicts.forEach((_, i) => conflictDecisions[i] = 'skip'); // default to skip
+    showImportConflictModal = true;
+    render();
+  } else {
+    // No conflicts, import directly
+    finalizeImport(newEmps, []);
+  }
+}
+
+// Render import conflict modal
+function renderImportConflictModal() {
+  const total = importConflicts.length;
+  return `
+  <div class="modal-backdrop show" onclick="if(event.target===this){closeImportConflictModal()}">
+    <div class="modal conflict-modal">
+      <h3>⚠️ 发现 ${total} 条重复数据</h3>
+      <p style="font-size:12.5px;color:var(--text-2);margin-bottom:16px">以下导入的员工身份证号与系统中已有员工重复，请选择处理方式：</p>
+      
+      <div class="batch-actions">
+        <span>批量操作：</span>
+        <button class="btn btn-sm btn-ghost" onclick="batchConflictDecision('overwrite')">全部覆盖</button>
+        <button class="btn btn-sm btn-ghost" onclick="batchConflictDecision('skip')">全部跳过</button>
+      </div>
+      
+      <div class="conflict-list">
+        ${importConflicts.map((c, i) => `
+          <div class="conflict-item">
+            <div class="conflict-item-header">
+              <div>
+                <span class="conflict-item-name">${c.newEmp.name}</span>
+                <span class="conflict-item-id">${c.newEmp.idCard}</span>
+              </div>
+              <div style="display:flex;gap:4px">
+                <button class="btn btn-sm ${conflictDecisions[i] === 'overwrite' ? 'btn-primary' : 'btn-ghost'}" onclick="setConflictDecision(${i},'overwrite')">覆盖</button>
+                <button class="btn btn-sm ${conflictDecisions[i] === 'skip' ? 'btn-primary' : 'btn-ghost'}" onclick="setConflictDecision(${i},'skip')">跳过</button>
+              </div>
+            </div>
+            <div class="conflict-compare">
+              <div class="conflict-old">
+                <div class="compare-label">已有数据</div>
+                <div>${c.existingEmp.name} · ${c.existingEmp.companyShort} · ${c.existingEmp.position}</div>
+                <div style="font-family:var(--mono);font-size:11px">基本工资 ¥${c.existingEmp.baseSalary.toLocaleString()} / 补助 ¥${(c.existingEmp.subsidy||0).toLocaleString()}</div>
+              </div>
+              <div class="conflict-new">
+                <div class="compare-label">导入数据</div>
+                <div>${c.newEmp.name} · ${c.newEmp.companyShort} · ${c.newEmp.position}</div>
+                <div style="font-family:var(--mono);font-size:11px">基本工资 ¥${c.newEmp.baseSalary.toLocaleString()} / 补助 ¥${(c.newEmp.subsidy||0).toLocaleString()}</div>
+              </div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+      
+      <div class="modal-actions">
+        <button class="btn btn-ghost" onclick="closeImportConflictModal()">取消导入</button>
+        <button class="btn btn-primary" onclick="confirmImportWithConflicts()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>
+          确认导入
+        </button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function setConflictDecision(index, decision) {
+  conflictDecisions[index] = decision;
+  render();
+}
+
+function batchConflictDecision(decision) {
+  importConflicts.forEach((_, i) => conflictDecisions[i] = decision);
+  render();
+}
+
+function closeImportConflictModal() {
+  showImportConflictModal = false;
+  importConflicts = [];
+  importNewEmps = [];
+  conflictDecisions = {};
+  render();
+}
+
+function confirmImportWithConflicts() {
+  const overwrites = [];
+  importConflicts.forEach((c, i) => {
+    if (conflictDecisions[i] === 'overwrite') {
+      overwrites.push(c);
+    }
+  });
+  finalizeImport(importNewEmps, overwrites);
+  closeImportConflictModal();
+}
+
+function finalizeImport(newEmps, overwrites) {
+  let addedCount = 0;
+  let updatedCount = 0;
+
+  // Process overwrites
+  overwrites.forEach(c => {
+    const existing = S.employees.find(e => e.id === c.existingEmp.id);
+    if (existing) {
+      existing.name = c.newEmp.name;
+      existing.companyShort = c.newEmp.companyShort;
+      existing.company = c.newEmp.company;
+      existing.dept = c.newEmp.dept;
+      existing.position = c.newEmp.position;
+      existing.idCard = c.newEmp.idCard;
+      existing.baseSalary = c.newEmp.baseSalary;
+      existing.subsidy = c.newEmp.subsidy;
+      existing.hasSocial = c.newEmp.hasSocial;
+      existing.hasLocalPension = c.newEmp.hasLocalPension;
+      existing.fundAmount = c.newEmp.fundAmount;
+      existing.type = c.newEmp.type;
+      updatedCount++;
+    }
+  });
+
+  // Add new employees
+  newEmps.forEach(emp => {
+    const compObj = S.companies.find(c => c.short === emp.companyShort);
+    S.employees.push({
+      id: nextId(),
+      name: emp.name,
+      companyShort: emp.companyShort,
+      company: compObj ? compObj.full : emp.companyShort,
+      dept: emp.dept,
+      position: emp.position,
+      idCard: emp.idCard,
+      baseSalary: emp.baseSalary,
+      subsidy: emp.subsidy,
+      hasSocial: emp.hasSocial,
+      hasLocalPension: emp.hasLocalPension,
+      fundAmount: emp.fundAmount,
+      type: emp.type,
+    });
+    addedCount++;
+  });
+
+  save();
+  generatedSlips = {};
+  render();
+
+  const msgs = [];
+  if (addedCount > 0) msgs.push(`新增 ${addedCount} 人`);
+  if (updatedCount > 0) msgs.push(`更新 ${updatedCount} 人`);
+  const skippedCount = importConflicts.length - overwrites.length;
+  if (skippedCount > 0) msgs.push(`跳过 ${skippedCount} 人`);
+  
+  showToast(`✓ 导入完成：${msgs.join('，')}`);
+  setTimeout(hideToast, 3000);
+}
+
+// ============================================================
+// INIT
+// ============================================================
+render();
+</script>
+</body>
+</html>

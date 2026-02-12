@@ -1,0 +1,151 @@
+{
+  "orgName": "思诺家族办公室",
+  "employees": [
+    {
+      "id": 1,
+      "name": "武警(Jim)",
+      "companyShort": "万物互联商务服务（深圳）有限公司",
+      "company": "万物互联商务服务（深圳）有限公司",
+      "dept": "总裁部",
+      "position": "总裁助理",
+      "idCard": "130423199311181934",
+      "baseSalary": 3000,
+      "subsidy": 9000,
+      "hasSocial": true,
+      "hasLocalPension": false,
+      "fundAmount": 150,
+      "type": "管理"
+    },
+    {
+      "id": 2,
+      "name": "李思思(cici)",
+      "companyShort": "万物互联商务服务（深圳）有限公司",
+      "company": "万物互联商务服务（深圳）有限公司",
+      "dept": "总裁部",
+      "position": "创始人",
+      "idCard": "510724198711085545",
+      "baseSalary": 3000,
+      "subsidy": 12000,
+      "hasSocial": true,
+      "hasLocalPension": false,
+      "fundAmount": 150,
+      "type": "管理"
+    },
+    {
+      "id": 3,
+      "name": "叶卜源(Simon)",
+      "companyShort": "万物互联商务服务（深圳）有限公司",
+      "company": "万物互联商务服务（深圳）有限公司",
+      "dept": "销售部",
+      "position": "销售经理",
+      "idCard": "331121199906024398",
+      "baseSalary": 2400,
+      "subsidy": 2400,
+      "hasSocial": true,
+      "hasLocalPension": false,
+      "fundAmount": 150,
+      "type": "销售"
+    },
+    {
+      "id": 4,
+      "name": "徐贤榜 John",
+      "companyShort": "万物互联商务服务（深圳）有限公司",
+      "company": "万物互联商务服务（深圳）有限公司",
+      "dept": "财务部",
+      "position": "财务主管",
+      "idCard": "330326199309271819",
+      "baseSalary": 3000,
+      "subsidy": 4200,
+      "hasSocial": true,
+      "hasLocalPension": false,
+      "fundAmount": 0,
+      "type": "管理"
+    },
+    {
+      "id": 5,
+      "name": "汪佳璐",
+      "companyShort": "思启国际教育咨询（深圳）有限公司",
+      "company": "思启国际教育咨询（深圳）有限公司",
+      "dept": "渠道部",
+      "position": "渠道经理",
+      "idCard": "430422200110235422",
+      "baseSalary": 3000,
+      "subsidy": 3000,
+      "hasSocial": true,
+      "hasLocalPension": false,
+      "fundAmount": 150,
+      "type": "销售"
+    },
+    {
+      "id": 6,
+      "name": "谢胜辉",
+      "companyShort": "思启国际教育咨询（深圳）有限公司",
+      "company": "思启国际教育咨询（深圳）有限公司",
+      "dept": "市场部",
+      "position": "新媒体运营",
+      "idCard": "440923200002257531",
+      "baseSalary": 3000,
+      "subsidy": 3000,
+      "hasSocial": true,
+      "hasLocalPension": false,
+      "fundAmount": 150,
+      "type": "销售"
+    },
+    {
+      "id": 7,
+      "name": "迪丽娅热.艾海提",
+      "companyShort": "万物互联商务服务（深圳）有限公司",
+      "company": "万物互联商务服务（深圳）有限公司",
+      "dept": "销售部",
+      "position": "销售经理",
+      "idCard": "652924200005120028",
+      "baseSalary": 3000,
+      "subsidy": 5000,
+      "hasSocial": true,
+      "hasLocalPension": true,
+      "fundAmount": 150,
+      "type": "销售"
+    },
+    {
+      "id": 8,
+      "name": "刘銮琪",
+      "companyShort": "万物互联商务服务（深圳）有限公司",
+      "company": "万物互联商务服务（深圳）有限公司",
+      "dept": "人事部",
+      "position": "人事实习",
+      "idCard": "440513200403075064",
+      "baseSalary": 2175,
+      "subsidy": 0,
+      "hasSocial": false,
+      "hasLocalPension": false,
+      "fundAmount": 0,
+      "type": "管理"
+    }
+  ],
+  "social": {
+    "compPension": 16,
+    "compLocalPension": 1,
+    "compUnemploy": 0.8,
+    "compMedical": 6,
+    "compInjury": 0.4,
+    "compMaternity": 0.5,
+    "workerPension": 8,
+    "workerUnemploy": 0.2,
+    "workerMedical": 2,
+    "pensionBase": 4775,
+    "unemploymentBase": 3000,
+    "medicalBase": 6727,
+    "injuryBase": 3000,
+    "maternityBase": 6727
+  },
+  "companies": [
+    {
+      "short": "万物互联商务服务（深圳）有限公司",
+      "full": "万物互联商务服务（深圳）有限公司"
+    },
+    {
+      "short": "思启国际教育咨询（深圳）有限公司",
+      "full": "思启国际教育咨询（深圳）有限公司"
+    }
+  ]
+}
