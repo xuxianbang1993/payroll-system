@@ -1,6 +1,6 @@
 ---
 module: 非功能性需求
-version: 1.0
+version: 1.1
 depends_on: []
 consumed_by: [10-acceptance]
 ---
@@ -32,3 +32,11 @@ consumed_by: [10-acceptance]
 - 三语支持：zh-HK（繁体中文）、zh-CN（简体中文）、en（English）
 - 语言切换后界面立即刷新
 - 数据内容（员工姓名、组织名称等）不做翻译，仅翻译 UI 标签
+
+## 5. 测试可追溯性
+
+- 测试结果必须可追溯到「需求 → case map → 执行结果」链路
+- 日常迭代最小证据：raw JSON + case map 对账结果
+- 阶段里程碑证据：raw JSON + case map 对账结果 + XLSX 报告
+- 客观结果允许失败项存在；禁止将失败结果改写为通过
+- 测试治理细则（命名、目录、分级规则）以《薪酬系统-开发策略文档》第四章为唯一权威源

@@ -1,0 +1,56 @@
+{
+  "app": {
+    "name": "Payroll Management System",
+    "overview": "Overview",
+    "comingSoon": "This module shell is ready and waiting for P1 implementation.",
+    "month": "Month",
+    "p0Hint": "P0 focuses on app shell and architecture. Domain logic starts in P1."
+  },
+  "language": {
+    "zh-HK": "Traditional Chinese",
+    "zh-CN": "Simplified Chinese",
+    "en": "English"
+  },
+  "nav": {
+    "menu": "Menu",
+    "close": "Close",
+    "system": "System",
+    "category": {
+      "settings": "Settings",
+      "employee": "Employee",
+      "payroll": "Payroll",
+      "voucher": "Voucher",
+      "data": "Data"
+    },
+    "group": {
+      "orgCompany": "Organization & Company",
+      "socialFund": "Social Insurance & Fund",
+      "employeeInfo": "Employee Information",
+      "monthlyCalc": "Monthly Calculation",
+      "voucher": "Vouchers",
+      "dataMgmt": "Backup & Storage"
+    },
+    "page": {
+      "org": "Organization",
+      "company": "Company",
+      "social": "Social Insurance",
+      "fund": "Fund Config",
+      "base": "Base Config",
+      "employeeList": "Employee List",
+      "employeeImport": "Import",
+      "employeeExport": "Export",
+      "payrollByEmp": "By Employee",
+      "payrollDetail": "Payroll Table",
+      "voucherOverview": "Voucher Overview",
+      "backup": "Backup",
+      "storage": "Storage"
+    }
+  },
+  "overview": {
+    "settings": "Edit organization info and social configuration.",
+    "employee": "Maintain employees and import/export templates.",
+    "payroll": "Input monthly variables and generate payslips.",
+    "voucher": "Generate 5 accounting vouchers with balance checks.",
+    "data": "Backup, restore, and inspect local data usage."
+  }
+}
