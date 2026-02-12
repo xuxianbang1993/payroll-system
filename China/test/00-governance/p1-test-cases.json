@@ -1,0 +1,122 @@
+[
+  {
+    "caseId": "P1-U-DBCFG-001",
+    "phase": "P1",
+    "module": "data",
+    "scope": "unit",
+    "sourceFile": "src/lib/p1.db-config.unit.spec.ts",
+    "testTitleContains": "defaults to production-safe modes for invalid env values",
+    "idealOutput": "Invalid APP_ENV/READ_SOURCE/WRITE_MODE values fallback to prod + legacy + legacy",
+    "expectedStatus": "passed"
+  },
+  {
+    "caseId": "P1-U-MIG-001",
+    "phase": "P1",
+    "module": "data",
+    "scope": "unit",
+    "sourceFile": "src/lib/p1.db-migrator.unit.spec.ts",
+    "testTitleContains": "applies pending sql files in lexical order and records schema version",
+    "idealOutput": "Pending migrations apply once in lexical order and schema version equals applied count",
+    "expectedStatus": "passed"
+  },
+  {
+    "caseId": "P1-U-RESET-001",
+    "phase": "P1",
+    "module": "data",
+    "scope": "unit",
+    "sourceFile": "src/lib/p1.db-reset.unit.spec.ts",
+    "testTitleContains": "rejects reset outside test mode",
+    "idealOutput": "resetDatabase throws outside APP_ENV=test and existing rows remain unchanged",
+    "expectedStatus": "passed"
+  },
+  {
+    "caseId": "P1-U-DBADMIN-001",
+    "phase": "P1",
+    "module": "data",
+    "scope": "unit",
+    "sourceFile": "src/lib/p1.db-admin-bridge.unit.spec.ts",
+    "testTitleContains": "reads db runtime info from preload bridge",
+    "idealOutput": "Renderer bridge returns appEnv/readSource/writeMode/dbPath/schemaVersion runtime snapshot",
+    "expectedStatus": "passed"
+  },
+  {
+    "caseId": "P1-U-ABI-001",
+    "phase": "P1",
+    "module": "data",
+    "scope": "unit",
+    "sourceFile": "src/lib/p1.abi-switcher.unit.spec.ts",
+    "testTitleContains": "resolves rebuild command for both runtimes",
+    "idealOutput": "ABI switcher resolves node/electron rebuild commands for better-sqlite3",
+    "expectedStatus": "passed"
+  },
+  {
+    "caseId": "P1-U-REPO-001",
+    "phase": "P1",
+    "module": "settings",
+    "scope": "unit",
+    "sourceFile": "src/lib/p1.repository-switching.unit.spec.ts",
+    "testTitleContains": "switches read source between legacy and sqlite",
+    "idealOutput": "Repository read operations resolve from the source configured by READ_SOURCE",
+    "expectedStatus": "passed"
+  },
+  {
+    "caseId": "P1-U-REPO-002",
+    "phase": "P1",
+    "module": "settings",
+    "scope": "unit",
+    "sourceFile": "src/lib/p1.repository-switching.unit.spec.ts",
+    "testTitleContains": "routes writes by WRITE_MODE legacy/sqlite/dual",
+    "idealOutput": "Repository write operations route correctly under legacy/sqlite/dual modes",
+    "expectedStatus": "passed"
+  },
+  {
+    "caseId": "P1-U-REPO-003",
+    "phase": "P1",
+    "module": "data",
+    "scope": "unit",
+    "sourceFile": "src/lib/p1.repository-switching.unit.spec.ts",
+    "testTitleContains": "throws DualWriteError and logs structured fields when dual write is inconsistent",
+    "idealOutput": "Dual write inconsistency raises explicit error and emits mode/op/requestId diagnostics",
+    "expectedStatus": "passed"
+  },
+  {
+    "caseId": "P1-U-REPO-004",
+    "phase": "P1",
+    "module": "data",
+    "scope": "unit",
+    "sourceFile": "src/lib/p1.repository-migration-0002.unit.spec.ts",
+    "testTitleContains": "migrates employee and payroll foreign keys from TEXT ids to INTEGER ids",
+    "idealOutput": "Migration 0002 upgrades employee ids to INTEGER and preserves payroll foreign-key mapping",
+    "expectedStatus": "passed"
+  },
+  {
+    "caseId": "P1-U-REPO-005",
+    "phase": "P1",
+    "module": "employee",
+    "scope": "unit",
+    "sourceFile": "src/lib/p1.repository-bridge.unit.spec.ts",
+    "testTitleContains": "invokes each repository channel and returns typed payloads",
+    "idealOutput": "Renderer repository bridge invokes repo IPC channels and returns expected typed payloads",
+    "expectedStatus": "passed"
+  },
+  {
+    "caseId": "P1-E2E-DBISO-001",
+    "phase": "P1",
+    "module": "data",
+    "scope": "e2e",
+    "sourceFile": "tests/e2e/db-isolation.spec.ts",
+    "testTitleContains": "allows db reset when APP_ENV=test",
+    "idealOutput": "db reset succeeds in test mode against isolated TEST_DB_PATH",
+    "expectedStatus": "passed"
+  },
+  {
+    "caseId": "P1-E2E-DBISO-002",
+    "phase": "P1",
+    "module": "data",
+    "scope": "e2e",
+    "sourceFile": "tests/e2e/db-isolation.spec.ts",
+    "testTitleContains": "rejects db reset when APP_ENV=prod",
+    "idealOutput": "db reset is rejected in prod mode with explicit APP_ENV=test error hint",
+    "expectedStatus": "passed"
+  }
+]

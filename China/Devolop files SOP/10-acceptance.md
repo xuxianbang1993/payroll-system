@@ -1,6 +1,6 @@
 ---
 module: 验收标准
-version: 1.3
+version: 1.4
 depends_on: [09-nonfunctional]
 consumed_by: []
 ---
@@ -38,6 +38,7 @@ consumed_by: []
 | B-06 | 数据完整性 | 备份 → 清空 → 恢复后，关键表记录数与金额汇总 hash 一致 | 08-data-management |
 | B-07 | 测试环境隔离 | 功能/E2E 测试使用独立测试库路径，运行后正式库未被改写 | 09-nonfunctional |
 | B-08 | 重置安全闸 | 非 test 模式调用测试重置 API 被拒绝，并有明确报错信息 | 09-nonfunctional |
+| B-09 | ABI 自动切换 | 在同一工作区连续执行 `npm run test` 与 `npm run test:e2e` 均通过，且无 `NODE_MODULE_VERSION` 报错 | 08-data-management |
 
 ---
 

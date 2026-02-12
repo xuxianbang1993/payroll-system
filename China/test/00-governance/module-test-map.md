@@ -27,6 +27,13 @@ This file is the source of truth for requirement-to-test mapping.
 - Data management / backup restore / migration
   - Unit: `01-unit/p1-data-management`
   - E2E: `03-e2e/p1-settings-employee-data`
+- Repository abstraction / source switching / backup compatibility
+  - Unit: `01-unit/p1-data-management`
+  - Evidence Specs:
+    - `src/lib/p1.repository-switching.unit.spec.ts`
+    - `src/lib/p1.repository-migration-0002.unit.spec.ts`
+    - `src/lib/p1.repository-bridge.unit.spec.ts`
+    - `tests/e2e/db-isolation.spec.ts`
 
 ## P2 Payroll
 

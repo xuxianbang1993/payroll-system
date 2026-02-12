@@ -1,6 +1,6 @@
 ---
 module: 非功能性需求
-version: 1.3
+version: 1.4
 depends_on: []
 consumed_by: [10-acceptance]
 ---
@@ -27,6 +27,13 @@ consumed_by: [10-acceptance]
 - `resetDatabase()` 等破坏性重置 API 在非 test 模式必须拒绝执行
 - 功能/E2E 测试必须使用独立测试库路径（`TEST_DB_PATH` 或临时目录），禁止复用正式库
 - 应用启动时必须记录 `APP_ENV`、SQLite 路径、`READ_SOURCE`、`WRITE_MODE`，便于审计与排障
+
+### 2.2 Electron 运行时装载约束
+
+- Electron preload 必须输出 CommonJS 产物（例如 `preload.cts` -> `preload.cjs`），禁止以 ESM preload 作为桥接实现
+- BrowserWindow 的 preload 路径必须指向构建后的 `.cjs` 文件，确保 `window.payrollStore` / `window.payrollDbAdmin` 可用
+- Vite 构建必须使用相对资源基址（`base: "./"`），禁止依赖 `/assets/...` 绝对路径，避免 `file://` 模式白屏
+- 以上约束适用于开发构建、E2E 执行与打包产物，任一环境失效都视为非功能回归
 
 ## 3. 兼容性
 

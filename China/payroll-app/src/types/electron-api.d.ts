@@ -8,5 +8,18 @@ declare global {
       delete: (key: string) => Promise<boolean>;
       clear: () => Promise<boolean>;
     };
+    payrollDbAdmin?: {
+      getRuntimeInfo: () => Promise<unknown>;
+      reset: () => Promise<unknown>;
+    };
+    payrollRepository?: {
+      getSettings: () => Promise<unknown>;
+      saveSettings: (settings: unknown) => Promise<unknown>;
+      listEmployees: () => Promise<unknown>;
+      replaceEmployees: (employees: unknown[]) => Promise<unknown>;
+      exportBackup: () => Promise<unknown>;
+      importBackup: (payload: unknown) => Promise<unknown>;
+      getStorageInfo: () => Promise<unknown>;
+    };
   }
 }

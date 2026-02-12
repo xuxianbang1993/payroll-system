@@ -1,6 +1,6 @@
 ---
 module: 数据管理
-version: 1.2
+version: 1.3
 depends_on: [01-data-model.md]
 consumed_by: []
 pages:
@@ -92,3 +92,10 @@ pages:
 - 每次测试运行创建独立测试库（或独立临时目录）
 - 测试结束后清理测试库文件，禁止残留到正式数据目录
 - 启动日志需输出当前 `APP_ENV` 与数据库路径，便于排查误连
+
+### ABI 兼容要求（better-sqlite3）
+
+- `better-sqlite3` 是原生模块，Vitest（Node 运行时）与 Playwright/Electron（Electron 运行时）需要不同 ABI
+- 运行 `npm run test` 前必须切换到 Node ABI（项目脚本默认自动执行 `abi:node`）
+- 运行 `npm run test:e2e` 前必须切换到 Electron ABI（项目脚本默认自动执行 `abi:electron`）
+- 若跳过 npm 包装脚本直接运行 `vitest` 或 `playwright test`，必须先手动执行对应 ABI 切换命令，否则会出现 `NODE_MODULE_VERSION` mismatch
