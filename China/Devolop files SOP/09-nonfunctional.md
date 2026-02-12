@@ -1,6 +1,6 @@
 ---
 module: 非功能性需求
-version: 1.2
+version: 1.3
 depends_on: []
 consumed_by: [10-acceptance]
 ---
@@ -20,6 +20,13 @@ consumed_by: [10-acceptance]
 - 所有业务主数据存储在本地（SQLite → 用户目录下 DB 文件），UI 轻配置存储在 electron-store
 - 不涉及网络传输
 - 应用无需联网即可运行（CDN 依赖全部本地化）
+
+### 2.1 测试隔离与破坏性操作保护
+
+- `APP_ENV=prod` 为默认运行模式；仅 `APP_ENV=test` 允许测试专用重置能力
+- `resetDatabase()` 等破坏性重置 API 在非 test 模式必须拒绝执行
+- 功能/E2E 测试必须使用独立测试库路径（`TEST_DB_PATH` 或临时目录），禁止复用正式库
+- 应用启动时必须记录 `APP_ENV`、SQLite 路径、`READ_SOURCE`、`WRITE_MODE`，便于审计与排障
 
 ## 3. 兼容性
 

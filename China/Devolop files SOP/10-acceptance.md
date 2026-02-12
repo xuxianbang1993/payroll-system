@@ -1,6 +1,6 @@
 ---
 module: 验收标准
-version: 1.2
+version: 1.3
 depends_on: [09-nonfunctional]
 consumed_by: []
 ---
@@ -36,6 +36,8 @@ consumed_by: []
 | B-04 | 数据持久化 | 关闭应用后重新打开，SQLite 主数据与 UI 轻配置均保持一致 | - |
 | B-05 | 里程碑测试归档 | 每个阶段关门前具备 raw JSON + case map + XLSX 三件套 | 见开发策略文档第四章 |
 | B-06 | 数据完整性 | 备份 → 清空 → 恢复后，关键表记录数与金额汇总 hash 一致 | 08-data-management |
+| B-07 | 测试环境隔离 | 功能/E2E 测试使用独立测试库路径，运行后正式库未被改写 | 09-nonfunctional |
+| B-08 | 重置安全闸 | 非 test 模式调用测试重置 API 被拒绝，并有明确报错信息 | 09-nonfunctional |
 
 ---
 
