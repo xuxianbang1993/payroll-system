@@ -1,6 +1,6 @@
 ---
 module: 非功能性需求
-version: 1.1
+version: 1.2
 depends_on: []
 consumed_by: [10-acceptance]
 ---
@@ -17,7 +17,7 @@ consumed_by: [10-acceptance]
 
 ## 2. 数据安全
 
-- 所有数据存储在本地（electron-store → 用户目录下的 JSON 文件）
+- 所有业务主数据存储在本地（SQLite → 用户目录下 DB 文件），UI 轻配置存储在 electron-store
 - 不涉及网络传输
 - 应用无需联网即可运行（CDN 依赖全部本地化）
 

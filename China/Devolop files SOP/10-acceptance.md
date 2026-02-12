@@ -1,6 +1,6 @@
 ---
 module: 验收标准
-version: 1.1
+version: 1.2
 depends_on: [09-nonfunctional]
 consumed_by: []
 ---
@@ -33,8 +33,9 @@ consumed_by: []
 | B-01 | Mac 安装 | .dmg 双击安装，应用正常启动 | - |
 | B-02 | Windows 安装 | .exe 安装后，应用正常启动 | - |
 | B-03 | 离线运行 | 断网后所有功能正常 | - |
-| B-04 | 数据持久化 | 关闭应用后重新打开，数据仍在 | - |
+| B-04 | 数据持久化 | 关闭应用后重新打开，SQLite 主数据与 UI 轻配置均保持一致 | - |
 | B-05 | 里程碑测试归档 | 每个阶段关门前具备 raw JSON + case map + XLSX 三件套 | 见开发策略文档第四章 |
+| B-06 | 数据完整性 | 备份 → 清空 → 恢复后，关键表记录数与金额汇总 hash 一致 | 08-data-management |
 
 ---
 

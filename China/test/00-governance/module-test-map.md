@@ -10,7 +10,7 @@ This file is the source of truth for requirement-to-test mapping.
 - i18n initialization and language switch persistence
   - `01-unit/p0-foundation/i18n`
   - `02-component/p0-layout-navigation`
-- Zustand + electron-store bridge
+- Zustand + electron-store（UI 轻配置）+ SQLite（主数据）桥接
   - `01-unit/p0-foundation/store`
   - `01-unit/p0-foundation/electron-bridge`
 
