@@ -1,0 +1,56 @@
+{
+  "app": {
+    "name": "薪酬管理系统",
+    "overview": "概览",
+    "comingSoon": "该模块骨架已就绪，等待 P1 阶段实现业务逻辑。",
+    "month": "月份",
+    "p0Hint": "P0 阶段聚焦应用骨架和技术底座，业务逻辑在 P1 开始实现。"
+  },
+  "language": {
+    "zh-HK": "繁体中文",
+    "zh-CN": "简体中文",
+    "en": "English"
+  },
+  "nav": {
+    "menu": "菜单",
+    "close": "关闭",
+    "system": "系统",
+    "category": {
+      "settings": "基础设置",
+      "employee": "人员管理",
+      "payroll": "薪资核算",
+      "voucher": "会计凭证",
+      "data": "数据管理"
+    },
+    "group": {
+      "orgCompany": "组织与公司",
+      "socialFund": "社保与公积金",
+      "employeeInfo": "员工信息",
+      "monthlyCalc": "月度核算",
+      "voucher": "凭证管理",
+      "dataMgmt": "备份与存储"
+    },
+    "page": {
+      "org": "组织信息",
+      "company": "公司主体管理",
+      "social": "社保比例配置",
+      "fund": "公积金比例配置",
+      "base": "缴费基数设置",
+      "employeeList": "员工列表",
+      "employeeImport": "Excel 导入",
+      "employeeExport": "Excel 导出",
+      "payrollByEmp": "按员工录入",
+      "payrollDetail": "全员明细表",
+      "voucherOverview": "凭证总览",
+      "backup": "JSON 备份",
+      "storage": "存储统计"
+    }
+  },
+  "overview": {
+    "settings": "维护组织信息、公司主体和社保公积金参数。",
+    "employee": "维护员工花名册并进行 Excel 导入导出。",
+    "payroll": "录入月度变量并生成工资条。",
+    "voucher": "自动生成 5 张会计凭证并校验借贷平衡。",
+    "data": "执行备份恢复并查看本地存储使用情况。"
+  }
+}

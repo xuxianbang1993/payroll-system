@@ -1,0 +1,56 @@
+{
+  "app": {
+    "name": "薪酬管理系統",
+    "overview": "概覽",
+    "comingSoon": "該模組骨架已就緒，等待 P1 階段實作業務邏輯。",
+    "month": "月份",
+    "p0Hint": "P0 階段聚焦應用骨架與技術底座，業務邏輯在 P1 開始實作。"
+  },
+  "language": {
+    "zh-HK": "繁體中文",
+    "zh-CN": "简体中文",
+    "en": "English"
+  },
+  "nav": {
+    "menu": "選單",
+    "close": "關閉",
+    "system": "系統",
+    "category": {
+      "settings": "基礎設定",
+      "employee": "人員管理",
+      "payroll": "薪資核算",
+      "voucher": "會計憑證",
+      "data": "資料管理"
+    },
+    "group": {
+      "orgCompany": "組織與公司",
+      "socialFund": "社保與公積金",
+      "employeeInfo": "員工資訊",
+      "monthlyCalc": "月度核算",
+      "voucher": "憑證管理",
+      "dataMgmt": "備份與儲存"
+    },
+    "page": {
+      "org": "組織資訊",
+      "company": "公司主體管理",
+      "social": "社保比例設定",
+      "fund": "公積金比例設定",
+      "base": "繳費基數設定",
+      "employeeList": "員工列表",
+      "employeeImport": "Excel 匯入",
+      "employeeExport": "Excel 匯出",
+      "payrollByEmp": "按員工錄入",
+      "payrollDetail": "全員明細表",
+      "voucherOverview": "憑證總覽",
+      "backup": "JSON 備份",
+      "storage": "儲存統計"
+    }
+  },
+  "overview": {
+    "settings": "維護組織資訊、公司主體與社保公積金參數。",
+    "employee": "維護員工名冊並進行 Excel 匯入匯出。",
+    "payroll": "錄入月度變數並生成工資條。",
+    "voucher": "自動生成 5 張會計憑證並校驗借貸平衡。",
+    "data": "執行備份恢復並查看本地儲存使用情況。"
+  }
+}

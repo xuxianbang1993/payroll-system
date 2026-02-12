@@ -1,0 +1,72 @@
+[
+  {
+    "caseId": "P0-U-STORE-001",
+    "phase": "P0",
+    "module": "ui-shell",
+    "scope": "unit",
+    "sourceFile": "src/stores/p0.app-store.unit.spec.ts",
+    "testTitleContains": "initial state shape is valid",
+    "idealOutput": "language=zh-CN, navPanelOpen=false, selectedMonth format YYYY-MM",
+    "expectedStatus": "passed"
+  },
+  {
+    "caseId": "P0-U-STORE-002",
+    "phase": "P0",
+    "module": "ui-shell",
+    "scope": "unit",
+    "sourceFile": "src/stores/p0.app-store.unit.spec.ts",
+    "testTitleContains": "toggleNavPanel toggles open/close state",
+    "idealOutput": "first toggle=true, second toggle=false",
+    "expectedStatus": "passed"
+  },
+  {
+    "caseId": "P0-U-BRIDGE-001",
+    "phase": "P0",
+    "module": "electron-bridge",
+    "scope": "unit",
+    "sourceFile": "src/lib/p0.electron-bridge.unit.spec.ts",
+    "testTitleContains": "reads ui state from preload bridge",
+    "idealOutput": "bridge get called with key ui-state and returns language/month object",
+    "expectedStatus": "passed"
+  },
+  {
+    "caseId": "P0-U-I18N-001",
+    "phase": "P0",
+    "module": "i18n",
+    "scope": "unit",
+    "sourceFile": "src/i18n/p0.i18n.unit.spec.ts",
+    "testTitleContains": "switches among zh-CN, zh-HK and en",
+    "idealOutput": "app.name maps correctly in zh-CN, zh-HK, en",
+    "expectedStatus": "passed"
+  },
+  {
+    "caseId": "P0-C-NAV-001",
+    "phase": "P0",
+    "module": "ui-shell",
+    "scope": "component",
+    "sourceFile": "src/layouts/p0.layout-navigation.component.spec.tsx",
+    "testTitleContains": "shows month picker on payroll routes",
+    "idealOutput": "month label and selected value visible on payroll routes",
+    "expectedStatus": "passed"
+  },
+  {
+    "caseId": "P0-C-NAV-002",
+    "phase": "P0",
+    "module": "ui-shell",
+    "scope": "component",
+    "sourceFile": "src/layouts/p0.layout-navigation.component.spec.tsx",
+    "testTitleContains": "opens panel after clicking menu button",
+    "idealOutput": "menu click opens panel and displays system category labels",
+    "expectedStatus": "passed"
+  },
+  {
+    "caseId": "P0-E2E-SMOKE-001",
+    "phase": "P0",
+    "module": "ui-shell",
+    "scope": "e2e",
+    "sourceFile": "tests/e2e/smoke.spec.ts",
+    "testTitleContains": "loads overview shell",
+    "idealOutput": "home page renders system title and overview breadcrumb in Chinese",
+    "expectedStatus": "passed"
+  }
+]
