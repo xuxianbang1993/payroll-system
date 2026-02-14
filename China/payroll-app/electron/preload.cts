@@ -21,9 +21,18 @@ const payrollRepository = {
   replaceEmployees: (employees: unknown[]) => ipcRenderer.invoke("repo:employees:replace", employees),
   exportBackup: () => ipcRenderer.invoke("repo:data:backup:export"),
   importBackup: (payload: unknown) => ipcRenderer.invoke("repo:data:backup:import", payload),
+  clearData: () => ipcRenderer.invoke("repo:data:clear"),
   getStorageInfo: () => ipcRenderer.invoke("repo:data:storage-info"),
+};
+
+const payrollFiles = {
+  saveBackupJson: (request: { payload: unknown; orgName?: string; suggestedPath?: string }) =>
+    ipcRenderer.invoke("file:backup:save-json", request),
+  openBackupJson: (request?: { selectedPath?: string }) =>
+    ipcRenderer.invoke("file:backup:open-json", request ?? {}),
 };
 
 contextBridge.exposeInMainWorld("payrollStore", payrollStore);
 contextBridge.exposeInMainWorld("payrollDbAdmin", payrollDbAdmin);
 contextBridge.exposeInMainWorld("payrollRepository", payrollRepository);
+contextBridge.exposeInMainWorld("payrollFiles", payrollFiles);

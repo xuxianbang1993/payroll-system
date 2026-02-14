@@ -13,6 +13,7 @@ import type {
   RepositorySettings,
 } from "./db/repository/contracts.js";
 import { resetDatabase } from "./db/reset.js";
+import { openBackupJsonFile, saveBackupJsonFile } from "./file/backup-file-service.js";
 
 type StoreValue = string | number | boolean | null | Record<string, unknown>;
 
@@ -26,6 +27,14 @@ const appStore = new Store<Record<string, unknown>>({
 
 let dbClient: DatabaseClient | null = null;
 let repository: RepositoryAdapter | null = null;
+
+function asRecord(value: unknown): Record<string, unknown> {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    return {};
+  }
+
+  return value as Record<string, unknown>;
+}
 
 function createWindow(): BrowserWindow {
   const window = new BrowserWindow({
@@ -140,8 +149,41 @@ function registerRepositoryIpc(): void {
     return getRepositoryOrThrow().importBackup(payload);
   });
 
+  ipcMain.handle("repo:data:clear", () => {
+    return getRepositoryOrThrow().clearData();
+  });
+
   ipcMain.handle("repo:data:storage-info", () => {
     return getRepositoryOrThrow().getStorageInfo();
+  });
+}
+
+function registerFileIpc(): void {
+  ipcMain.handle("file:backup:save-json", (event, request: unknown) => {
+    const payload = asRecord(request);
+    const ownerWindow = BrowserWindow.fromWebContents(event.sender) ?? null;
+    const orgName = typeof payload.orgName === "string" ? payload.orgName : undefined;
+    const suggestedPath =
+      typeof payload.suggestedPath === "string" ? payload.suggestedPath : undefined;
+
+    return saveBackupJsonFile({
+      ownerWindow,
+      payload: payload.payload,
+      orgName,
+      suggestedPath,
+    });
+  });
+
+  ipcMain.handle("file:backup:open-json", (event, request: unknown) => {
+    const payload = asRecord(request);
+    const ownerWindow = BrowserWindow.fromWebContents(event.sender) ?? null;
+    const selectedPath =
+      typeof payload.selectedPath === "string" ? payload.selectedPath : undefined;
+
+    return openBackupJsonFile({
+      ownerWindow,
+      selectedPath,
+    });
   });
 }
 
@@ -178,6 +220,7 @@ async function bootstrapApp(): Promise<void> {
   registerStoreIpc();
   registerDbIpc();
   registerRepositoryIpc();
+  registerFileIpc();
   createWindow();
 
   app.on("activate", () => {

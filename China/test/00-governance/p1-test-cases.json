@@ -1,32 +1,82 @@
 [
   {
-    "caseId": "P1-U-DBCFG-001",
+    "caseId": "P1-C-EMP-001",
     "phase": "P1",
-    "module": "data",
-    "scope": "unit",
-    "sourceFile": "src/lib/p1.db-config.unit.spec.ts",
-    "testTitleContains": "defaults to production-safe modes for invalid env values",
-    "idealOutput": "Invalid APP_ENV/READ_SOURCE/WRITE_MODE values fallback to prod + legacy + legacy",
+    "module": "employee",
+    "scope": "component",
+    "sourceFile": "src/pages/employee/p1.employee-list.component.spec.tsx",
+    "testTitleContains": "supports inline edit and persists list",
+    "idealOutput": "Employee list page allows inline edit and persists updated rows through store/repository chain.",
     "expectedStatus": "passed"
   },
   {
-    "caseId": "P1-U-MIG-001",
+    "caseId": "P1-C-SET-001",
     "phase": "P1",
-    "module": "data",
-    "scope": "unit",
-    "sourceFile": "src/lib/p1.db-migrator.unit.spec.ts",
-    "testTitleContains": "applies pending sql files in lexical order and records schema version",
-    "idealOutput": "Pending migrations apply once in lexical order and schema version equals applied count",
+    "module": "settings",
+    "scope": "component",
+    "sourceFile": "src/pages/settings/p1.org-settings.component.spec.tsx",
+    "testTitleContains": "loads metrics and saves edited org name",
+    "idealOutput": "Org settings page shows metrics and persists edited org name through store/repository chain.",
     "expectedStatus": "passed"
   },
   {
-    "caseId": "P1-U-RESET-001",
+    "caseId": "P1-E2E-BACKUP-001",
+    "phase": "P1",
+    "module": "data",
+    "scope": "e2e",
+    "sourceFile": "tests/e2e/backup-restore.spec.ts",
+    "testTitleContains": "backup -> clear -> restore keeps data consistent",
+    "idealOutput": "backup export followed by clear and import restore preserves expected counts and settings",
+    "expectedStatus": "passed"
+  },
+  {
+    "caseId": "P1-E2E-DBISO-001",
+    "phase": "P1",
+    "module": "data",
+    "scope": "e2e",
+    "sourceFile": "tests/e2e/db-isolation.spec.ts",
+    "testTitleContains": "allows db reset when APP_ENV=test",
+    "idealOutput": "db reset succeeds in test mode against isolated TEST_DB_PATH",
+    "expectedStatus": "passed"
+  },
+  {
+    "caseId": "P1-E2E-DBISO-002",
+    "phase": "P1",
+    "module": "data",
+    "scope": "e2e",
+    "sourceFile": "tests/e2e/db-isolation.spec.ts",
+    "testTitleContains": "rejects db reset when APP_ENV=prod",
+    "idealOutput": "db reset is rejected in prod mode with explicit APP_ENV=test error hint",
+    "expectedStatus": "passed"
+  },
+  {
+    "caseId": "P1-E2E-SETEMP-001",
+    "phase": "P1",
+    "module": "settings",
+    "scope": "e2e",
+    "sourceFile": "tests/e2e/p1-settings-employee-data.spec.ts",
+    "testTitleContains": "settings + employee repository flow is persisted and replace-based CRUD works",
+    "idealOutput": "Settings persistence and employee replace-based CRUD remain consistent with storage statistics.",
+    "expectedStatus": "passed"
+  },
+  {
+    "caseId": "P1-U-ABI-001",
     "phase": "P1",
     "module": "data",
     "scope": "unit",
-    "sourceFile": "src/lib/p1.db-reset.unit.spec.ts",
-    "testTitleContains": "rejects reset outside test mode",
-    "idealOutput": "resetDatabase throws outside APP_ENV=test and existing rows remain unchanged",
+    "sourceFile": "src/lib/p1.abi-switcher.unit.spec.ts",
+    "testTitleContains": "resolves rebuild command for both runtimes",
+    "idealOutput": "ABI switcher resolves node/electron rebuild commands for better-sqlite3",
+    "expectedStatus": "passed"
+  },
+  {
+    "caseId": "P1-U-BACKUPFILE-001",
+    "phase": "P1",
+    "module": "data",
+    "scope": "unit",
+    "sourceFile": "src/lib/p1.backup-files-bridge.unit.spec.ts",
+    "testTitleContains": "invokes save/open channels and returns typed payloads",
+    "idealOutput": "Renderer file bridge invokes backup save/open IPC and returns typed payloads",
     "expectedStatus": "passed"
   },
   {
@@ -40,13 +90,63 @@
     "expectedStatus": "passed"
   },
   {
-    "caseId": "P1-U-ABI-001",
+    "caseId": "P1-U-DBCFG-001",
     "phase": "P1",
     "module": "data",
     "scope": "unit",
-    "sourceFile": "src/lib/p1.abi-switcher.unit.spec.ts",
-    "testTitleContains": "resolves rebuild command for both runtimes",
-    "idealOutput": "ABI switcher resolves node/electron rebuild commands for better-sqlite3",
+    "sourceFile": "src/lib/p1.db-config.unit.spec.ts",
+    "testTitleContains": "defaults to production-safe modes for invalid env values",
+    "idealOutput": "Invalid APP_ENV/READ_SOURCE/WRITE_MODE values fallback to prod + legacy + legacy",
+    "expectedStatus": "passed"
+  },
+  {
+    "caseId": "P1-U-EMP-001",
+    "phase": "P1",
+    "module": "employee",
+    "scope": "unit",
+    "sourceFile": "src/stores/p1.employee-store.unit.spec.ts",
+    "testTitleContains": "adds employee with incremental id and persists",
+    "idealOutput": "Employee store appends new employee with incremental id and persists via replaceEmployees.",
+    "expectedStatus": "passed"
+  },
+  {
+    "caseId": "P1-U-EMP-002",
+    "phase": "P1",
+    "module": "employee",
+    "scope": "unit",
+    "sourceFile": "src/stores/p1.employee-store.unit.spec.ts",
+    "testTitleContains": "updates and deletes employee",
+    "idealOutput": "Employee store supports update and delete flows through replaceEmployees persistence.",
+    "expectedStatus": "passed"
+  },
+  {
+    "caseId": "P1-U-IMPEX-001",
+    "phase": "P1",
+    "module": "import-export",
+    "scope": "unit",
+    "sourceFile": "src/lib/p1.employee-import-export.unit.spec.ts",
+    "testTitleContains": "parses workbook and validates required/numeric fields",
+    "idealOutput": "Excel parser reports validation errors and keeps valid rows for import.",
+    "expectedStatus": "passed"
+  },
+  {
+    "caseId": "P1-U-IMPEX-002",
+    "phase": "P1",
+    "module": "import-export",
+    "scope": "unit",
+    "sourceFile": "src/lib/p1.employee-import-export.unit.spec.ts",
+    "testTitleContains": "merges imported rows with overwrite and skip policies",
+    "idealOutput": "Import merge logic applies overwrite/skip decisions and outputs deterministic summary.",
+    "expectedStatus": "passed"
+  },
+  {
+    "caseId": "P1-U-MIG-001",
+    "phase": "P1",
+    "module": "data",
+    "scope": "unit",
+    "sourceFile": "src/lib/p1.db-migrator.unit.spec.ts",
+    "testTitleContains": "applies pending sql files in lexical order and records schema version",
+    "idealOutput": "Pending migrations apply once in lexical order and schema version equals applied count",
     "expectedStatus": "passed"
   },
   {
@@ -100,23 +200,53 @@
     "expectedStatus": "passed"
   },
   {
-    "caseId": "P1-E2E-DBISO-001",
+    "caseId": "P1-U-REPO-006",
     "phase": "P1",
     "module": "data",
-    "scope": "e2e",
-    "sourceFile": "tests/e2e/db-isolation.spec.ts",
-    "testTitleContains": "allows db reset when APP_ENV=test",
-    "idealOutput": "db reset succeeds in test mode against isolated TEST_DB_PATH",
+    "scope": "unit",
+    "sourceFile": "src/lib/p1.repository-switching.unit.spec.ts",
+    "testTitleContains": "routes clearData by WRITE_MODE legacy/sqlite/dual",
+    "idealOutput": "clearData routes to legacy/sqlite/dual targets according to WRITE_MODE",
     "expectedStatus": "passed"
   },
   {
-    "caseId": "P1-E2E-DBISO-002",
+    "caseId": "P1-U-REPO-007",
     "phase": "P1",
     "module": "data",
-    "scope": "e2e",
-    "sourceFile": "tests/e2e/db-isolation.spec.ts",
-    "testTitleContains": "rejects db reset when APP_ENV=prod",
-    "idealOutput": "db reset is rejected in prod mode with explicit APP_ENV=test error hint",
+    "scope": "unit",
+    "sourceFile": "src/lib/p1.repository-clear-data.unit.spec.ts",
+    "testTitleContains": "clears business tables and restores defaults",
+    "idealOutput": "Repository clearData removes business rows and restores default settings state",
+    "expectedStatus": "passed"
+  },
+  {
+    "caseId": "P1-U-RESET-001",
+    "phase": "P1",
+    "module": "data",
+    "scope": "unit",
+    "sourceFile": "src/lib/p1.db-reset.unit.spec.ts",
+    "testTitleContains": "rejects reset outside test mode",
+    "idealOutput": "resetDatabase throws outside APP_ENV=test and existing rows remain unchanged",
+    "expectedStatus": "passed"
+  },
+  {
+    "caseId": "P1-U-SET-001",
+    "phase": "P1",
+    "module": "settings",
+    "scope": "unit",
+    "sourceFile": "src/stores/p1.settings-store.unit.spec.ts",
+    "testTitleContains": "loads settings and computes org statistics",
+    "idealOutput": "Settings store loads repository settings and calculates org stats from employee data.",
+    "expectedStatus": "passed"
+  },
+  {
+    "caseId": "P1-U-SET-002",
+    "phase": "P1",
+    "module": "settings",
+    "scope": "unit",
+    "sourceFile": "src/stores/p1.settings-store.unit.spec.ts",
+    "testTitleContains": "persists social and company updates",
+    "idealOutput": "Settings store persists social config and company entities through repository saveSettings.",
     "expectedStatus": "passed"
   }
 ]

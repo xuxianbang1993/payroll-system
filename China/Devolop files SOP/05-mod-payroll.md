@@ -1,11 +1,13 @@
 ---
 module: 薪资核算
-version: 1.0
+version: 1.1
 depends_on: [01-data-model.md, 03-mod-settings.md]
 consumed_by: [06-mod-voucher]
 pages:
   - /payroll/employee
   - /payroll/detail
+change_log:
+  - v1.1: 增加阶段状态与 P2 启动清单，作为 P1 收口后的下一阶段入口
 ---
 
 # 薪资核算模块
@@ -153,3 +155,15 @@ absentDeduct  — 缺勤扣款总额
 - 选择某个公司主体 → 只汇总该主体下的员工
 
 筛选后重新执行汇总计算，凭证数据相应更新。
+
+---
+
+## 三、阶段状态（2026-02-14）
+
+- 状态：待开发（P2）。
+- 当前代码现状：路由仍为占位，尚未接入正式计算流程。
+- P2 首批必须落地：
+  - `calculator.ts` + `calculator.test.ts`
+  - `PayrollByEmpPage`（按员工录入/生成）
+  - `PayrollDetailPage`（28 列明细与汇总）
+  - `payroll-flow.spec.ts` E2E 回归

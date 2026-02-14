@@ -51,6 +51,263 @@
     "employee": "Maintain employees and import/export templates.",
     "payroll": "Input monthly variables and generate payslips.",
     "voucher": "Generate 5 accounting vouchers with balance checks.",
-    "data": "Backup, restore, and inspect local data usage."
+    "data": "Backup, restore, and inspect local data usage.",
+    "status": {
+      "ready": "This module is delivered in P1 and ready to use.",
+      "pending": "This module shell is ready and awaiting a later delivery phase."
+    }
+  },
+  "data": {
+    "backup": {
+      "title": "Backup and Restore",
+      "description": "Export JSON backups, restore archived backups, and clear business data with double confirmation.",
+      "action": {
+        "export": "Export Backup",
+        "exporting": "Exporting...",
+        "import": "Restore Backup",
+        "importing": "Restoring...",
+        "clear": "Clear Data",
+        "clearing": "Clearing..."
+      },
+      "dialog": {
+        "importConfirm": "Restore this backup?\\nOrganization: {{orgName}}\\nEmployees: {{employees}}\\nCompanies: {{companies}}\\n\\nCurrent data will be replaced.",
+        "clearStepOne": "Clear current business data? A backup is recommended first.",
+        "clearStepTwo": "Confirm again: only default settings will remain after clearing."
+      },
+      "notice": {
+        "repositoryUnavailable": "Repository bridge is unavailable. Check main process startup.",
+        "fileBridgeUnavailable": "File bridge is unavailable. Check preload injection.",
+        "saveCanceled": "Backup save was canceled.",
+        "openCanceled": "Backup file selection was canceled.",
+        "importCanceled": "Restore operation was canceled.",
+        "clearCanceled": "Clear operation was canceled.",
+        "exportSuccess": "Backup exported: {{path}}",
+        "exportFailed": "Backup export failed: {{reason}}",
+        "importSuccess": "Restore completed: {{employees}} employees, {{companies}} companies.",
+        "importFailed": "Restore failed: {{reason}}",
+        "clearSuccess": "Clear completed. {{tables}} business tables processed.",
+        "clearFailed": "Clear failed: {{reason}}"
+      },
+      "lastExport": {
+        "path": "Last export path: {{path}}",
+        "time": "Last export time: {{time}}"
+      },
+      "snapshot": {
+        "title": "Current Storage Snapshot",
+        "description": "Quick verification after backup, restore, or clear operations.",
+        "employeeCount": "Employees: {{count}}",
+        "companyCount": "Companies: {{count}}",
+        "inputCount": "Payroll inputs: {{count}}",
+        "resultCount": "Payroll results: {{count}}",
+        "schemaVersion": "Schema version: {{version}}",
+        "fileSize": "Database file size: {{size}}"
+      },
+      "defaultOrgName": "Default Organization"
+    },
+    "storage": {
+      "title": "Storage Information",
+      "description": "Inspect database path, runtime modes, file size, and business record counts.",
+      "action": {
+        "refresh": "Refresh",
+        "refreshing": "Refreshing..."
+      },
+      "error": {
+        "loadFailed": "Failed to load storage information: {{reason}}"
+      },
+      "metric": {
+        "dbPath": "Database path: {{value}}",
+        "schema": "Schema version: {{value}}",
+        "size": "File size: {{value}}",
+        "appEnv": "APP_ENV: {{value}}",
+        "readSource": "READ_SOURCE: {{value}}",
+        "writeMode": "WRITE_MODE: {{value}}",
+        "journalMode": "journal_mode: {{value}}",
+        "foreignKeys": "foreign_keys: {{value}}",
+        "employeeCount": "Employees: {{value}}",
+        "companyCount": "Companies: {{value}}",
+        "payrollInputCount": "Payroll inputs: {{value}}",
+        "payrollResultCount": "Payroll results: {{value}}"
+      }
+    }
+  },
+  "common": {
+    "save": "Save",
+    "saving": "Saving...",
+    "cancel": "Cancel",
+    "edit": "Edit",
+    "delete": "Delete",
+    "add": "Add",
+    "update": "Update",
+    "refresh": "Refresh",
+    "yes": "Yes",
+    "no": "No"
+  },
+  "settings": {
+    "org": {
+      "title": "Organization Settings",
+      "description": "Edit organization name and review key statistics.",
+      "metrics": {
+        "employeeCount": "Employees",
+        "companyCount": "Company Entities",
+        "monthlyBaseTotal": "Monthly Base Payroll Total"
+      },
+      "form": {
+        "orgName": "Organization Name"
+      }
+    },
+    "social": {
+      "title": "Social Insurance Configuration",
+      "description": "Manage employer rates, employee rates, and contribution bases.",
+      "group": {
+        "employer": "Employer Contributions (6 items)",
+        "worker": "Employee Contributions (3 items)",
+        "base": "Contribution Bases"
+      },
+      "units": {
+        "percent": "%",
+        "yuan": "CNY"
+      },
+      "fields": {
+        "compPension": "Employer Pension",
+        "compLocalPension": "Employer Local Pension Subsidy",
+        "compUnemploy": "Employer Unemployment",
+        "compMedical": "Employer Medical",
+        "compInjury": "Employer Injury",
+        "compMaternity": "Employer Maternity",
+        "workerPension": "Employee Pension",
+        "workerUnemploy": "Employee Unemployment",
+        "workerMedical": "Employee Medical",
+        "pensionBase": "Pension Base",
+        "unemploymentBase": "Unemployment Base",
+        "medicalBase": "Medical Base",
+        "injuryBase": "Injury Base",
+        "maternityBase": "Maternity Base"
+      },
+      "example": {
+        "title": "Example monthly burden per insured employee under current settings:",
+        "employer": "Employer total: {{value}}",
+        "worker": "Employee total: {{value}}"
+      }
+    },
+    "company": {
+      "title": "Company Entity Management",
+      "description": "Maintain short/full names for employee assignment.",
+      "form": {
+        "short": "Short Name",
+        "full": "Full Name",
+        "shortPlaceholder": "e.g. AC",
+        "fullPlaceholder": "e.g. Acme Co"
+      },
+      "table": {
+        "short": "Short Name",
+        "full": "Full Name",
+        "actions": "Actions"
+      },
+      "dialog": {
+        "deleteConfirm": "Delete company entity {{short}}?"
+      },
+      "empty": "No company entities yet. Add one first."
+    }
+  },
+  "employee": {
+    "list": {
+      "title": "Employee List",
+      "description": "Maintain employee master data with inline edit and detail view.",
+      "action": {
+        "add": "Add Employee"
+      },
+      "table": {
+        "name": "Name",
+        "company": "Company",
+        "position": "Position",
+        "baseSalary": "Base Salary",
+        "subsidy": "Subsidy",
+        "fund": "Housing Fund",
+        "actions": "Actions"
+      },
+      "empty": "No employee records.",
+      "dialog": {
+        "deleteConfirm": "Delete employee {{name}}?",
+        "addTitle": "Add Employee",
+        "addDescription": "Fill in employee fields and save to repository."
+      },
+      "detail": {
+        "title": "Employee Details",
+        "description": "Click a row to view complete employee information.",
+        "name": "Name: {{value}}",
+        "idCard": "ID Number: {{value}}",
+        "company": "Company: {{value}}",
+        "department": "Department: {{value}}",
+        "position": "Position: {{value}}",
+        "type": "Type: {{value}}",
+        "baseSalary": "Base Salary: {{value}}",
+        "subsidy": "Subsidy: {{value}}",
+        "hasSocial": "Social Insurance: {{value}}",
+        "hasLocalPension": "Local Pension: {{value}}",
+        "fund": "Housing Fund: {{value}}",
+        "editAction": "Edit This Employee"
+      }
+    },
+    "form": {
+      "name": "Name",
+      "idCard": "ID Number",
+      "company": "Company",
+      "companyPlaceholder": "Select company",
+      "department": "Department",
+      "position": "Position",
+      "type": "Employee Type",
+      "typeManagement": "Management",
+      "typeSales": "Sales",
+      "baseSalary": "Base Salary",
+      "subsidy": "Subsidy",
+      "fund": "Housing Fund Amount",
+      "hasSocial": "Participates in Social Insurance",
+      "hasLocalPension": "Participates in Local Pension"
+    },
+    "importExport": {
+      "title": "Employee Import / Export",
+      "description": "Download template, import Excel with conflict handling, and export current roster.",
+      "tab": {
+        "import": "Import",
+        "export": "Export"
+      },
+      "action": {
+        "downloadTemplate": "Download Template",
+        "chooseFile": "Choose File",
+        "applyImport": "Apply Import",
+        "exportEmployees": "Export Employee Excel",
+        "resolveConflicts": "Resolve Conflicts"
+      },
+      "file": {
+        "selected": "Selected file: {{name}}",
+        "empty": "No import file selected yet."
+      },
+      "summary": {
+        "rows": "Rows ready to import: {{count}}",
+        "conflicts": "Conflicts detected: {{count}}"
+      },
+      "export": {
+        "summary": "Current employee count: {{count}}"
+      },
+      "notice": {
+        "importApplied": "Import complete: inserted {{inserted}}, overwritten {{overwritten}}, skipped {{skipped}}.",
+        "conflictsPending": "Conflicts exist. Confirm conflict handling in the dialog before applying import."
+      },
+      "conflict": {
+        "title": "Import Conflict Handling",
+        "description": "Duplicate name + ID rows were found. Choose overwrite or skip per row.",
+        "allOverwrite": "Overwrite All",
+        "allSkip": "Skip All",
+        "overwrite": "Overwrite",
+        "skip": "Skip",
+        "confirm": "Confirm Import",
+        "table": {
+          "row": "Row",
+          "employee": "Imported Record",
+          "existing": "Existing Record",
+          "action": "Action"
+        }
+      }
+    }
   }
 }

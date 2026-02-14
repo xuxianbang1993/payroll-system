@@ -4,11 +4,11 @@ import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 const overviewCards = [
-  { key: "settings", route: "/settings/org" },
-  { key: "employee", route: "/employee/list" },
-  { key: "payroll", route: "/payroll/employee" },
-  { key: "voucher", route: "/voucher" },
-  { key: "data", route: "/data/backup" },
+  { key: "settings", route: "/settings/org", statusKey: "overview.status.ready" },
+  { key: "employee", route: "/employee/list", statusKey: "overview.status.ready" },
+  { key: "payroll", route: "/payroll/employee", statusKey: "overview.status.pending" },
+  { key: "voucher", route: "/voucher", statusKey: "overview.status.pending" },
+  { key: "data", route: "/data/backup", statusKey: "overview.status.ready" },
 ] as const;
 
 export function OverviewPage() {
@@ -23,7 +23,7 @@ export function OverviewPage() {
               <CardTitle>{t(`nav.category.${card.key}`)}</CardTitle>
               <CardDescription>{t(`overview.${card.key}`)}</CardDescription>
             </CardHeader>
-            <CardContent className="text-sm text-muted-foreground">{t("app.comingSoon")}</CardContent>
+            <CardContent className="text-sm text-muted-foreground">{t(card.statusKey)}</CardContent>
           </Card>
         </Link>
       ))}

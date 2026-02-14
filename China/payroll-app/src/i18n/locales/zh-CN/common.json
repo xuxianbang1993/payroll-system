@@ -51,6 +51,263 @@
     "employee": "维护员工花名册并进行 Excel 导入导出。",
     "payroll": "录入月度变量并生成工资条。",
     "voucher": "自动生成 5 张会计凭证并校验借贷平衡。",
-    "data": "执行备份恢复并查看本地存储使用情况。"
+    "data": "执行备份恢复并查看本地存储使用情况。",
+    "status": {
+      "ready": "该模块已完成 P1 收口，可直接进入使用。",
+      "pending": "该模块骨架已就绪，待后续阶段实现业务逻辑。"
+    }
+  },
+  "data": {
+    "backup": {
+      "title": "数据备份与恢复",
+      "description": "导出 JSON 备份、恢复历史备份，并在生产模式下执行双确认清空。",
+      "action": {
+        "export": "导出备份",
+        "exporting": "导出中...",
+        "import": "恢复备份",
+        "importing": "恢复中...",
+        "clear": "清空数据",
+        "clearing": "清空中..."
+      },
+      "dialog": {
+        "importConfirm": "确认恢复此备份吗？\\n组织：{{orgName}}\\n员工：{{employees}}\\n公司主体：{{companies}}\\n\\n当前数据将被覆盖。",
+        "clearStepOne": "确认清空当前业务数据？建议先执行备份。",
+        "clearStepTwo": "请再次确认：清空后仅保留默认设置，员工与月度数据将被删除。"
+      },
+      "notice": {
+        "repositoryUnavailable": "仓储桥接不可用，请检查主进程是否正常启动。",
+        "fileBridgeUnavailable": "文件桥接不可用，请检查 preload 注入。",
+        "saveCanceled": "已取消备份保存。",
+        "openCanceled": "已取消备份文件选择。",
+        "importCanceled": "已取消恢复操作。",
+        "clearCanceled": "已取消清空操作。",
+        "exportSuccess": "备份导出成功：{{path}}",
+        "exportFailed": "备份导出失败：{{reason}}",
+        "importSuccess": "恢复成功：员工 {{employees}} 人，公司主体 {{companies}} 个。",
+        "importFailed": "恢复失败：{{reason}}",
+        "clearSuccess": "清空完成，共处理 {{tables}} 张业务表。",
+        "clearFailed": "清空失败：{{reason}}"
+      },
+      "lastExport": {
+        "path": "最近导出路径：{{path}}",
+        "time": "最近导出时间：{{time}}"
+      },
+      "snapshot": {
+        "title": "当前存储快照",
+        "description": "用于在备份/恢复/清空后快速核对数据状态。",
+        "employeeCount": "员工数量：{{count}}",
+        "companyCount": "公司主体数量：{{count}}",
+        "inputCount": "月度输入记录：{{count}}",
+        "resultCount": "工资结果记录：{{count}}",
+        "schemaVersion": "Schema 版本：{{version}}",
+        "fileSize": "数据库文件大小：{{size}}"
+      },
+      "defaultOrgName": "公司名称"
+    },
+    "storage": {
+      "title": "存储信息",
+      "description": "查看数据库路径、模式开关、文件大小和业务记录数。",
+      "action": {
+        "refresh": "刷新",
+        "refreshing": "刷新中..."
+      },
+      "error": {
+        "loadFailed": "加载存储信息失败：{{reason}}"
+      },
+      "metric": {
+        "dbPath": "数据库路径：{{value}}",
+        "schema": "Schema 版本：{{value}}",
+        "size": "文件大小：{{value}}",
+        "appEnv": "APP_ENV：{{value}}",
+        "readSource": "READ_SOURCE：{{value}}",
+        "writeMode": "WRITE_MODE：{{value}}",
+        "journalMode": "journal_mode：{{value}}",
+        "foreignKeys": "foreign_keys：{{value}}",
+        "employeeCount": "员工数量：{{value}}",
+        "companyCount": "公司主体数量：{{value}}",
+        "payrollInputCount": "月度输入记录：{{value}}",
+        "payrollResultCount": "工资结果记录：{{value}}"
+      }
+    }
+  },
+  "common": {
+    "save": "保存",
+    "saving": "保存中...",
+    "cancel": "取消",
+    "edit": "编辑",
+    "delete": "删除",
+    "add": "新增",
+    "update": "更新",
+    "refresh": "刷新",
+    "yes": "是",
+    "no": "否"
+  },
+  "settings": {
+    "org": {
+      "title": "组织信息",
+      "description": "编辑组织名称并查看基础统计。",
+      "metrics": {
+        "employeeCount": "在职人员",
+        "companyCount": "公司主体",
+        "monthlyBaseTotal": "月度基础薪资总额"
+      },
+      "form": {
+        "orgName": "组织名称"
+      }
+    },
+    "social": {
+      "title": "社保与基数配置",
+      "description": "维护单位承担、个人承担和缴费基数。",
+      "group": {
+        "employer": "单位承担（六险）",
+        "worker": "个人承担（三险）",
+        "base": "缴费基数"
+      },
+      "units": {
+        "percent": "%",
+        "yuan": "元"
+      },
+      "fields": {
+        "compPension": "单位养老保险",
+        "compLocalPension": "单位地方养老补贴",
+        "compUnemploy": "单位失业保险",
+        "compMedical": "单位医疗保险",
+        "compInjury": "单位工伤保险",
+        "compMaternity": "单位生育保险",
+        "workerPension": "个人养老保险",
+        "workerUnemploy": "个人失业保险",
+        "workerMedical": "个人医疗保险",
+        "pensionBase": "养老基数",
+        "unemploymentBase": "失业基数",
+        "medicalBase": "医疗基数",
+        "injuryBase": "工伤基数",
+        "maternityBase": "生育基数"
+      },
+      "example": {
+        "title": "示例：按当前配置计算，单个参保员工每月社保承担为：",
+        "employer": "单位承担合计：{{value}} 元",
+        "worker": "个人承担合计：{{value}} 元"
+      }
+    },
+    "company": {
+      "title": "公司主体管理",
+      "description": "维护简称与全称，用于员工归属选择。",
+      "form": {
+        "short": "简称",
+        "full": "全称",
+        "shortPlaceholder": "例如 AC",
+        "fullPlaceholder": "例如 Acme Co"
+      },
+      "table": {
+        "short": "简称",
+        "full": "全称",
+        "actions": "操作"
+      },
+      "dialog": {
+        "deleteConfirm": "确认删除公司主体 {{short}} 吗？"
+      },
+      "empty": "暂无公司主体，请先新增。"
+    }
+  },
+  "employee": {
+    "list": {
+      "title": "员工列表",
+      "description": "维护员工基础信息，支持行内编辑与详情查看。",
+      "action": {
+        "add": "新增员工"
+      },
+      "table": {
+        "name": "姓名",
+        "company": "公司主体",
+        "position": "职位",
+        "baseSalary": "基本工资",
+        "subsidy": "补助",
+        "fund": "公积金",
+        "actions": "操作"
+      },
+      "empty": "暂无员工数据。",
+      "dialog": {
+        "deleteConfirm": "确认删除员工 {{name}} 吗？",
+        "addTitle": "新增员工",
+        "addDescription": "填写员工信息后保存到本地仓储。"
+      },
+      "detail": {
+        "title": "员工详情",
+        "description": "点击列表行后可查看完整员工信息。",
+        "name": "姓名：{{value}}",
+        "idCard": "身份证号：{{value}}",
+        "company": "公司：{{value}}",
+        "department": "部门：{{value}}",
+        "position": "职位：{{value}}",
+        "type": "人员类型：{{value}}",
+        "baseSalary": "基本工资：{{value}}",
+        "subsidy": "补助：{{value}}",
+        "hasSocial": "缴纳社保：{{value}}",
+        "hasLocalPension": "缴纳地方养老：{{value}}",
+        "fund": "公积金：{{value}}",
+        "editAction": "编辑该员工"
+      }
+    },
+    "form": {
+      "name": "姓名",
+      "idCard": "身份证号",
+      "company": "所属公司",
+      "companyPlaceholder": "请选择公司主体",
+      "department": "部门",
+      "position": "职位",
+      "type": "人员类型",
+      "typeManagement": "管理",
+      "typeSales": "销售",
+      "baseSalary": "基本工资",
+      "subsidy": "补助",
+      "fund": "公积金金额",
+      "hasSocial": "是否缴纳社保",
+      "hasLocalPension": "是否缴纳地方养老"
+    },
+    "importExport": {
+      "title": "员工导入导出",
+      "description": "下载模板、导入 Excel 并处理冲突，导出当前员工花名册。",
+      "tab": {
+        "import": "导入",
+        "export": "导出"
+      },
+      "action": {
+        "downloadTemplate": "下载模板",
+        "chooseFile": "选择文件",
+        "applyImport": "执行导入",
+        "exportEmployees": "导出员工 Excel",
+        "resolveConflicts": "处理冲突"
+      },
+      "file": {
+        "selected": "已选择文件：{{name}}",
+        "empty": "尚未选择导入文件。"
+      },
+      "summary": {
+        "rows": "待导入记录：{{count}}",
+        "conflicts": "冲突记录：{{count}}"
+      },
+      "export": {
+        "summary": "当前员工总数：{{count}}"
+      },
+      "notice": {
+        "importApplied": "导入完成：新增 {{inserted}} 条，覆盖 {{overwritten}} 条，跳过 {{skipped}} 条。",
+        "conflictsPending": "存在冲突记录，需先在冲突弹窗中确认处理后才能执行导入。"
+      },
+      "conflict": {
+        "title": "导入冲突处理",
+        "description": "检测到同名+同身份证号记录，请逐条选择覆盖或跳过。",
+        "allOverwrite": "全部覆盖",
+        "allSkip": "全部跳过",
+        "overwrite": "覆盖",
+        "skip": "跳过",
+        "confirm": "确认导入",
+        "table": {
+          "row": "行号",
+          "employee": "导入记录",
+          "existing": "现有记录",
+          "action": "处理方式"
+        }
+      }
+    }
   }
 }

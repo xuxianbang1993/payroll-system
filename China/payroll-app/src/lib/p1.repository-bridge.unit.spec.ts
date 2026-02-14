@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
+  clearRepositoryData,
   exportRepositoryBackup,
   importRepositoryBackup,
   listRepositoryEmployees,
@@ -64,6 +65,7 @@ describe("P1 repository preload bridge", () => {
     await expect(saveRepositorySettings({ orgName: "A", social: socialConfig, companies: [] })).resolves.toBeNull();
     await expect(replaceRepositoryEmployees([])).resolves.toBeNull();
     await expect(importRepositoryBackup({})).resolves.toBeNull();
+    await expect(clearRepositoryData()).resolves.toBeNull();
   });
 
   it("invokes each repository channel and returns typed payloads", async () => {
@@ -74,6 +76,7 @@ describe("P1 repository preload bridge", () => {
     const exportBackup = vi.fn().mockResolvedValue({ version: 2, data: { employees: [] } });
     const importBackup = vi.fn().mockResolvedValue({ sourceFormat: "legacy", importedEmployees: 1 });
     const getStorageInfo = vi.fn().mockResolvedValue({ dbPath: "/tmp/payroll.sqlite", employeeCount: 1 });
+    const clearData = vi.fn().mockResolvedValue({ clearedTables: ["settings"] });
 
     window.payrollRepository = {
       getSettings,
@@ -83,6 +86,7 @@ describe("P1 repository preload bridge", () => {
       exportBackup,
       importBackup,
       getStorageInfo,
+      clearData,
     };
 
     const settings = await loadRepositorySettings();
@@ -91,6 +95,7 @@ describe("P1 repository preload bridge", () => {
     const replaceResult = await replaceRepositoryEmployees([employee]);
     const backup = await exportRepositoryBackup();
     const importResult = await importRepositoryBackup({ orgName: "Legacy" });
+    const clearResult = await clearRepositoryData();
     const storage = await loadRepositoryStorageInfo();
 
     expect(settings?.orgName).toBe("Acme");
@@ -99,6 +104,7 @@ describe("P1 repository preload bridge", () => {
     expect(replaceResult?.count).toBe(1);
     expect(backup?.version).toBe(2);
     expect(importResult?.sourceFormat).toBe("legacy");
+    expect(clearResult?.clearedTables).toContain("settings");
     expect(storage?.dbPath).toBe("/tmp/payroll.sqlite");
 
     expect(getSettings).toHaveBeenCalledTimes(1);
@@ -107,6 +113,7 @@ describe("P1 repository preload bridge", () => {
     expect(replaceEmployees).toHaveBeenCalledTimes(1);
     expect(exportBackup).toHaveBeenCalledTimes(1);
     expect(importBackup).toHaveBeenCalledTimes(1);
+    expect(clearData).toHaveBeenCalledTimes(1);
     expect(getStorageInfo).toHaveBeenCalledTimes(1);
   });
 });

@@ -1,10 +1,9 @@
----
 document: 薪酬管理系统 · PRD 主索引
-version: 1.1
+version: 1.2
 product: 薪酬管理系统（Payroll Management System）
 form: 桌面端应用（Electron 打包，Mac + Windows）
 languages: 繁体中文 / 简体中文 / English
-date: 2026-02-12
+date: 2026-02-14
 companion: 《薪酬系统-开发策略文档.md》（技术方案）
 ---
 
@@ -99,6 +98,23 @@ graph TD
     PAY --> VOU
     EMP --> IE
 ```
+
+## 阶段状态（2026-02-14）
+
+| 模块 | 状态 | 说明 |
+|------|------|------|
+| 基础设置（03） | 已完成（P1） | 页面与存储已落地，回归通过 |
+| 人员管理（04） | 已完成（P1） | 列表 CRUD、详情、导入导出已落地 |
+| 导入导出（07） | 部分完成（P1） | 员工 Excel 导入导出已完成；薪资 CSV/PDF、凭证 CSV 待后续 |
+| 数据管理（08） | 已完成（P1） | 备份/恢复/清空/存储信息 + evidence 已通过 |
+| 薪资核算（05） | 待开发（P2） | 仍为下一阶段主任务 |
+| 会计凭证（06） | 待开发（P3） | 依赖薪资汇总能力 |
+
+## 下一步（P2 优先）
+
+- 优先进入 `05-mod-payroll.md`：实现 `calculator.ts`、`PayrollByEmpPage`、`PayrollDetailPage`、工资条/PDF 导出。
+- P2 关门标准保持不变：`calculator.test.ts` + `payroll-flow.spec.ts` + 三件套证据（raw JSON + case map + XLSX）。
+- P2 完成后再进入 `06-mod-voucher.md` 的 P3 任务。
 
 ## 使用指南
 

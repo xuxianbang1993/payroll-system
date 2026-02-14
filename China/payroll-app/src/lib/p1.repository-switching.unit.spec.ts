@@ -59,6 +59,10 @@ const importResult: ImportBackupResult = {
   importedPayrollResults: 0,
 };
 
+const clearResult = {
+  clearedTables: ["payroll_results", "payroll_inputs", "employees", "companies", "settings"],
+};
+
 function createAdapter(overrides: Partial<RepositoryAdapter> = {}): RepositoryAdapter {
   return {
     getSettings: vi.fn().mockReturnValue(baseSettings),
@@ -77,6 +81,7 @@ function createAdapter(overrides: Partial<RepositoryAdapter> = {}): RepositoryAd
       },
     }),
     importBackup: vi.fn().mockReturnValue(importResult),
+    clearData: vi.fn().mockReturnValue(clearResult),
     getStorageInfo: vi.fn().mockReturnValue({
       dbPath: "/tmp/payroll.sqlite",
       schemaVersion: 2,
@@ -148,6 +153,38 @@ describe("P1 repository switching", () => {
 
     expect(legacy.saveSettings).toHaveBeenCalledTimes(2);
     expect(sqlite.saveSettings).toHaveBeenCalledTimes(2);
+  });
+
+  it("routes clearData by WRITE_MODE legacy/sqlite/dual", () => {
+    const legacy = createAdapter();
+    const sqlite = createAdapter();
+
+    const legacyMode = createSwitchingRepository({
+      context: { appEnv: "prod", readSource: "legacy", writeMode: "legacy" },
+      legacy,
+      sqlite,
+    });
+    expect(legacyMode.clearData().clearedTables).toContain("settings");
+    expect(legacy.clearData).toHaveBeenCalledTimes(1);
+    expect(sqlite.clearData).toHaveBeenCalledTimes(0);
+
+    const sqliteMode = createSwitchingRepository({
+      context: { appEnv: "prod", readSource: "legacy", writeMode: "sqlite" },
+      legacy,
+      sqlite,
+    });
+    expect(sqliteMode.clearData().clearedTables).toContain("settings");
+    expect(legacy.clearData).toHaveBeenCalledTimes(1);
+    expect(sqlite.clearData).toHaveBeenCalledTimes(1);
+
+    const dualMode = createSwitchingRepository({
+      context: { appEnv: "prod", readSource: "legacy", writeMode: "dual" },
+      legacy,
+      sqlite,
+    });
+    expect(dualMode.clearData().clearedTables).toContain("settings");
+    expect(legacy.clearData).toHaveBeenCalledTimes(2);
+    expect(sqlite.clearData).toHaveBeenCalledTimes(2);
   });
 
   it("throws DualWriteError and logs structured fields when dual write is inconsistent", () => {

@@ -14,6 +14,13 @@ import {
 import { buildBackupExport, normalizeBackupPayload } from "./backup-normalizer.js";
 
 const LEGACY_STATE_KEY = "legacy.repository.state.v1";
+const CLEAR_TABLES = [
+  "payroll_results",
+  "payroll_inputs",
+  "employees",
+  "companies",
+  "settings",
+];
 
 interface CreateLegacyRepositoryAdapterOptions {
   store: Store<Record<string, unknown>>;
@@ -124,6 +131,23 @@ export function createLegacyRepositoryAdapter(
     };
   };
 
+  const clearData: RepositoryAdapter["clearData"] = () => {
+    const defaults = createDefaultSettings();
+
+    writeState(options.store, {
+      orgName: defaults.orgName,
+      social: defaults.social,
+      companies: [],
+      employees: [],
+      payrollInputs: [],
+      payrollResults: [],
+    });
+
+    return {
+      clearedTables: [...CLEAR_TABLES],
+    };
+  };
+
   const getStorageInfo = () => {
     const state = readState(options.store);
 
@@ -145,6 +169,7 @@ export function createLegacyRepositoryAdapter(
     replaceEmployees,
     exportBackup,
     importBackup,
+    clearData,
     getStorageInfo,
   };
 }

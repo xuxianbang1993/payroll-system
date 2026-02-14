@@ -33,6 +33,10 @@ export interface RepositoryReplaceEmployeesResult {
   count: number;
 }
 
+export interface RepositoryClearDataResult {
+  clearedTables: string[];
+}
+
 export interface RepositoryStorageInfo {
   dbPath: string;
   schemaVersion: number;
@@ -131,6 +135,19 @@ export async function importRepositoryBackup(
   }
 
   return result as RepositoryImportResult;
+}
+
+export async function clearRepositoryData(): Promise<RepositoryClearDataResult | null> {
+  if (!window.payrollRepository) {
+    return null;
+  }
+
+  const result = await window.payrollRepository.clearData();
+  if (!asObject(result)) {
+    return null;
+  }
+
+  return result as RepositoryClearDataResult;
 }
 
 export async function loadRepositoryStorageInfo(): Promise<RepositoryStorageInfo | null> {

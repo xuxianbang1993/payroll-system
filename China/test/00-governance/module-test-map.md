@@ -20,10 +20,22 @@ This file is the source of truth for requirement-to-test mapping.
   - Unit: `01-unit/p1-settings`
   - Component: `02-component/p1-settings-forms`
   - E2E: `03-e2e/p1-settings-employee-data`
+  - Evidence Specs:
+    - `src/stores/p1.settings-store.unit.spec.ts`
+    - `src/pages/settings/p1.org-settings.component.spec.tsx`
 - Employee
   - Unit: `01-unit/p1-employee`
   - Component: `02-component/p1-employee-crud`
   - E2E: `03-e2e/p1-settings-employee-data`
+  - Evidence Specs:
+    - `src/stores/p1.employee-store.unit.spec.ts`
+    - `src/pages/employee/p1.employee-list.component.spec.tsx`
+    - `tests/e2e/p1-settings-employee-data.spec.ts`
+- Import / Export
+  - Unit: `01-unit/p1-import-export`
+  - E2E: `03-e2e/p1-settings-employee-data`
+  - Evidence Specs:
+    - `src/lib/p1.employee-import-export.unit.spec.ts`
 - Data management / backup restore / migration
   - Unit: `01-unit/p1-data-management`
   - E2E: `03-e2e/p1-settings-employee-data`
@@ -31,9 +43,12 @@ This file is the source of truth for requirement-to-test mapping.
   - Unit: `01-unit/p1-data-management`
   - Evidence Specs:
     - `src/lib/p1.repository-switching.unit.spec.ts`
+    - `src/lib/p1.repository-clear-data.unit.spec.ts`
+    - `src/lib/p1.backup-files-bridge.unit.spec.ts`
     - `src/lib/p1.repository-migration-0002.unit.spec.ts`
     - `src/lib/p1.repository-bridge.unit.spec.ts`
     - `tests/e2e/db-isolation.spec.ts`
+    - `tests/e2e/backup-restore.spec.ts`
 
 ## P2 Payroll
 

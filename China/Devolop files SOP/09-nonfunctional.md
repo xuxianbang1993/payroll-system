@@ -1,8 +1,10 @@
 ---
 module: 非功能性需求
-version: 1.4
+version: 1.5
 depends_on: []
 consumed_by: [10-acceptance]
+change_log:
+  - v1.5: 增补 P1 收口验证基线与下一阶段非功能约束
 ---
 
 # 非功能性需求
@@ -54,3 +56,22 @@ consumed_by: [10-acceptance]
 - 阶段里程碑证据：raw JSON + case map 对账结果 + XLSX 报告
 - 客观结果允许失败项存在；禁止将失败结果改写为通过
 - 测试治理细则（命名、目录、分级规则）以《薪酬系统-开发策略文档》第四章为唯一权威源
+
+## 6. 当前验证基线（2026-02-14）
+
+- `npm run build`：通过
+- `npm run test`：通过（67/67）
+- 关键 E2E：
+  - `db-isolation.spec.ts`：通过
+  - `backup-restore.spec.ts`：通过
+  - `p1-settings-employee-data.spec.ts`：通过
+- 证据链：
+  - `raw` + `case map` + `XLSX` 三件套齐全
+  - case map 对账结果：`match=25`, `mismatch=0`, `noEvidence=0`
+
+## 7. 下一阶段约束（P2/P3）
+
+- 新增 payroll/voucher 功能时，必须保持：
+  - `db:reset` 仅 `APP_ENV=test` 可用
+  - preload CJS 与 `base: "./"` 不回退
+  - ABI 自动切换脚本链路不回退

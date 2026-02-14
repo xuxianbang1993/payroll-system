@@ -1,9 +1,10 @@
 ---
 module: 整体布局与导航
-version: 2.0
+version: 2.1
 depends_on: []
 consumed_by: [03-mod-settings, 04-mod-employee, 05-mod-payroll, 06-mod-voucher, 08-data-management]
 change_log:
+  - v2.1: 同步 P1 收口后的实际路由与组件命名，并补充当前实现状态
   - v2.0: 布局方案由「侧边栏导航」改为「顶栏 + 弹出分类面板」（参考阿里云控制台）
   - v1.0: 初始版本（侧边栏导航）
 ---
@@ -142,13 +143,21 @@ change_log:
 | 基础设置 > 组织信息 | OrgSettingsPage | /settings/org |
 | 基础设置 > 公司主体管理 | CompanyPage | /settings/company |
 | 基础设置 > 社保比例配置 | SocialConfigPage | /settings/social |
-| 基础设置 > 公积金比例配置 | FundConfigPage | /settings/fund |
-| 基础设置 > 缴费基数设置 | BaseConfigPage | /settings/base |
-| 人员管理 > 员工列表 | EmployeePage | /employee/list |
-| 人员管理 > Excel 导入 | ImportPage | /employee/import |
-| 人员管理 > Excel 导出 | ExportPage | /employee/export |
+| 基础设置 > 公积金比例配置 | SocialConfigPage（复用） | /settings/fund |
+| 基础设置 > 缴费基数设置 | SocialConfigPage（复用） | /settings/base |
+| 人员管理 > 员工列表 | EmployeeListPage | /employee/list |
+| 人员管理 > Excel 导入 | ImportExportPage | /employee/import |
+| 人员管理 > Excel 导出 | ImportExportPage | /employee/export |
 | 薪资核算 > 按员工录入 | PayrollByEmpPage | /payroll/employee |
 | 薪资核算 > 全员明细表 | PayrollDetailPage | /payroll/detail |
 | 会计凭证 > 凭证总览 | VoucherPage | /voucher |
 | 数据管理 > JSON 备份 | BackupPage | /data/backup |
 | 数据管理 > 存储使用统计 | StoragePage | /data/storage |
+
+## 七、当前实现状态（2026-02-14）
+
+- 已落地：`/settings/*`、`/employee/*`、`/data/*`（P1 完成）。
+- 概览卡片状态：
+  - `settings`/`employee`/`data` 显示 ready
+  - `payroll`/`voucher` 显示 pending
+- 待实现：`/payroll/*` 与 `/voucher` 业务页（P2/P3）。

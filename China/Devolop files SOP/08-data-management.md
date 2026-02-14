@@ -1,11 +1,13 @@
 ---
 module: 数据管理
-version: 1.3
+version: 1.4
 depends_on: [01-data-model.md]
 consumed_by: []
 pages:
   - /data/backup
   - /data/storage
+change_log:
+  - v1.4: 标记 P1 收口完成状态并补充最新证据基线
 ---
 
 # 数据管理模块
@@ -99,3 +101,17 @@ pages:
 - 运行 `npm run test` 前必须切换到 Node ABI（项目脚本默认自动执行 `abi:node`）
 - 运行 `npm run test:e2e` 前必须切换到 Electron ABI（项目脚本默认自动执行 `abi:electron`）
 - 若跳过 npm 包装脚本直接运行 `vitest` 或 `playwright test`，必须先手动执行对应 ABI 切换命令，否则会出现 `NODE_MODULE_VERSION` mismatch
+
+---
+
+## 7. 当前交付状态（2026-02-14）
+
+- 状态：已完成（P1）。
+- 已落地：
+  - `/data/backup`：备份、恢复、生产可用清空
+  - `/data/storage`：容量/记录数/schema 展示
+  - IPC：`repo:data:clear`、`file:backup:save-json`、`file:backup:open-json`
+- 已通过关键门槛：
+  - `db-isolation.spec.ts`
+  - `backup-restore.spec.ts`
+  - case map 对账 `match=25 / mismatch=0 / noEvidence=0`

@@ -3,12 +3,14 @@ import { existsSync, statSync } from "node:fs";
 
 import type {
   BackupExportFile,
+  ClearDataResult,
   EmployeeRecord,
   ImportBackupResult,
   RepositorySettings,
   RepositoryStorageInfo,
 } from "./contracts.js";
 import { buildBackupExport, normalizeBackupPayload } from "./backup-normalizer.js";
+import { createDefaultSettings } from "./defaults.js";
 import { ensureCompanies, parseJsonRecord } from "./sqlite-shared.js";
 
 interface SqliteBackupActionsOptions {
@@ -22,8 +24,17 @@ interface SqliteBackupActionsOptions {
 interface SqliteBackupActions {
   exportBackup: () => BackupExportFile;
   importBackup: (payload: unknown) => ImportBackupResult;
+  clearData: () => ClearDataResult;
   getStorageInfo: () => RepositoryStorageInfo;
 }
+
+const CLEAR_TABLES = [
+  "payroll_results",
+  "payroll_inputs",
+  "employees",
+  "companies",
+  "settings",
+];
 
 export function createSqliteBackupActions(
   options: SqliteBackupActionsOptions,
@@ -174,6 +185,39 @@ export function createSqliteBackupActions(
     };
   };
 
+  const clearData = (): ClearDataResult => {
+    const defaults = createDefaultSettings();
+    const run = db.transaction(() => {
+      db.prepare("DELETE FROM payroll_results").run();
+      db.prepare("DELETE FROM payroll_inputs").run();
+      db.prepare("DELETE FROM employees").run();
+      db.prepare("DELETE FROM companies").run();
+      db.prepare("DELETE FROM settings").run();
+
+      db.prepare(
+        `INSERT INTO settings (key, value, updated_at)
+         VALUES (?, ?, CURRENT_TIMESTAMP)
+         ON CONFLICT(key) DO UPDATE SET
+           value = excluded.value,
+           updated_at = CURRENT_TIMESTAMP`,
+      ).run("orgName", defaults.orgName);
+
+      db.prepare(
+        `INSERT INTO settings (key, value, updated_at)
+         VALUES (?, ?, CURRENT_TIMESTAMP)
+         ON CONFLICT(key) DO UPDATE SET
+           value = excluded.value,
+           updated_at = CURRENT_TIMESTAMP`,
+      ).run("social", JSON.stringify(defaults.social));
+    });
+
+    run();
+
+    return {
+      clearedTables: [...CLEAR_TABLES],
+    };
+  };
+
   const getStorageInfo = (): RepositoryStorageInfo => {
     const employeeCount = db.prepare("SELECT COUNT(1) AS c FROM employees").get() as { c: number };
     const companyCount = db.prepare("SELECT COUNT(1) AS c FROM companies").get() as { c: number };
@@ -196,6 +240,7 @@ export function createSqliteBackupActions(
   return {
     exportBackup,
     importBackup,
+    clearData,
     getStorageInfo,
   };
 }

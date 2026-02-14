@@ -1,5 +1,6 @@
 import type {
   BackupExportFile,
+  ClearDataResult,
   EmployeeRecord,
   ImportBackupResult,
   ReplaceEmployeesResult,
@@ -122,6 +123,14 @@ export function createSwitchingRepository(
         payload,
         (adapter, cloned) => adapter.importBackup(cloned),
       ) as ImportBackupResult;
+    },
+
+    clearData: (): ClearDataResult => {
+      return writeByMode<null>(
+        "clearData",
+        null,
+        (adapter) => adapter.clearData(),
+      ) as ClearDataResult;
     },
 
     getStorageInfo: () => options.sqlite.getStorageInfo(),

@@ -19,7 +19,12 @@ declare global {
       replaceEmployees: (employees: unknown[]) => Promise<unknown>;
       exportBackup: () => Promise<unknown>;
       importBackup: (payload: unknown) => Promise<unknown>;
+      clearData: () => Promise<unknown>;
       getStorageInfo: () => Promise<unknown>;
+    };
+    payrollFiles?: {
+      saveBackupJson: (request: { payload: unknown; orgName?: string; suggestedPath?: string }) => Promise<unknown>;
+      openBackupJson: (request?: { selectedPath?: string }) => Promise<unknown>;
     };
   }
 }

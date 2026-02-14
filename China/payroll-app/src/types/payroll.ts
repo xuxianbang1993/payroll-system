@@ -46,6 +46,32 @@ export interface Settings {
   companies: Company[];
 }
 
+export interface SettingsFormModel {
+  orgName: string;
+  social: SocialConfig;
+  companies: Company[];
+}
+
+export interface EmployeeFormModel {
+  id?: number;
+  name: string;
+  idCard: string;
+  companyShort: string;
+  company: string;
+  dept: string;
+  position: string;
+  type: EmployeeType;
+  baseSalary: number;
+  subsidy: number;
+  hasSocial: boolean;
+  hasLocalPension: boolean;
+  fundAmount: number;
+}
+
+export interface EmployeeImportRow extends EmployeeFormModel {
+  rowNumber: number;
+}
+
 export interface PayrollInput {
   perfGrade?: string;
   perfSalary?: number;

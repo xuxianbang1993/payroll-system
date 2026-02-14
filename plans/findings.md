@@ -99,3 +99,134 @@
 - `/Users/xuxianbang/Documents/payroll system/China/Devolop files SOP/09-nonfunctional.md`
 - `/Users/xuxianbang/Documents/payroll system/China/Devolop files SOP/10-acceptance.md`
 - `/Users/xuxianbang/Documents/payroll system/China/Devolop files SOP/薪酬系统-开发策略文档.md`
+
+## Execution Kickoff (2026-02-14)
+
+### New Facts Confirmed
+- Branch `codex/p1-sqlite-foundation` is created from current `main` baseline.
+- P1 foundation code exists (SQLite/migrator/repository switching/db isolation), while Data UI pages are still placeholders.
+- Remaining P1 hard gate still includes `backup-restore.spec.ts` + `db-isolation.spec.ts` passing with evidence bundle.
+- Current Vitest config executes only `src/**/*.{test,spec}.{ts,tsx}` and excludes `tests/**`.
+- Current Playwright config executes only `tests/e2e`.
+
+### Scope Locked for This Sprint
+- Priority: Data module closeout first (`/data/backup`, `/data/storage`).
+- Keep current test execution layout; do not migrate to `tests/unit` or `tests/component` now.
+- Add native backup file I/O via Electron IPC instead of browser-only blob/fileinput flow.
+- Keep test safety policy unchanged (`db:reset` remains test-only).
+
+### Implementation Notes
+- `repo:data:clear` will be added as production-facing clear operation distinct from `db:reset`.
+- Repository adapter contract must remain mode-safe across `legacy/sqlite/dual` write modes.
+- File backup API will support cancel-safe responses for native dialog flows.
+
+### Risks and Controls
+- Existing dirty workspace files (`.DS_Store`, `dist-electron`) require strict file-level staging discipline.
+- Electron GUI commands may require `ALLOW_ELECTRON_GUI_IN_CODEX=1` in this environment.
+
+## Sprint Completion (2026-02-14)
+
+### Delivered
+- Added production data clear operation through repository path (`repo:data:clear`) while preserving test-only `db:reset` guard.
+- Added native backup file bridge (`file:backup:save-json`, `file:backup:open-json`) and renderer wrappers.
+- Implemented `/data/backup` and `/data/storage` pages and replaced data route placeholders.
+- Added i18n coverage for Data module interactions in `zh-CN` / `zh-HK` / `en`.
+- Added test coverage for:
+  - repository clear routing
+  - sqlite clear behavior and default restoration
+  - backup file preload bridge
+  - backup/clear/restore e2e flow
+- Updated governance case catalog from 12 to 16 cases and refreshed evidence bundle.
+
+### Verification Outcomes
+- `npm run build` PASS
+- `npm run test` PASS (50/50)
+- `ALLOW_ELECTRON_GUI_IN_CODEX=1 npm run test:e2e -- tests/e2e/db-isolation.spec.ts tests/e2e/backup-restore.spec.ts` PASS (3/3)
+- `p1-case-map-reconciliation.json`: `match=16`, `mismatch=0`, `noEvidence=0`
+
+### Updated Evidence Artifacts
+- `China/test/06-reports/raw/vitest-p1-repository.json`
+- `China/test/06-reports/raw/playwright-p1-db-isolation.json`
+- `China/test/06-reports/raw/p1-case-map-reconciliation.json`
+- `China/test/06-reports/p1-test-report-20260214_085752.xlsx`
+
+### Final Evidence Refresh (2026-02-14)
+- Re-generated raw test outputs after final validation pass.
+- Latest reconciliation summary:
+  - generatedAt: `2026-02-14T09:02:23.933Z`
+  - totalCases: `16`
+  - match: `16`
+  - mismatch: `0`
+  - noEvidence: `0`
+- Latest XLSX artifact: `China/test/06-reports/p1-test-report-20260214_090224.xlsx`.
+
+## Full Module Closeout Update (2026-02-14)
+
+### New Findings
+- Data closeout was complete, but SOP-mandated P1 scope still lacked `settings` + `employee` + `import-export` actual pages.
+- Existing repository IPC surface was sufficient for this stage (`getSettings/saveSettings/listEmployees/replaceEmployees/exportBackup/importBackup/getStorageInfo/clearData`), so no additional main-process CRUD IPC was required.
+- Route-level placeholders could be replaced directly while preserving payroll/voucher placeholders as out-of-scope.
+- Excel import/export can be implemented on renderer side with `xlsx` while conflict resolution remains deterministic through name+idCard keying.
+
+### Decisions Applied
+| Decision | Rationale |
+|----------|-----------|
+| Reuse existing repository IPC for settings/employee writes | Avoid unnecessary main-process interface expansion in P1 closeout |
+| Add dedicated front-end stores (`settings-store`, `employee-store`) | Isolate page state and keep page components focused on UI |
+| Implement `p1-employee-import-export` utility for template/parse/conflict/export | Centralize import/export rules and improve unit-test coverage |
+| Keep test layout unchanged (`src` Vitest, `tests/e2e` Playwright) | Matches active runner config and prior governance assumptions |
+| Produce new E2E flow `p1-settings-employee-data.spec.ts` | Adds objective evidence for remaining P1 module scope |
+
+### Evidence Outcome
+- Case catalog expanded from 16 to 25.
+- Latest reconciliation (`China/test/06-reports/raw/p1-case-map-reconciliation.json`):
+  - `totalCases=25`
+  - `match=25`
+  - `mismatch=0`
+  - `noEvidence=0`
+- Latest XLSX report: `China/test/06-reports/p1-test-report-20260214_092954.xlsx`.
+
+## Closeout Review Update (2026-02-14)
+
+### Review Findings Addressed
+- Import conflict path: direct "Apply Import" can no longer proceed while unresolved conflicts exist.
+- Employee detail usability: added direct action to jump from detail panel into inline edit.
+- Overview state signal: cards now differentiate `ready` and `pending` instead of showing all modules as pending.
+
+### Decisions Applied
+| Decision | Rationale |
+|----------|-----------|
+| Keep import execution gated behind conflict-resolution dialog | Prevent accidental overwrite import from main action path |
+| Add detail-to-edit action instead of adding a separate edit page | Minimal UX change, immediate completion of documented behavior |
+| Keep payroll/voucher as pending in overview | Respect current out-of-scope boundary while exposing true readiness of delivered modules |
+
+### Verification Evidence
+- `npm run test -- src/pages/employee/p1.employee-list.component.spec.tsx src/pages/employee/p1.import-export.component.spec.tsx src/pages/home/p1.overview-status.component.spec.tsx`: PASS
+- `npm run build`: PASS
+- `npm run test`: PASS (`67/67`)
+- `ALLOW_ELECTRON_GUI_IN_CODEX=1 npm run test:e2e -- tests/e2e/db-isolation.spec.ts tests/e2e/backup-restore.spec.ts tests/e2e/p1-settings-employee-data.spec.ts`: PASS (`4/4`)
+- `node scripts/generate-p1-case-map.mjs`: PASS (`summary.match=25`, `summary.mismatch=0`, `summary.noEvidence=0`)
+- `node scripts/generate-p1-xlsx-report.mjs`: PASS (`China/test/06-reports/p1-test-report-20260214_100814.xlsx`)
+
+## Release Closure Decision (2026-02-14)
+
+### Versioning
+- Release version fixed by user: `2.1.2-p1-sqlite-finish`.
+- Baseline reference remains main tag `2.1.2`.
+
+### Documentation Sync
+- SOP files updated to show:
+  - P1 delivered: settings/employee/import-export(data) modules
+  - P2 pending: payroll module
+  - P3 pending: voucher module
+- Root/app README updated with:
+  - what was completed
+  - what was fixed in closeout review
+  - what remains
+
+### Next Work Package
+- Next mandatory plan file: `plans/2026-02-14-p2-payroll-kickoff.md`.
+- P2 first gate:
+  - `calculator.ts` + unit tests
+  - `payroll-flow.spec.ts`
+  - evidence three-piece output.

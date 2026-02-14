@@ -31,6 +31,7 @@ export function createSqliteRepositoryAdapter(
     replaceEmployees: employeeActions.replaceEmployees,
     exportBackup: backupActions.exportBackup,
     importBackup: backupActions.importBackup,
+    clearData: backupActions.clearData,
     getStorageInfo: backupActions.getStorageInfo,
   };
 }

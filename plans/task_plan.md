@@ -1,60 +1,124 @@
-# Task Plan: P1 SQLite Foundation and Migration Start
+# Task Plan: P1 Closeout Program
 
 ## Goal
-Complete P1 foundation by introducing SQLite as main data storage with safe test isolation, while preserving rollback capability and evidence-driven delivery.
+Close P1 by finishing Data + Settings + Employee + Import/Export scope and maintaining complete objective evidence artifacts.
 
 ## Current Phase
-Phase 5
+Phase 9
 
 ## Phases
 
-### Phase 1: Requirements & Discovery
-- [x] Summarize current project status from prior conversation
-- [x] Read P1-related SOP/PRD files and confirm constraints
-- [x] Align on migration guardrails (APP_ENV, TEST_DB_PATH, READ_SOURCE, WRITE_MODE)
+### Phase 1: Kickoff & Baseline
+- [x] Create and switch to `codex/p1-sqlite-foundation`
+- [x] Confirm unresolved P1 gate (`backup-restore.spec.ts`)
+- [x] Lock implementation choices with user
 - **Status:** complete
 
-### Phase 2: Planning & Structure
-- [x] Initialize planning memory files (task_plan/findings/progress)
-- [x] Draft P1 implementation plan file under plans/
-- [x] Confirm sequence for foundation-first delivery (DB -> repository -> test harness -> features)
+### Phase 2: Planning State Sync
+- [x] Create sprint plan file `plans/2026-02-14-p1-closeout-sprint.md`
+- [x] Refresh `task_plan.md`
+- [x] Append kickoff findings and progress
 - **Status:** complete
 
-### Phase 3: Implementation
-- [x] Add SQLite client bootstrap (WAL, foreign_keys, schema version)
-- [x] Add migration runner and initial schema
-- [x] Add DB admin IPC contract (runtime info + guarded reset bridge)
-- [x] Add repository abstraction with read/write source switching
-- [x] Add test-only reset guard and temporary DB lifecycle support
-- [x] Integrate settings + employee + backup/storage paths to new repository layer
+### Phase 3: Backend Data APIs
+- [x] Add `clearData` repository contract and adapter implementations
+- [x] Add IPC `repo:data:clear`
+- [x] Add native backup file IPC (`file:backup:save-json`, `file:backup:open-json`)
+- [x] Expose preload and renderer bridges for clear + file operations
 - **Status:** complete
 
-### Phase 4: Testing & Verification
-- [x] Add/extend unit tests for DB init, migration, read/write modes
-- [x] Add db-isolation spec (test mode reset allowed, prod mode denied)
-- [x] Run npm run test and npm run test:e2e (P1 targeted suites + db-isolation)
-- [x] Produce raw JSON + case-map evidence, then milestone XLSX
+### Phase 4: Data Pages
+- [x] Implement `BackupPage` and `StoragePage`
+- [x] Replace data placeholder routes in `app-routes.tsx`
+- [x] Add i18n copy for new data page interactions (zh-CN/zh-HK/en)
 - **Status:** complete
 
-### Phase 5: Delivery
-- [ ] Summarize code changes and risks
-- [ ] Prepare commit(s) with clear scopes
-- [ ] Request code review before merge
-- **Status:** pending
+### Phase 5: Tests & Evidence
+- [x] Extend unit tests for repository/bridge changes
+- [x] Add backup file bridge unit tests
+- [x] Add `tests/e2e/backup-restore.spec.ts`
+- [x] Run unit + e2e suites
+- [x] Regenerate P1 case-map reconciliation and XLSX report
+- **Status:** complete
 
-## Decisions Made
+### Phase 6: Docs & Closeout
+- [x] Update root `README.md`
+- [x] Update app `China/payroll-app/README.md`
+- [x] Update governance mapping files (`module-test-map.md`, `p1-test-cases.json`)
+- [x] Finalize `plans/findings.md` + `plans/progress.md`
+- **Status:** complete
+
+## Decisions Kept
 | Decision | Rationale |
 |----------|-----------|
-| Start P1 with docs + SOP alignment before coding | Reduces migration ambiguity and protects production data handling |
-| Foundation-first sequence for P1 | Prevents feature code from coupling to unstable storage APIs |
-| Enforce test DB isolation using APP_ENV and TEST_DB_PATH | Allows safe CRUD/reset testing without touching production data |
-| Store planning artifacts in `/Users/xuxianbang/Documents/payroll system/plans/` by default | Aligns with user requirement for centralized planning updates |
-| Introduce automated ABI switching before test commands | Prevents Node/Electron native module mismatch when alternating Vitest and Playwright |
+| Keep current executable test layout (`src` for Vitest, `tests/e2e` for Playwright) | Matches live config; avoids disruptive runner refactor |
+| Use native Electron dialogs for backup file I/O | Aligns with desktop UX requirement |
+| Keep `db:reset` test-only | Preserve production safety boundary |
+| Keep plans continuously updated | User-mandated workflow |
 
 ## Errors Encountered
 | Error | Resolution |
 |-------|------------|
-| `TS7016` missing declaration for `better-sqlite3` | Installed `@types/better-sqlite3` as dev dependency |
-| `TS2835` NodeNext requires extension for relative import | Updated `electron/db/client.ts` import to `./config.js` |
-| `NODE_MODULE_VERSION` mismatch (Node vs Electron) | Added `abi:node`/`abi:electron` auto-switch scripts and test command wiring |
-| Electron opened default page / renderer blank in db-isolation | Fixed app entry launch semantics, preload CJS output, and Vite `base: "./"` |
+| Sandbox denied `.git/index.lock` during branch switch | Re-ran with escalated permission |
+| `dialog` option typing errors in Electron service | Added explicit `SaveDialogOptions` / `OpenDialogOptions` typing |
+| E2E preview server `listen EPERM 127.0.0.1:4173` in sandbox | Re-ran Playwright commands with escalated permission |
+| JSON reporter artifact polluted by npm prelogs | Generated Playwright JSON via direct `npx playwright ... --reporter=json` |
+
+---
+
+# Task Plan Update: P1 Full Module Closeout (Settings + Employee + Import/Export)
+
+## Goal
+Close P1 remaining module scope on top of completed SQLite/Data foundation by delivering settings pages, employee CRUD pages, import/export workflow, and refreshed governance evidence.
+
+## Current Phase
+Phase 7 (Completed)
+
+## Added Phases
+
+### Phase 7: Settings + Employee + Import/Export Delivery
+- [x] Add settings pages (`/settings/org`, `/settings/social`, `/settings/company`)
+- [x] Add employee pages (`/employee/list`, `/employee/import`, `/employee/export`)
+- [x] Add stores (`settings-store`, `employee-store`) and Excel import/export utility
+- [x] Replace route placeholders with real pages
+- [x] Add i18n keys in `zh-CN` / `zh-HK` / `en`
+- [x] Add unit/component tests for settings/employee/import-export
+- [x] Add E2E `tests/e2e/p1-settings-employee-data.spec.ts`
+- [x] Refresh governance map and case catalog to 25 cases
+- [x] Regenerate raw JSON + reconciliation + XLSX evidence
+- [x] Update root/app README
+
+## Verification Snapshot (Phase 7)
+- `npm run build`: PASS
+- `npm run test`: PASS (64/64)
+- `ALLOW_ELECTRON_GUI_IN_CODEX=1 npm run test:e2e -- tests/e2e/db-isolation.spec.ts tests/e2e/backup-restore.spec.ts tests/e2e/p1-settings-employee-data.spec.ts`: PASS (4/4)
+- `p1-case-map-reconciliation.json`: `match=25`, `mismatch=0`, `noEvidence=0`
+
+### Phase 8: Closeout Review Risk Fixes
+- [x] Block direct apply when employee import conflicts are unresolved
+- [x] Add explicit "jump to edit" action in employee detail panel
+- [x] Update overview cards to show `ready` vs `pending` status by module state
+- [x] Add/extend targeted component tests for the 3 fixes
+- [x] Re-run build + full unit + key e2e regression verification
+- **Status:** complete
+
+## Verification Snapshot (Phase 8)
+- `npm run test -- src/pages/employee/p1.employee-list.component.spec.tsx src/pages/employee/p1.import-export.component.spec.tsx src/pages/home/p1.overview-status.component.spec.tsx`: PASS (4/4)
+- `npm run build`: PASS
+- `npm run test`: PASS (67/67)
+- `ALLOW_ELECTRON_GUI_IN_CODEX=1 npm run test:e2e -- tests/e2e/db-isolation.spec.ts tests/e2e/backup-restore.spec.ts tests/e2e/p1-settings-employee-data.spec.ts`: PASS (4/4)
+- `node scripts/generate-p1-case-map.mjs`: PASS (`match=25`, `mismatch=0`, `noEvidence=0`)
+- `node scripts/generate-p1-xlsx-report.mjs`: PASS (`p1-test-report-20260214_100814.xlsx`)
+
+### Phase 9: Release Closure + P2 Kickoff
+- [x] Freeze release version as `2.1.2-p1-sqlite-finish`
+- [x] Update SOP status to reflect P1 complete and P2/P3 pending work
+- [x] Update README (root/app) with done/fixed/pending lists
+- [x] Update plans for next-window handoff
+- [ ] Execute release git flow: commit + tag + push + merge main + delete feature branch
+- [ ] Start P2 implementation using `plans/2026-02-14-p2-payroll-kickoff.md`
+- **Status:** in progress
+
+## Next Execution Plan (P2)
+- Plan file: `plans/2026-02-14-p2-payroll-kickoff.md`
+- Goal: deliver payroll module foundation (`calculator`, payroll pages, payroll e2e) while keeping P1 gates green.

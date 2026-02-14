@@ -81,6 +81,10 @@ export interface ReplaceEmployeesResult {
   count: number;
 }
 
+export interface ClearDataResult {
+  clearedTables: string[];
+}
+
 export interface RepositoryStorageInfo {
   dbPath: string;
   schemaVersion: number;
@@ -98,6 +102,7 @@ export interface RepositoryAdapter {
   replaceEmployees: (employees: EmployeeRecord[]) => ReplaceEmployeesResult;
   exportBackup: () => BackupExportFile;
   importBackup: (payload: unknown) => ImportBackupResult;
+  clearData: () => ClearDataResult;
   getStorageInfo: () => RepositoryStorageInfo;
 }
 

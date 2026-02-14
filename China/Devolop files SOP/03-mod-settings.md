@@ -1,12 +1,14 @@
 ---
 module: 基础设置
-version: 1.0
+version: 1.1
 depends_on: [01-data-model.md]
 consumed_by: [05-mod-payroll]
 pages:
   - /settings/org
   - /settings/social
   - /settings/company
+change_log:
+  - v1.1: 标记 P1 收口交付状态，并补充下一阶段集成关注点
 ---
 
 # 基础设置模块（3 个子页面）
@@ -73,3 +75,20 @@ pages:
 - 支持 CRUD
 - 每个公司主体有简称（`short`）和全称（`full`）
 - 员工新增时从已有公司主体列表中选择
+
+---
+
+## 4. 当前交付状态（2026-02-14）
+
+- 状态：已完成（P1）。
+- 已实现内容：
+  - 组织信息编辑与持久化
+  - 社保/基数配置编辑与持久化
+  - 公司主体列表 CRUD（含去重约束）
+- 已通过：
+  - 组件/单元测试（Vitest）
+  - 与员工数据联动的 E2E 回归（`p1-settings-employee-data.spec.ts`）
+
+## 5. 下一步（P2 集成）
+
+- 将设置参数接入薪资计算引擎（`05-mod-payroll.md`）的实际计算链路。

@@ -2,7 +2,14 @@ import type { ReactElement } from "react";
 
 import type { NavCategoryId } from "@/config/navigation";
 import { ModulePlaceholderPage } from "@/pages/ModulePlaceholderPage";
+import { EmployeeListPage } from "@/pages/employee/EmployeeListPage";
+import { ImportExportPage } from "@/pages/employee/ImportExportPage";
+import { BackupPage } from "@/pages/data/BackupPage";
+import { StoragePage } from "@/pages/data/StoragePage";
 import { OverviewPage } from "@/pages/home/OverviewPage";
+import { CompanyPage } from "@/pages/settings/CompanyPage";
+import { OrgSettingsPage } from "@/pages/settings/OrgSettingsPage";
+import { SocialConfigPage } from "@/pages/settings/SocialConfigPage";
 
 export interface AppRouteMeta {
   path: string;
@@ -29,56 +36,56 @@ export const appRoutes: AppRouteRecord[] = [
     titleKey: "nav.page.org",
     category: "settings",
     groupKey: "nav.group.orgCompany",
-    element: <ModulePlaceholderPage titleKey="nav.page.org" />,
+    element: <OrgSettingsPage />,
   },
   {
     path: "/settings/company",
     titleKey: "nav.page.company",
     category: "settings",
     groupKey: "nav.group.orgCompany",
-    element: <ModulePlaceholderPage titleKey="nav.page.company" />,
+    element: <CompanyPage />,
   },
   {
     path: "/settings/social",
     titleKey: "nav.page.social",
     category: "settings",
     groupKey: "nav.group.socialFund",
-    element: <ModulePlaceholderPage titleKey="nav.page.social" />,
+    element: <SocialConfigPage />,
   },
   {
     path: "/settings/fund",
     titleKey: "nav.page.fund",
     category: "settings",
     groupKey: "nav.group.socialFund",
-    element: <ModulePlaceholderPage titleKey="nav.page.fund" />,
+    element: <SocialConfigPage />,
   },
   {
     path: "/settings/base",
     titleKey: "nav.page.base",
     category: "settings",
     groupKey: "nav.group.socialFund",
-    element: <ModulePlaceholderPage titleKey="nav.page.base" />,
+    element: <SocialConfigPage />,
   },
   {
     path: "/employee/list",
     titleKey: "nav.page.employeeList",
     category: "employee",
     groupKey: "nav.group.employeeInfo",
-    element: <ModulePlaceholderPage titleKey="nav.page.employeeList" />,
+    element: <EmployeeListPage />,
   },
   {
     path: "/employee/import",
     titleKey: "nav.page.employeeImport",
     category: "employee",
     groupKey: "nav.group.employeeInfo",
-    element: <ModulePlaceholderPage titleKey="nav.page.employeeImport" />,
+    element: <ImportExportPage defaultTab="import" />,
   },
   {
     path: "/employee/export",
     titleKey: "nav.page.employeeExport",
     category: "employee",
     groupKey: "nav.group.employeeInfo",
-    element: <ModulePlaceholderPage titleKey="nav.page.employeeExport" />,
+    element: <ImportExportPage defaultTab="export" />,
   },
   {
     path: "/payroll/employee",
@@ -109,14 +116,14 @@ export const appRoutes: AppRouteRecord[] = [
     titleKey: "nav.page.backup",
     category: "data",
     groupKey: "nav.group.dataMgmt",
-    element: <ModulePlaceholderPage titleKey="nav.page.backup" />,
+    element: <BackupPage />,
   },
   {
     path: "/data/storage",
     titleKey: "nav.page.storage",
     category: "data",
     groupKey: "nav.group.dataMgmt",
-    element: <ModulePlaceholderPage titleKey="nav.page.storage" />,
+    element: <StoragePage />,
   },
 ];
 

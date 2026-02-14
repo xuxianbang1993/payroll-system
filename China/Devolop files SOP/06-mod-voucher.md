@@ -1,10 +1,12 @@
 ---
 module: 会计凭证
-version: 1.0
+version: 1.1
 depends_on: [01-data-model.md, 05-mod-payroll.md]
 consumed_by: []
 pages:
   - /voucher
+change_log:
+  - v1.1: 增加阶段状态说明，明确依赖 P2 汇总能力后进入 P3 实施
 ---
 
 # 会计凭证模块
@@ -218,8 +220,19 @@ pages:
   grossPay = fullGrossPay - absentDeduct
 
 代入得：
-  余额 = fullGrossPay - (wSocial + wFund + tax)
+余额 = fullGrossPay - (wSocial + wFund + tax)
        - (fullGrossPay - absentDeduct - wSocial - wFund - tax)
        - absentDeduct
        = 0 ✓
 ```
+
+---
+
+## 9. 阶段状态（2026-02-14）
+
+- 状态：待开发（P3）。
+- 前置依赖：`05-mod-payroll.md` 中的汇总与明细结果必须先稳定交付。
+- P3 首批必须落地：
+  - `voucherGenerator.ts` + `voucherGenerator.test.ts`
+  - `aggregator.ts` + `aggregator.test.ts`
+  - `VoucherPage` + `voucher-flow.spec.ts`

@@ -143,3 +143,199 @@
 - Phase 3 repository tasks are complete (switching repository + settings/employee/backup/storage integration path).
 - Task 6 evidence package for current implemented scope is complete (raw JSON + case-map reconciliation + XLSX).
 - P1 final completion gate is still pending `backup-restore.spec.ts`; no false completion claim has been made.
+
+## Session: 2026-02-14 (P1 Data Closeout Sprint)
+
+### Current Status
+- **Phase:** 2 - Planning state sync, implementation starting
+- **Branch:** `codex/p1-sqlite-foundation`
+
+### Actions Taken
+- Confirmed current workspace baseline and unresolved P1 gate against README + SOP.
+- Confirmed user choices:
+  - execute P1 closeout sprint (Data module first)
+  - include both root and app README updates
+  - maintain four plans files continuously
+  - keep executable test layout unchanged
+  - use native Electron dialogs for backup file I/O
+- Created branch `codex/p1-sqlite-foundation` (escalated git switch due sandbox lock restriction).
+- Created sprint plan file: `plans/2026-02-14-p1-closeout-sprint.md`.
+- Refreshed `plans/task_plan.md` for this sprint.
+- Appended kickoff findings and assumptions in `plans/findings.md`.
+
+### Next Immediate Steps
+- Implement repository clear-data contract and adapters.
+- Add data clear + backup file IPC in main/preload/renderer bridges.
+- Build BackupPage + StoragePage and wire routes.
+- Add tests (`src` unit specs + `tests/e2e/backup-restore.spec.ts`).
+
+### Completion Update (2026-02-14)
+- Implemented backend Data closeout changes:
+  - repository contracts/adapters now include `clearData`
+  - main process IPC added for `repo:data:clear` and backup file save/open
+  - preload/type/renderer bridges updated for clear + file operations
+- Implemented Data UI pages and route wiring:
+  - `src/pages/data/BackupPage.tsx`
+  - `src/pages/data/StoragePage.tsx`
+  - `src/router/app-routes.tsx` updated for real data routes
+- Added/updated tests:
+  - `src/lib/p1.repository-switching.unit.spec.ts`
+  - `src/lib/p1.repository-bridge.unit.spec.ts`
+  - `src/lib/p1.repository-clear-data.unit.spec.ts` (new)
+  - `src/lib/p1.backup-files-bridge.unit.spec.ts` (new)
+  - `tests/e2e/backup-restore.spec.ts` (new)
+- Updated governance mapping files:
+  - `China/test/00-governance/p1-test-cases.json`
+  - `China/test/00-governance/module-test-map.md`
+- Updated docs:
+  - root `README.md`
+  - `China/payroll-app/README.md`
+
+### Final Test Results (This Session)
+| Command | Result |
+|--------|--------|
+| `npm run build` | PASS |
+| `npm run test` | PASS (18 files / 50 tests) |
+| `ALLOW_ELECTRON_GUI_IN_CODEX=1 npm run test:e2e -- tests/e2e/db-isolation.spec.ts tests/e2e/backup-restore.spec.ts` | PASS (3 tests) |
+| `node scripts/generate-p1-case-map.mjs` | PASS (`match=16/mismatch=0/noEvidence=0`) |
+| `node scripts/generate-p1-xlsx-report.mjs` | PASS (`p1-test-report-20260214_085752.xlsx`) |
+- Post-doc/i18n adjustment verification rerun:
+  - `npm run test` PASS (50/50)
+  - `ALLOW_ELECTRON_GUI_IN_CODEX=1 npm run test:e2e -- tests/e2e/db-isolation.spec.ts tests/e2e/backup-restore.spec.ts` PASS (3/3)
+- Final evidence refresh complete:
+  - `China/test/06-reports/raw/vitest-p1-repository.json` regenerated
+  - `China/test/06-reports/raw/playwright-p1-db-isolation.json` regenerated
+  - `China/test/06-reports/raw/p1-case-map-reconciliation.json` regenerated (`match=16`)
+  - `China/test/06-reports/p1-test-report-20260214_090224.xlsx` generated
+
+## Session: 2026-02-14 (P1 Full Module Closeout)
+
+### Scope
+- Complete remaining P1 modules on top of existing SQLite/Data foundation:
+  - `settings`
+  - `employee`
+  - `import-export`
+
+### Actions Taken
+- Added new front-end domain types in `src/types/payroll.ts`:
+  - `SettingsFormModel`
+  - `EmployeeFormModel`
+  - `EmployeeImportRow`
+- Added new libraries/stores:
+  - `src/lib/p1-employee-import-export.ts`
+  - `src/stores/settings-store.ts`
+  - `src/stores/employee-store.ts`
+- Added new pages:
+  - `src/pages/settings/OrgSettingsPage.tsx`
+  - `src/pages/settings/SocialConfigPage.tsx`
+  - `src/pages/settings/CompanyPage.tsx`
+  - `src/pages/employee/EmployeeListPage.tsx`
+  - `src/pages/employee/ImportExportPage.tsx`
+- Replaced placeholder routes in `src/router/app-routes.tsx` for settings + employee paths.
+- Expanded locale dictionaries in:
+  - `src/i18n/locales/zh-CN/common.json`
+  - `src/i18n/locales/zh-HK/common.json`
+  - `src/i18n/locales/en/common.json`
+- Added tests:
+  - `src/lib/p1.employee-import-export.unit.spec.ts`
+  - `src/stores/p1.settings-store.unit.spec.ts`
+  - `src/stores/p1.employee-store.unit.spec.ts`
+  - `src/pages/settings/p1.org-settings.component.spec.tsx`
+  - `src/pages/employee/p1.employee-list.component.spec.tsx`
+  - `tests/e2e/p1-settings-employee-data.spec.ts`
+- Updated governance and docs:
+  - `China/test/00-governance/p1-test-cases.json`
+  - `China/test/00-governance/module-test-map.md`
+  - root/app `README.md`
+
+### Verification Results
+| Command | Result |
+|--------|--------|
+| `npm run build` | PASS |
+| `npm run test` | PASS (23 files / 64 tests) |
+| `ALLOW_ELECTRON_GUI_IN_CODEX=1 npm run test:e2e -- tests/e2e/db-isolation.spec.ts tests/e2e/backup-restore.spec.ts tests/e2e/p1-settings-employee-data.spec.ts` | PASS (4/4) |
+| `npm run abi:node && npx vitest run --reporter=json --outputFile=../test/06-reports/raw/vitest-p1-repository.json` | PASS |
+| `npm run abi:electron && ALLOW_ELECTRON_GUI_IN_CODEX=1 npx playwright test ... --reporter=json > ../test/06-reports/raw/playwright-p1-db-isolation.json` | PASS |
+| `node scripts/generate-p1-case-map.mjs` | PASS (`match=25/mismatch=0/noEvidence=0`) |
+| `node scripts/generate-p1-xlsx-report.mjs` | PASS (`p1-test-report-20260214_092954.xlsx`) |
+
+## Session: 2026-02-14 (Closeout Review Risk Fixes)
+
+### Scope
+- Apply top-3 closeout review fixes before submit-ready checklist:
+  - import conflict guard
+  - employee detail edit jump
+  - overview status truthfulness
+
+### Actions Taken
+- Updated `src/pages/employee/ImportExportPage.tsx`:
+  - added unresolved-conflict guard to disable main apply action
+  - added explicit "resolve conflicts" CTA and pending-conflict notice
+- Updated `src/pages/employee/EmployeeListPage.tsx`:
+  - added detail-card action to start inline edit directly
+- Updated `src/pages/home/OverviewPage.tsx`:
+  - switched module card status text to ready/pending keyed rendering
+- Updated locale files (`zh-CN` / `zh-HK` / `en`) for newly added copy.
+- Added/updated tests:
+  - `src/pages/employee/p1.employee-list.component.spec.tsx`
+  - `src/pages/employee/p1.import-export.component.spec.tsx`
+  - `src/pages/home/p1.overview-status.component.spec.tsx`
+
+### Verification Results
+| Command | Result |
+|--------|--------|
+| `npm run test -- src/pages/employee/p1.employee-list.component.spec.tsx src/pages/employee/p1.import-export.component.spec.tsx src/pages/home/p1.overview-status.component.spec.tsx` | PASS (3 files / 4 tests) |
+| `npm run build` | PASS |
+| `npm run test` | PASS (25 files / 67 tests) |
+| `ALLOW_ELECTRON_GUI_IN_CODEX=1 npm run test:e2e -- tests/e2e/db-isolation.spec.ts tests/e2e/backup-restore.spec.ts tests/e2e/p1-settings-employee-data.spec.ts` | PASS (4/4) |
+| `node scripts/generate-p1-case-map.mjs` | PASS (`match=25/mismatch=0/noEvidence=0`) |
+| `node scripts/generate-p1-xlsx-report.mjs` | PASS (`p1-test-report-20260214_100814.xlsx`) |
+
+### Notes
+- E2E command required elevated execution in this Codex environment due local preview server bind permission (`127.0.0.1:4173`).
+
+### Issues and Resolutions
+| Issue | Resolution |
+|-------|------------|
+| TypeScript build error for `Blob` input in import/export page | Copied bytes into `Uint8Array` with concrete `ArrayBuffer` backing before constructing `Blob` |
+| Type inference issue when persisting updated employee rows | Added explicit `toEmployeeRecord` conversion to keep strong `Employee` typing |
+| Playwright preview server blocked in sandbox (`listen EPERM 127.0.0.1:4173`) | Re-ran E2E/evidence commands with elevated permissions |
+
+## Session: 2026-02-14 (Release Prep: 2.1.2-p1-sqlite-finish)
+
+### Scope
+- Finalize P1 release packaging and handoff artifacts:
+  - SOP status synchronization
+  - plans next-step handoff
+  - README progress synchronization
+  - git release flow (commit/tag/push/merge/cleanup)
+
+### Actions Taken
+- Confirmed release version from user: `2.1.2-p1-sqlite-finish`.
+- Updated SOP docs with latest stage state and next-phase instructions:
+  - `00-INDEX.md`, `02-ui-layout.md`, `03-mod-settings.md`, `04-mod-employee.md`
+  - `05-mod-payroll.md`, `06-mod-voucher.md`, `07-import-export.md`
+  - `08-data-management.md`, `09-nonfunctional.md`, `10-acceptance.md`
+  - `薪酬系统-开发策略文档.md`
+- Updated READMEs:
+  - root `README.md`
+  - `China/payroll-app/README.md`
+- Updated plans handoff metadata and next-phase kickoff reference.
+
+### Next Immediate Steps
+- Run final verification commands (build + test + key e2e).
+- Complete git flow:
+  - commit
+  - tag `2.1.2-p1-sqlite-finish`
+  - push branch/tag
+  - merge to `main`
+  - delete `codex/p1-sqlite-foundation`.
+
+### Verification Results (Release Prep)
+| Command | Result |
+|--------|--------|
+| `npm run build` | PASS |
+| `npm run test` | PASS (25 files / 67 tests) |
+| `ALLOW_ELECTRON_GUI_IN_CODEX=1 npm run test:e2e -- tests/e2e/db-isolation.spec.ts tests/e2e/backup-restore.spec.ts tests/e2e/p1-settings-employee-data.spec.ts` | PASS (4/4) |
+| `node scripts/generate-p1-case-map.mjs` | PASS (`match=25/mismatch=0/noEvidence=0`) |
+| `node scripts/generate-p1-xlsx-report.mjs` | PASS (`p1-test-report-20260214_100814.xlsx`) |
