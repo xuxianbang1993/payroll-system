@@ -339,3 +339,14 @@
 | `ALLOW_ELECTRON_GUI_IN_CODEX=1 npm run test:e2e -- tests/e2e/db-isolation.spec.ts tests/e2e/backup-restore.spec.ts tests/e2e/p1-settings-employee-data.spec.ts` | PASS (4/4) |
 | `node scripts/generate-p1-case-map.mjs` | PASS (`match=25/mismatch=0/noEvidence=0`) |
 | `node scripts/generate-p1-xlsx-report.mjs` | PASS (`p1-test-report-20260214_100814.xlsx`) |
+
+### Git Release Flow Results
+| Step | Result |
+|------|--------|
+| Commit | `69d1088` created |
+| Tag | `2.1.2-p1-sqlite-finish` created |
+| Push branch | `codex/p1-sqlite-foundation` pushed |
+| Merge | Fast-forward merged into `main` |
+| Push main | `origin/main` updated to `69d1088` |
+| Push tag | `origin/2.1.2-p1-sqlite-finish` created |
+| Cleanup | local/remote `codex/p1-sqlite-foundation` deleted |

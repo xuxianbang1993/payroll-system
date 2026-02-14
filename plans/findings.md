@@ -230,3 +230,9 @@
   - `calculator.ts` + unit tests
   - `payroll-flow.spec.ts`
   - evidence three-piece output.
+
+### Release Finalization
+- merged commit: `69d1088`
+- main branch updated and pushed
+- release tag pushed: `2.1.2-p1-sqlite-finish`
+- feature branch removed: `codex/p1-sqlite-foundation` (local + remote)

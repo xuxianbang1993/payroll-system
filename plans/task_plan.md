@@ -115,7 +115,7 @@ Phase 7 (Completed)
 - [x] Update SOP status to reflect P1 complete and P2/P3 pending work
 - [x] Update README (root/app) with done/fixed/pending lists
 - [x] Update plans for next-window handoff
-- [ ] Execute release git flow: commit + tag + push + merge main + delete feature branch
+- [x] Execute release git flow: commit + tag + push + merge main + delete feature branch
 - [ ] Start P2 implementation using `plans/2026-02-14-p2-payroll-kickoff.md`
 - **Status:** in progress
 

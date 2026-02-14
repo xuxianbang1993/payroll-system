@@ -143,3 +143,4 @@ Close the remaining P1 gate by delivering production-grade Data module flows (ba
 - P1 status: closed
 - Handoff target: start P2 payroll implementation plan at:
   - `plans/2026-02-14-p2-payroll-kickoff.md`
+- Git release flow: completed (`commit` + `tag` + `push` + `merge main` + `branch cleanup`)

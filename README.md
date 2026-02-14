@@ -4,15 +4,15 @@
 
 ## 基线版本（main）
 
-- Git tag: `2.1.2`
+- Git tag: `2.1.2-p1-sqlite-finish`
 - 分支基线: `main`
 
-## 当前开发分支
+## 当前状态
 
-- `codex/p1-sqlite-foundation`
-- 目标发布版本: `2.1.2-p1-sqlite-finish`
+- P1 SQLite 收口版本已合并到 `main`
+- 发布 tag：`2.1.2-p1-sqlite-finish`
 
-## 本次分支更新重点（P1 全模块收口）
+## 本次主线更新重点（P1 全模块收口）
 
 - 已完成 P1 SQLite Foundation + Data 收口（仓储清空、备份文件 IPC、`/data/backup`、`/data/storage`）。
 - 新增 Settings 模块落地页面：
@@ -64,6 +64,8 @@
 - P2（未完成）：`payroll` 模块（`calculator.ts`、`PayrollByEmpPage`、`PayrollDetailPage`、`payroll-flow.spec.ts`）。
 - P3（未完成）：`voucher` 模块（`voucherGenerator.ts`、`VoucherPage`、`voucher-flow.spec.ts`）。
 - P4（未完成）：安装包与离线验收（`B-01`~`B-04`）。
+
+推荐下一开发分支：`codex/p2-payroll-foundation`（以 `main` 最新提交为基线）。
 
 ## 本次收口修复（Closeout Review）
 
