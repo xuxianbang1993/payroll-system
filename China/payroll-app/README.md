@@ -19,6 +19,12 @@
 
 ## Development
 
+工作目录：
+
+```bash
+cd /Users/xuxianbang/Documents/payroll system/China/payroll-app
+```
+
 ```bash
 npm install
 npm run dev
@@ -112,3 +118,12 @@ npm run test:all
 node scripts/generate-p1-case-map.mjs
 node scripts/generate-p1-xlsx-report.mjs
 ```
+
+## Layout & Visual Baseline (2026-02-15)
+
+- 信息架构基线：`/Users/xuxianbang/Documents/payroll system/plans/参考图/1.2.html`
+- 视觉 token 基线：`/Users/xuxianbang/Documents/payroll system/plans/参考图/1.html`
+- 主交互色：橙色（`#ef8b4a` 语义映射）
+- 统一目标：卡片、按钮、输入、下拉、badge 的边框/阴影/圆角一致化
+- 技术架构不变：React + TypeScript + Vite + Tailwind/shadcn
+- 约束：只做布局与样式统一，不改业务逻辑、route 和 IPC

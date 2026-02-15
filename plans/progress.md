@@ -350,3 +350,21 @@
 | Push main | `origin/main` updated to `69d1088` |
 | Push tag | `origin/2.1.2-p1-sqlite-finish` created |
 | Cleanup | local/remote `codex/p1-sqlite-foundation` deleted |
+
+## Session: 2026-02-15 (Layout SOP Sync)
+
+### Current Status
+- **Phase:** 文档先行（Commit 1）
+- **Branch:** `codex/bugfix/layout-fix`
+
+### Actions Taken
+- 锁定迁移目标：`1.2` 信息架构 + `1.html` 视觉 token。
+- 更新 SOP：
+  - `China/Devolop files SOP/02-ui-layout.md`
+  - `China/Devolop files SOP/00-INDEX.md`
+- 新增计划文档：`plans/2026-02-15-layout-sop-sync.md`
+- 更新根与 app README 的启动与布局迁移说明。
+
+### Next Steps
+- 进入正式代码样式迁移（`China/payroll-app`）。
+- 完成构建与定向测试验证。

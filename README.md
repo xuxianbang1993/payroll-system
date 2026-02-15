@@ -2,6 +2,15 @@
 
 薪酬系统（Payroll System）开发仓库。
 
+## 快速启动（开发）
+
+在目录 `/Users/xuxianbang/Documents/payroll system/China/payroll-app`：
+
+```bash
+npm install
+npm run dev
+```
+
 ## 基线版本（main）
 
 - Git tag: `2.1.2-p1-sqlite-finish`
@@ -72,3 +81,10 @@
 - 导入冲突未处理时，主按钮禁止直接导入。
 - 员工详情增加“跳转编辑”操作。
 - 概览页状态文案改为按模块真实交付状态显示（ready/pending）。
+
+## UI 布局与样式迁移基线（2026-02-15）
+
+- 正式项目采用 `plans/参考图/1.2.html` 的信息架构（概览工具条 + KPI + 模块卡）。
+- 颜色与阴影采用 `plans/参考图/1.html` 的视觉 token（暖色中性 + 橙色主交互 + 统一阴影）。
+- 前端技术架构保持不变：React + TypeScript + Vite + Tailwind/shadcn。
+- 本轮仅做布局和样式统一，不改业务逻辑、路由语义和 IPC 接口。
