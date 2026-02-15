@@ -19,20 +19,29 @@ export function AppHeader({ language, onToggleMenu, onLanguageChange }: AppHeade
   const { t } = useTranslation();
 
   return (
-    <header className="fixed inset-x-0 top-0 z-40 border-b border-border bg-background/95 backdrop-blur">
-      <div className="mx-auto flex h-[52px] max-w-[1600px] items-center justify-between px-4 sm:px-6">
-        <div className="flex items-center gap-2">
-          <Button variant="ghost" className="px-1.5 text-base font-semibold" onClick={() => navigate("/")}>
-            {t("app.name")}
+    <header className="fixed inset-x-0 top-0 z-40 border-b border-border bg-background/95 backdrop-blur-sm">
+      <div className="mx-auto grid h-[58px] max-w-[1320px] grid-cols-[1fr_auto_1fr] items-center px-4 sm:px-6">
+        <div className="flex items-center gap-2 justify-self-start">
+          <Button variant="ghost" className="h-10 gap-2 rounded-md px-2.5 text-base font-semibold" onClick={() => navigate("/")}>
+            <span className="inline-flex size-7 items-center justify-center rounded-md bg-primary text-sm font-bold text-primary-foreground">
+              薪
+            </span>
+            <span className="text-xl font-semibold tracking-tight">{t("app.name")}</span>
           </Button>
-          <Button variant="ghost" size="icon" onClick={onToggleMenu} aria-label={t("nav.menu")}>
+          <Button variant="outline" size="icon-sm" onClick={onToggleMenu} aria-label={t("nav.menu")}>
             <Menu className="size-5" />
           </Button>
         </div>
 
+        <div className="hidden md:flex justify-self-center">
+          <span className="inline-flex h-9 items-center rounded-full border border-border bg-card px-5 text-sm text-muted-foreground">
+            {t("app.overview")}
+          </span>
+        </div>
+
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="h-8 min-w-28 text-xs">
+            <Button variant="outline" className="h-9 min-w-[118px] justify-self-end rounded-full text-xs">
               {t(`language.${language}`)}
             </Button>
           </DropdownMenuTrigger>

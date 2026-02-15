@@ -32,47 +32,51 @@ export function AppLayout() {
 
       <NavPanel open={navPanelOpen} onClose={() => setNavPanelOpen(false)} />
 
-      <main className="mx-auto max-w-[1600px] px-4 pb-10 pt-[76px] sm:px-6">
-        <div className="mb-6 flex flex-col gap-3 border-b border-border pb-3 sm:flex-row sm:items-center sm:justify-between">
-          <Breadcrumb>
-            <BreadcrumbList>
-              <BreadcrumbItem>{t("app.overview")}</BreadcrumbItem>
+      <main className="mx-auto max-w-[1320px] px-4 pb-8 pt-[72px] sm:px-6">
+        <section className="overflow-hidden rounded-2xl border border-border bg-card/95 [box-shadow:var(--shadow-soft)]">
+          <div className="flex flex-col gap-3 border-b border-border px-5 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+            <Breadcrumb>
+              <BreadcrumbList>
+                <BreadcrumbItem>{t("app.overview")}</BreadcrumbItem>
 
-              {routeMeta.category && (
-                <>
-                  <BreadcrumbSeparator />
-                  <BreadcrumbItem>{t(`nav.category.${routeMeta.category}`)}</BreadcrumbItem>
-                </>
-              )}
+                {routeMeta.category && (
+                  <>
+                    <BreadcrumbSeparator />
+                    <BreadcrumbItem>{t(`nav.category.${routeMeta.category}`)}</BreadcrumbItem>
+                  </>
+                )}
 
-              {routeMeta.groupKey && (
-                <>
-                  <BreadcrumbSeparator />
-                  <BreadcrumbItem>{t(routeMeta.groupKey)}</BreadcrumbItem>
-                </>
-              )}
+                {routeMeta.groupKey && (
+                  <>
+                    <BreadcrumbSeparator />
+                    <BreadcrumbItem>{t(routeMeta.groupKey)}</BreadcrumbItem>
+                  </>
+                )}
 
-              <BreadcrumbSeparator />
-              <BreadcrumbItem>
-                <BreadcrumbPage>{t(routeMeta.titleKey)}</BreadcrumbPage>
-              </BreadcrumbItem>
-            </BreadcrumbList>
-          </Breadcrumb>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem>
+                  <BreadcrumbPage>{t(routeMeta.titleKey)}</BreadcrumbPage>
+                </BreadcrumbItem>
+              </BreadcrumbList>
+            </Breadcrumb>
 
-          {routeMeta.showMonthPicker && (
-            <label className="inline-flex items-center gap-2 text-sm">
-              <span className="text-muted-foreground">{t("app.month")}</span>
-              <Input
-                type="month"
-                className="w-40"
-                value={selectedMonth}
-                onChange={(event) => setSelectedMonth(event.target.value)}
-              />
-            </label>
-          )}
-        </div>
+            {routeMeta.showMonthPicker && (
+              <label className="inline-flex items-center gap-2 text-sm">
+                <span className="text-muted-foreground">{t("app.month")}</span>
+                <Input
+                  type="month"
+                  className="w-44 bg-card"
+                  value={selectedMonth}
+                  onChange={(event) => setSelectedMonth(event.target.value)}
+                />
+              </label>
+            )}
+          </div>
 
-        <Outlet />
+          <div className="p-5 sm:p-6">
+            <Outlet />
+          </div>
+        </section>
       </main>
     </div>
   );
