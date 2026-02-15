@@ -7,10 +7,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAppStore } from "@/stores/app-store";
 
 const kpiItems = [
-  { key: "people", label: "在职人数", value: "1,245", sub: "动态联动" },
-  { key: "pay", label: "本月应发", value: "¥ 12,350,000", sub: "单位 ¥" },
-  { key: "done", label: "已完成核算", value: "98%", sub: "完成率" },
-  { key: "warn", label: "异常条目", value: "3", sub: "需复核" },
+  { key: "people", label: "在职人数", value: "0", sub: "待计算" },
+  { key: "pay", label: "本月应发", value: "¥ 0", sub: "单位 ¥" },
+  { key: "done", label: "已完成核算", value: "0%", sub: "完成率" },
+  { key: "warn", label: "异常条目", value: "0", sub: "需复核" },
 ] as const;
 
 const overviewCards = [

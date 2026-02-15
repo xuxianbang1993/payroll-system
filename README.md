@@ -13,13 +13,13 @@ npm run dev
 
 ## 基线版本（main）
 
-- Git tag: `2.1.2-p1-sqlite-finish`
+- Git tag: `2.1.2-p1-layoutfix-finish`
 - 分支基线: `main`
 
 ## 当前状态
 
 - P1 SQLite 收口版本已合并到 `main`
-- 发布 tag：`2.1.2-p1-sqlite-finish`
+- 发布 tag：`2.1.2-p1-layoutfix-finish`
 
 ## 本次主线更新重点（P1 全模块收口）
 
@@ -88,3 +88,20 @@ npm run dev
 - 颜色与阴影采用 `plans/参考图/1.html` 的视觉 token（暖色中性 + 橙色主交互 + 统一阴影）。
 - 前端技术架构保持不变：React + TypeScript + Vite + Tailwind/shadcn。
 - 本轮仅做布局和样式统一，不改业务逻辑、路由语义和 IPC 接口。
+
+## 当前进度定位（2026-02-15）
+
+- 当前分支：`codex/bugfix/layout-fix`
+- 已完成：
+  - 文档同步提交：`0c289d6`
+  - UI 布局与视觉统一提交：`783999e`
+- 收尾中：
+  - `npm run dev` 的 ABI 启动稳定性修复（`dev:electron` 前置 `abi:electron`）
+  - 概览 KPI 默认值改为 `0`（移除 demo 固定业务数值）
+
+## 下一步建议（明确执行顺序）
+
+1. 合并收尾修复并提交（`package.json`、`OverviewPage.tsx`）。
+2. 复验：`npm run build` + 定向测试（overview/layout）。
+3. 手工执行 `npm run dev` smoke，确认 Electron 启动稳定。
+4. 合并 `codex/bugfix/layout-fix` 后切入 P2（`plans/2026-02-14-p2-payroll-kickoff.md`）。

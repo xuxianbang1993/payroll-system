@@ -47,3 +47,36 @@
 3. 顶栏与弹层菜单对齐，无遮挡与突兀留白。
 4. `npm run build` 通过。
 5. `npm run test -- src/pages/home/p1.overview-status.component.spec.tsx src/layouts/p0.layout-navigation.component.spec.tsx` 通过。
+
+## Execution Status (2026-02-15)
+
+### Completed
+
+1. `docs(layout)` 提交已完成：`0c289d6`
+2. `feat(ui)` 提交已完成：`783999e`
+3. 验证已完成：
+   - `npm run build` PASS
+   - 定向测试 PASS（overview/layout）
+
+### Findings After Implementation
+
+1. `npm run dev` 在某些顺序下报 `better-sqlite3` ABI mismatch：
+   - 原因：`test` 将 ABI 切到 Node，但 `dev:electron` 未在启动前切回 Electron ABI。
+2. 概览 KPI 出现 demo 固定值（如 `1245/12350000/98%`）：
+   - 原因：`OverviewPage` 使用了演示硬编码。
+
+### In Progress
+
+1. Runtime 修复：
+   - `package.json` 中 `dev:electron` 增加 `npm run abi:electron` 预步骤。
+2. 数据展示修复：
+   - `OverviewPage` KPI 默认值调整为 `0 / ¥ 0 / 0% / 0`。
+
+## Next Actions
+
+1. 提交上述两项修复（runtime + KPI default）。
+2. 复跑：
+   - `npm run build`
+   - `npm run test -- src/pages/home/p1.overview-status.component.spec.tsx src/layouts/p0.layout-navigation.component.spec.tsx`
+3. 手工验证：`npm run dev` 可正常启动 Electron 壳。
+4. 完成分支合并后，进入 `plans/2026-02-14-p2-payroll-kickoff.md` 对应的 P2 实施。

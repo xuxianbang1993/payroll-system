@@ -1,9 +1,10 @@
 ---
 module: 整体布局与导航
-version: 2.2
+version: 2.3
 depends_on: []
 consumed_by: [03-mod-settings, 04-mod-employee, 05-mod-payroll, 06-mod-voucher, 08-data-management]
 change_log:
+  - v2.3: 补充运行时 ABI 约束与概览 KPI 默认值规则，避免开发环境崩溃与“伪数据”误导
   - v2.2: 正式代码采用 1.2 信息架构，并以 1.html 作为颜色/阴影视觉基线；明确实现文件映射
   - v2.1: 同步 P1 收口后的实际路由与组件命名，并补充当前实现状态
   - v2.0: 布局方案由「侧边栏导航」改为「顶栏 + 弹出分类面板」（参考阿里云控制台）
@@ -151,3 +152,21 @@ change_log:
 - 已完成：`/settings/*`、`/employee/*`、`/data/*`（P1）。
 - 待开发：`/payroll/*` 与 `/voucher` 业务页（P2/P3）。
 - 本轮目标：在不改业务逻辑前提下，完成全站布局与视觉一致性升级。
+
+---
+
+## 九、概览 KPI 默认值规则（v2.3 新增）
+
+- 概览页 KPI 在未接入真实业务聚合数据前，默认显示为 `0`（金额为 `¥ 0`，百分比为 `0%`）。
+- 禁止在正式项目中使用演示型硬编码业务数值（如 `1245`、`12,350,000`、`98%`）。
+- 进入 P2/P3 并完成真实数据聚合后，再替换为仓储/服务计算结果。
+
+---
+
+## 十、开发运行约束（v2.3 新增）
+
+- `better-sqlite3` 存在 Node/Electron ABI 双态，`npm run test` 后会切换到 Node ABI。
+- 为避免 `npm run dev` 启动 Electron 时报 `NODE_MODULE_VERSION` 不匹配，`dev:electron` 必须在启动前执行 `abi:electron`。
+- 推荐保持以下脚本链路：
+  - `dev:electron`: `assert-electron-gui -> abi:electron -> tsc -> electron`
+  - `test`: `abi:node -> vitest`

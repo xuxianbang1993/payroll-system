@@ -368,3 +368,24 @@
 ### Next Steps
 - 进入正式代码样式迁移（`China/payroll-app`）。
 - 完成构建与定向测试验证。
+
+## Session: 2026-02-15 (Layout Fix Follow-up)
+
+### Current Status
+- **Branch:** `codex/bugfix/layout-fix`
+- **Progress:** 文档基线与 UI 迁移已完成两次提交；正在做运行时与数据展示收尾
+
+### Actions Taken
+- 二次验证了布局迁移后的构建与定向测试：
+  - `npm run build` PASS
+  - `npm run test -- src/pages/home/p1.overview-status.component.spec.tsx src/layouts/p0.layout-navigation.component.spec.tsx` PASS
+- 复盘了 `npm run dev` 失败链路，定位 `better-sqlite3` ABI 不匹配根因。
+- 补充修复：
+  - `dev:electron` 启动前增加 `abi:electron` 预步骤
+  - 概览 KPI 从 demo 硬编码改为默认 `0` 展示
+
+### Next Steps
+1. 提交收尾修复（`package.json` + `OverviewPage.tsx`）。
+2. 复跑 build + 定向测试，确认无回归。
+3. 执行 `npm run dev` 手工 smoke，确认 Electron 正常启动。
+4. 完成分支合并后，进入 P2 payroll 基础开发。

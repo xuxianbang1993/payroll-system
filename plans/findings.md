@@ -236,3 +236,41 @@
 - main branch updated and pushed
 - release tag pushed: `2.1.2-p1-sqlite-finish`
 - feature branch removed: `codex/p1-sqlite-foundation` (local + remote)
+
+## Layout Fix Branch Findings (2026-02-15)
+
+### New Facts Confirmed
+
+- 当前分支：`codex/bugfix/layout-fix`
+- 已完成两次提交：
+  - `0c289d6`（docs）
+  - `783999e`（ui）
+- 定向验证通过：
+  - `npm run build` PASS
+  - overview/layout 定向测试 PASS
+
+### Runtime Root Cause
+
+- 症状：`npm run dev` 启动 Electron 时出现 `better-sqlite3` `NODE_MODULE_VERSION` 不匹配。
+- 根因：`npm run test` 会切换到 Node ABI；原 `dev:electron` 未在启动前切回 Electron ABI。
+- 结论：`dev:electron` 必须前置 `npm run abi:electron`。
+
+### Data Display Findings
+
+- 症状：概览 KPI 出现 demo 硬编码数据（1245/12350000/98%/3）。
+- 风险：用户误认为系统已写入真实业务数据。
+- 结论：在未接入真实聚合数据前，正式项目默认显示 `0`，并在 P2/P3 再接入真实值。
+
+### Decisions Applied
+
+| Decision | Rationale |
+|----------|-----------|
+| `dev:electron` 前置 `abi:electron` | 保证 dev 链路不受上一条 test ABI 影响 |
+| 概览 KPI 默认置零 | 消除“伪数据”认知偏差，符合正式系统预期 |
+| SOP 与 plans 同步记录上述两项 | 保证后续协作时规则一致，减少回归 |
+
+### Immediate Next Steps
+
+1. 提交 `package.json`（ABI 修复）与 `OverviewPage.tsx`（KPI 置零）。
+2. 复验 build + 定向测试 + dev smoke。
+3. 分支合并后进入 P2 payroll 开发。

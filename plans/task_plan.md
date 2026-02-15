@@ -122,3 +122,50 @@ Phase 7 (Completed)
 ## Next Execution Plan (P2)
 - Plan file: `plans/2026-02-14-p2-payroll-kickoff.md`
 - Goal: deliver payroll module foundation (`calculator`, payroll pages, payroll e2e) while keeping P1 gates green.
+
+---
+
+# Task Plan Update: Layout Fix Branch Stabilization (2026-02-15)
+
+## Goal
+
+在 `codex/bugfix/layout-fix` 分支完成布局与视觉迁移后的最终收尾，确保开发运行稳定（dev ABI）且概览无伪造业务数据，再进入 P2。
+
+## Current Phase
+
+Phase L3（收尾中）
+
+## Phases
+
+### Phase L1: Documentation Alignment
+- [x] 更新 SOP（`00-INDEX.md`、`02-ui-layout.md`）
+- [x] 更新 plans（`2026-02-15-layout-sop-sync.md`、`progress.md`）
+- [x] 更新 README（root + app）
+- **Status:** complete
+
+### Phase L2: UI Layout & Visual Migration
+- [x] 迁移主题 token 到 1.html 视觉语义
+- [x] 更新 AppHeader / NavPanel / AppLayout / OverviewPage
+- [x] 统一 card/button/input/select/badge 风格
+- [x] 完成 build + 定向测试验证
+- **Status:** complete
+
+### Phase L3: Runtime + Data Display Stabilization
+- [x] 定位 `npm run dev` ABI mismatch 根因
+- [x] 在 `dev:electron` 前置 `abi:electron`
+- [x] 将概览 KPI 默认值修正为 `0`（去除 demo 硬编码值）
+- [ ] 提交 L3 修复
+- [ ] 复验 build + 定向测试 + dev 启动
+- **Status:** in progress
+
+## Verification Checklist (L3)
+
+- `npm run build`
+- `npm run test -- src/pages/home/p1.overview-status.component.spec.tsx src/layouts/p0.layout-navigation.component.spec.tsx`
+- `npm run dev`（手工 smoke，确认 Electron 正常启动）
+
+## Next Execution Plan
+
+1. 完成 L3 提交并推送。
+2. 合并 `codex/bugfix/layout-fix`。
+3. 启动 P2：`plans/2026-02-14-p2-payroll-kickoff.md`。

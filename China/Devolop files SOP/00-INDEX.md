@@ -1,6 +1,6 @@
 ---
 document: 薪酬管理系统 · PRD 主索引
-version: 1.3
+version: 1.4
 product: 薪酬管理系统（Payroll Management System）
 form: 桌面端应用（Electron 打包，Mac + Windows）
 languages: 繁体中文 / 简体中文 / English
@@ -79,6 +79,19 @@ companion: 《薪酬系统-开发策略文档.md》（技术方案）
 - 技术架构保持不变：React + TypeScript + Vite + Tailwind/shadcn。
 - 本次迁移仅调整布局与样式，不改业务逻辑、路由语义、IPC 接口。
 
+## 当前工程定位（2026-02-15）
+
+- 当前工作分支：`codex/bugfix/layout-fix`
+- 已完成：
+  - 文档对齐提交（SOP/plans/README）
+  - 正式项目布局与视觉统一提交（按 1.2 架构 + 1.html token）
+- 已识别并修复中的稳定性点：
+  - `npm run dev` 触发 Electron 启动时可能出现 `better-sqlite3` ABI 不匹配
+  - 概览 KPI 在正式代码中应保持默认 `0`，不显示 demo 硬编码数值
+- 验证基线：
+  - `npm run build`
+  - `npm run test -- src/pages/home/p1.overview-status.component.spec.tsx src/layouts/p0.layout-navigation.component.spec.tsx`
+
 ## 模块依赖关系
 
 ```mermaid
@@ -121,6 +134,13 @@ graph TD
 - 优先进入 `05-mod-payroll.md`：实现 `calculator.ts`、`PayrollByEmpPage`、`PayrollDetailPage`、工资条/PDF 导出。
 - P2 关门标准保持不变：`calculator.test.ts` + `payroll-flow.spec.ts` + 三件套证据（raw JSON + case map + XLSX）。
 - P2 完成后再进入 `06-mod-voucher.md` 的 P3 任务。
+
+### 当前分支收尾（在进入 P2 前）
+
+1. 将运行时修复（`dev:electron` 启动前自动 `abi:electron`）与 KPI 默认值 `0` 合并提交。
+2. 复验 `npm run build` 与上述定向测试。
+3. 手工 smoke：`npm run dev` 验证 Electron 可正常起应用壳。
+4. 完成 `codex/bugfix/layout-fix` 合并后，再切入 P2 开发分支。
 
 ## 使用指南
 

@@ -4,7 +4,7 @@
 
 ## Release Status
 
-- Current release target: `2.1.2-p1-sqlite-finish`
+- Current release target: `2.1.2-p1-layoutfix-finish`
 - Milestone: P1 (SQLite foundation + Data/Settings/Employee/Import-Export) closed
 
 ## Tech Stack
@@ -127,3 +127,22 @@ node scripts/generate-p1-xlsx-report.mjs
 - 统一目标：卡片、按钮、输入、下拉、badge 的边框/阴影/圆角一致化
 - 技术架构不变：React + TypeScript + Vite + Tailwind/shadcn
 - 约束：只做布局与样式统一，不改业务逻辑、route 和 IPC
+
+## Current Status Snapshot (2026-02-15)
+
+- Branch: `codex/bugfix/layout-fix`
+- Completed:
+  - docs baseline sync (`0c289d6`)
+  - UI layout/style migration (`783999e`)
+- In progress:
+  - `dev:electron` pre-run ABI stabilization (`abi:electron`)
+  - Overview KPI fallback to zero values (no demo hardcoded business numbers)
+
+## Next Steps (Before Merge)
+
+1. Commit the stabilization files: `package.json`, `src/pages/home/OverviewPage.tsx`.
+2. Re-verify:
+   - `npm run build`
+   - `npm run test -- src/pages/home/p1.overview-status.component.spec.tsx src/layouts/p0.layout-navigation.component.spec.tsx`
+3. Run `npm run dev` for Electron startup smoke check.
+4. Merge branch and continue P2 payroll implementation.
