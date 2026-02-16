@@ -123,3 +123,57 @@ export function nextEmployeeId(employees: Employee[]): number {
   const maxId = employees.reduce((max, employee) => Math.max(max, employee.id), 0);
   return maxId + 1;
 }
+
+/**
+ * Creates an empty employee form with default values.
+ */
+export function createEmptyForm(): EmployeeFormModel {
+  return {
+    name: "",
+    idCard: "",
+    companyShort: "",
+    company: "",
+    dept: "",
+    position: "",
+    type: "management",
+    baseSalary: 0,
+    subsidy: 0,
+    hasSocial: true,
+    hasLocalPension: true,
+    fundAmount: 0,
+  };
+}
+
+/**
+ * Converts an Employee to an EmployeeFormModel for editing.
+ */
+export function toFormModel(employee: Employee): EmployeeFormModel {
+  return {
+    id: employee.id,
+    name: employee.name,
+    idCard: employee.idCard,
+    companyShort: employee.companyShort,
+    company: employee.company,
+    dept: employee.dept,
+    position: employee.position,
+    type: employee.type,
+    baseSalary: employee.baseSalary,
+    subsidy: employee.subsidy,
+    hasSocial: employee.hasSocial,
+    hasLocalPension: employee.hasLocalPension,
+    fundAmount: employee.fundAmount,
+  };
+}
+
+/**
+ * Type definition for inline edit draft state.
+ */
+export interface InlineEditDraft {
+  name: string;
+  companyShort: string;
+  position: string;
+  baseSalary: number;
+  subsidy: number;
+  fundAmount: number;
+}
+
