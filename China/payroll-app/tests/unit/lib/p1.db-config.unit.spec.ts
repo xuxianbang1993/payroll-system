@@ -7,7 +7,7 @@ import {
   resolveReadSource,
   resolveRuntimeConfig,
   resolveWriteMode,
-} from "../../electron/db/config";
+} from "../../../electron/db/config";
 
 describe("P1 db config", () => {
   it("defaults to production-safe modes for invalid env values", () => {

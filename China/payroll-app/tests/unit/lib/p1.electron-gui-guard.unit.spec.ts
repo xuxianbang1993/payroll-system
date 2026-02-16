@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 // @ts-ignore scripts module is runtime-only for Electron GUI guard
-import { evaluateElectronGuiPolicy } from "../../scripts/electron-gui-guard-core.mjs";
+import { evaluateElectronGuiPolicy } from "../../../scripts/electron-gui-guard-core.mjs";
 
 describe("P1 electron GUI guard", () => {
   it("allows non-mac runtimes", () => {

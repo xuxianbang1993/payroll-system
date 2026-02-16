@@ -4,7 +4,7 @@ import path from "node:path";
 
 import { afterEach, describe, expect, it } from "vitest";
 
-import { resolveRendererIndexPath } from "../../electron/app-paths";
+import { resolveRendererIndexPath } from "../../../electron/app-paths";
 
 const tempDirs: string[] = [];
 

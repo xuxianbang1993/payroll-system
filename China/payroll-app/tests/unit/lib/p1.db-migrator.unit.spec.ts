@@ -8,7 +8,7 @@ import {
   getSchemaVersion,
   resolveDefaultMigrationsDir,
   runMigrations,
-} from "../../electron/db/migrator";
+} from "../../../electron/db/migrator";
 
 function createTempWorkspace(): string {
   return mkdtempSync(path.join(tmpdir(), "payroll-migrator-test-"));

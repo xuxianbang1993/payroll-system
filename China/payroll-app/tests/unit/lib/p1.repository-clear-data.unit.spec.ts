@@ -1,9 +1,9 @@
 import { afterEach, describe, expect, it } from "vitest";
 
-import { createDatabaseClient } from "../../electron/db/client";
-import { createSqliteRepositoryAdapter } from "../../electron/db/repository/sqlite-adapter";
-import type { EmployeeRecord, RepositorySettings } from "../../electron/db/repository/contracts";
-import { createTestDbSandbox } from "../../electron/db/test-db";
+import { createDatabaseClient } from "../../../electron/db/client";
+import { createSqliteRepositoryAdapter } from "../../../electron/db/repository/sqlite-adapter";
+import type { EmployeeRecord, RepositorySettings } from "../../../electron/db/repository/contracts";
+import { createTestDbSandbox } from "../../../electron/db/test-db";
 
 describe("P1 repository clear data", () => {
   const cleanups: Array<() => void> = [];

@@ -5,12 +5,12 @@ import type {
   ImportBackupResult,
   RepositoryAdapter,
   RepositorySettings,
-} from "../../electron/db/repository/contracts";
-import { normalizeBackupPayload } from "../../electron/db/repository/backup-normalizer";
+} from "../../../electron/db/repository/contracts";
+import { normalizeBackupPayload } from "../../../electron/db/repository/backup-normalizer";
 import {
   createSwitchingRepository,
   DualWriteError,
-} from "../../electron/db/repository/switching-repository";
+} from "../../../electron/db/repository/switching-repository";
 
 const baseSettings: RepositorySettings = {
   orgName: "Acme",

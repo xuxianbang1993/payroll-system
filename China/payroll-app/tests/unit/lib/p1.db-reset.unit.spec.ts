@@ -1,9 +1,9 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { existsSync } from "node:fs";
 
-import { createDatabaseClient } from "../../electron/db/client";
-import { resetDatabase, ResetNotAllowedError } from "../../electron/db/reset";
-import { createTestDbSandbox } from "../../electron/db/test-db";
+import { createDatabaseClient } from "../../../electron/db/client";
+import { resetDatabase, ResetNotAllowedError } from "../../../electron/db/reset";
+import { createTestDbSandbox } from "../../../electron/db/test-db";
 
 describe("P1 db reset and sandbox", () => {
   const cleanups: Array<() => void> = [];

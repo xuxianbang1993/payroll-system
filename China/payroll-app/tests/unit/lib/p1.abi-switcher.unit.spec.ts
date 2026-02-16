@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 // @ts-ignore scripts module is runtime-only for ABI switching
-import { getRebuildCommand, parseAbiTarget, shouldRebuild } from "../../scripts/abi-switcher-core.mjs";
+import { getRebuildCommand, parseAbiTarget, shouldRebuild } from "../../../scripts/abi-switcher-core.mjs";
 
 describe("P1 ABI switcher core", () => {
   it("parses valid abi targets", () => {
