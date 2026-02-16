@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useSettingsStore } from "@/stores/settings-store";
+import { resolveMessage } from "@/utils/i18n-utils";
 
 export function CompanyPage() {
   const { t } = useTranslation();
@@ -74,13 +75,13 @@ export function CompanyPage() {
         <CardContent className="space-y-4">
           {errorMessage ? (
             <div className="rounded-md border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-800">
-              {errorMessage}
+              {resolveMessage(errorMessage, t)}
             </div>
           ) : null}
 
           {!errorMessage && noticeMessage ? (
             <div className="rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-800">
-              {noticeMessage}
+              {resolveMessage(noticeMessage, t)}
             </div>
           ) : null}
 

@@ -107,7 +107,7 @@ describe("P1 settings store", () => {
 
     expect(ok).toBe(false);
     expect(mockedSaveSettings).not.toHaveBeenCalled();
-    expect(useSettingsStore.getState().errorMessage).toContain("组织名称");
+    expect(useSettingsStore.getState().errorMessage).toBe("error.orgNameEmpty");
   });
 
   it("persists social and company updates", async () => {

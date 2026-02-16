@@ -142,6 +142,19 @@
     "yes": "Yes",
     "no": "No"
   },
+  "error": {
+    "settingsLoadFailed": "Failed to load settings: {{reason}}",
+    "settingsSaveFailed": "Failed to save settings: {{reason}}",
+    "settingsRepositoryUnavailable": "Failed to save settings: Repository interface unavailable",
+    "orgNameEmpty": "Organization name cannot be empty",
+    "companyShortEmpty": "Company short name cannot be empty",
+    "companyShortDuplicate": "Company short name is duplicated. Please modify and retry"
+  },
+  "success": {
+    "orgNameSaved": "Organization name saved",
+    "socialConfigSaved": "Social insurance configuration saved",
+    "companiesSaved": "Company entities saved"
+  },
   "settings": {
     "org": {
       "title": "Organization Settings",

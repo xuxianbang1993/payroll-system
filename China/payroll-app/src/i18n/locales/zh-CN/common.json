@@ -142,6 +142,19 @@
     "yes": "是",
     "no": "否"
   },
+  "error": {
+    "settingsLoadFailed": "加载设置失败：{{reason}}",
+    "settingsSaveFailed": "保存设置失败：{{reason}}",
+    "settingsRepositoryUnavailable": "保存设置失败：仓储接口不可用",
+    "orgNameEmpty": "组织名称不能为空",
+    "companyShortEmpty": "公司简称不能为空",
+    "companyShortDuplicate": "公司简称重复，请修改后重试"
+  },
+  "success": {
+    "orgNameSaved": "组织名称已保存",
+    "socialConfigSaved": "社保配置已保存",
+    "companiesSaved": "公司主体已保存"
+  },
   "settings": {
     "org": {
       "title": "组织信息",

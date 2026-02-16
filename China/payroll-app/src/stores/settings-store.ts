@@ -6,36 +6,17 @@ import {
   saveRepositorySettings,
 } from "@/lib/p1-repository";
 import { toErrorMessage } from "@/utils/error";
+import {
+  computeOrgStats,
+  DEFAULT_SETTINGS,
+  DEFAULT_SOCIAL_CONFIG,
+  normalizeCompanies,
+  normalizeSettings,
+  validateCompanyShort,
+  validateOrgName,
+  type OrgStats,
+} from "@/utils/settings-utils";
 import type { Company, Employee, Settings, SocialConfig } from "@/types/payroll";
-
-const DEFAULT_SOCIAL_CONFIG: SocialConfig = {
-  compPension: 16,
-  compLocalPension: 1,
-  compUnemploy: 0.8,
-  compMedical: 5,
-  compInjury: 0.4,
-  compMaternity: 0.5,
-  workerPension: 8,
-  workerUnemploy: 0.2,
-  workerMedical: 2,
-  pensionBase: 4775,
-  unemploymentBase: 3000,
-  medicalBase: 6727,
-  injuryBase: 3000,
-  maternityBase: 6727,
-};
-
-const DEFAULT_SETTINGS: Settings = {
-  orgName: "公司名称",
-  social: { ...DEFAULT_SOCIAL_CONFIG },
-  companies: [],
-};
-
-interface OrgStats {
-  employeeCount: number;
-  companyCount: number;
-  monthlyBaseTotal: number;
-}
 
 interface SettingsStoreState {
   settings: Settings;
@@ -55,69 +36,14 @@ interface SettingsStoreState {
   reset: () => void;
 }
 
-function normalizeSettings(value: Settings | null): Settings {
-  if (!value) {
-    return {
-      ...DEFAULT_SETTINGS,
-      social: { ...DEFAULT_SOCIAL_CONFIG },
-      companies: [],
-    };
-  }
-
-  return {
-    orgName: value.orgName,
-    social: {
-      ...DEFAULT_SOCIAL_CONFIG,
-      ...value.social,
-    },
-    companies: Array.isArray(value.companies) ? value.companies : [],
-  };
-}
-
-function computeOrgStats(employees: Employee[]): OrgStats {
-  const companies = new Set<string>();
-  let monthlyBaseTotal = 0;
-
-  for (const employee of employees) {
-    if (employee.companyShort.trim() !== "") {
-      companies.add(employee.companyShort.trim());
-    }
-    monthlyBaseTotal += employee.baseSalary + employee.subsidy;
-  }
-
-  return {
-    employeeCount: employees.length,
-    companyCount: companies.size,
-    monthlyBaseTotal,
-  };
-}
-
-function normalizeCompanies(companies: Company[]): Company[] {
-  const dedupe = new Set<string>();
-  const normalized: Company[] = [];
-
-  for (const company of companies) {
-    const short = company.short.trim();
-    const full = company.full.trim();
-    if (short === "" || dedupe.has(short)) {
-      continue;
-    }
-
-    dedupe.add(short);
-    normalized.push({ short, full: full || short });
-  }
-
-  return normalized.sort((left, right) => left.short.localeCompare(right.short, "zh-Hans-CN"));
-}
-
 export const useSettingsStore = create<SettingsStoreState>((set, get) => {
-  const persist = async (next: Settings, noticeMessage: string): Promise<boolean> => {
+  const persist = async (next: Settings, noticeKey: string): Promise<boolean> => {
     set({ saving: true, errorMessage: "", noticeMessage: "" });
 
     try {
       const saved = await saveRepositorySettings(next);
       if (!saved) {
-        set({ errorMessage: "保存设置失败：仓储接口不可用", saving: false });
+        set({ errorMessage: "error.settingsRepositoryUnavailable", saving: false });
         return false;
       }
 
@@ -125,13 +51,13 @@ export const useSettingsStore = create<SettingsStoreState>((set, get) => {
         settings: normalizeSettings(saved),
         orgStats: computeOrgStats(state.employees),
         saving: false,
-        noticeMessage,
+        noticeMessage: noticeKey,
       }));
       return true;
     } catch (error) {
       set({
         saving: false,
-        errorMessage: `保存设置失败：${toErrorMessage(error)}`,
+        errorMessage: `error.settingsSaveFailed|${toErrorMessage(error)}`,
       });
       return false;
     }
@@ -171,14 +97,14 @@ export const useSettingsStore = create<SettingsStoreState>((set, get) => {
       } catch (error) {
         set({
           loading: false,
-          errorMessage: `加载设置失败：${toErrorMessage(error)}`,
+          errorMessage: `error.settingsLoadFailed|${toErrorMessage(error)}`,
         });
       }
     },
     saveOrgName: async (orgName: string) => {
-      const trimmed = orgName.trim();
-      if (trimmed === "") {
-        set({ errorMessage: "组织名称不能为空" });
+      const validation = validateOrgName(orgName);
+      if (!validation.valid) {
+        set({ errorMessage: validation.errorKey ?? "" });
         return false;
       }
 
@@ -186,9 +112,9 @@ export const useSettingsStore = create<SettingsStoreState>((set, get) => {
       return persist(
         {
           ...current,
-          orgName: trimmed,
+          orgName: orgName.trim(),
         },
-        "组织名称已保存",
+        "success.orgNameSaved",
       );
     },
     saveSocial: async (social: SocialConfig) => {
@@ -198,7 +124,7 @@ export const useSettingsStore = create<SettingsStoreState>((set, get) => {
           ...current,
           social,
         },
-        "社保配置已保存",
+        "success.socialConfigSaved",
       );
     },
     saveCompanies: async (companies: Company[]) => {
@@ -209,25 +135,19 @@ export const useSettingsStore = create<SettingsStoreState>((set, get) => {
           ...current,
           companies: normalized,
         },
-        "公司主体已保存",
+        "success.companiesSaved",
       );
     },
     upsertCompany: async (company: Company, previousShort?: string) => {
-      const short = company.short.trim();
-      const full = company.full.trim();
-      if (short === "") {
-        set({ errorMessage: "公司简称不能为空" });
+      const currentCompanies = get().settings.companies;
+      const validation = validateCompanyShort(company.short, currentCompanies, previousShort);
+      if (!validation.valid) {
+        set({ errorMessage: validation.errorKey ?? "" });
         return false;
       }
 
-      const currentCompanies = get().settings.companies;
-      const duplicate = currentCompanies.find(
-        (item) => item.short === short && item.short !== (previousShort ?? ""),
-      );
-      if (duplicate) {
-        set({ errorMessage: "公司简称重复，请修改后重试" });
-        return false;
-      }
+      const short = company.short.trim();
+      const full = company.full.trim();
 
       const nextCompanies = currentCompanies.map((item) => {
         if (item.short === previousShort || (previousShort === undefined && item.short === short)) {

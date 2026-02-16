@@ -142,6 +142,19 @@
     "yes": "是",
     "no": "否"
   },
+  "error": {
+    "settingsLoadFailed": "載入設定失敗：{{reason}}",
+    "settingsSaveFailed": "儲存設定失敗：{{reason}}",
+    "settingsRepositoryUnavailable": "儲存設定失敗：Repository 介面不可用",
+    "orgNameEmpty": "組織名稱不可為空",
+    "companyShortEmpty": "公司簡稱不可為空",
+    "companyShortDuplicate": "公司簡稱重複，請修改後重試"
+  },
+  "success": {
+    "orgNameSaved": "組織名稱已儲存",
+    "socialConfigSaved": "社保設定已儲存",
+    "companiesSaved": "公司主體已儲存"
+  },
   "settings": {
     "org": {
       "title": "組織資訊",
