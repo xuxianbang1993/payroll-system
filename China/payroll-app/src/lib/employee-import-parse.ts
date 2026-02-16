@@ -1,8 +1,8 @@
 import * as xlsx from "xlsx";
 
 import type { Employee, EmployeeImportRow, EmployeeType } from "@/types/payroll";
-import { normalizeEmployeeType } from "@/utils/employee-utils";
-import { parseNumber } from "@/utils/format.ts";
+import { normalizeEmployeeType, toCompanyFullName } from "@/utils/employee-utils";
+import { parseNumber } from "@/utils/format";
 
 export const EMPLOYEE_IMPORT_TEMPLATE_HEADERS = [
   "姓名",
@@ -54,10 +54,6 @@ function parseBoolean(value: unknown, fallback: boolean): boolean {
   if (["true", "1", "yes", "y", "是"].includes(lowered)) return true;
   if (["false", "0", "no", "n", "否"].includes(lowered)) return false;
   return fallback;
-}
-
-function ensureCompanyFullName(short: string, full: string): string {
-  return full !== "" ? full : short;
 }
 
 function normalizeEmployeeTypeFromInput(value: unknown): EmployeeType {
@@ -130,7 +126,7 @@ export function parseEmployeeWorkbook(buffer: ArrayBuffer): EmployeeImportParseR
     const name = asString(sourceRow["姓名"]);
     const idCard = asString(sourceRow["身份证号"]);
     const companyShort = asString(sourceRow["公司简称"]);
-    const company = ensureCompanyFullName(companyShort, asString(sourceRow["公司全称"]));
+    const company = toCompanyFullName(companyShort, asString(sourceRow["公司全称"]));
     const dept = asString(sourceRow["部门"]);
     const position = asString(sourceRow["职位"]);
     const type = normalizeEmployeeTypeFromInput(sourceRow["人员类型"]);
