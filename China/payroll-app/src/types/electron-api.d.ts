@@ -16,6 +16,9 @@ declare global {
       getSettings: () => Promise<unknown>;
       saveSettings: (settings: unknown) => Promise<unknown>;
       listEmployees: () => Promise<unknown>;
+      addEmployee: (employee: unknown) => Promise<unknown>;
+      updateEmployee: (employee: unknown) => Promise<unknown>;
+      deleteEmployee: (id: number) => Promise<unknown>;
       replaceEmployees: (employees: unknown[]) => Promise<unknown>;
       exportBackup: () => Promise<unknown>;
       importBackup: (payload: unknown) => Promise<unknown>;

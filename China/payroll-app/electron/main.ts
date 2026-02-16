@@ -141,6 +141,27 @@ function registerRepositoryIpc(): void {
     return getRepositoryOrThrow().replaceEmployees(safeEmployees as EmployeeRecord[]);
   });
 
+  ipcMain.handle("repo:employees:add", (_event, employee: unknown) => {
+    if (!employee || typeof employee !== "object") {
+      throw new Error("Invalid employee input");
+    }
+    return getRepositoryOrThrow().addEmployee(employee as Omit<EmployeeRecord, "id">);
+  });
+
+  ipcMain.handle("repo:employees:update", (_event, employee: unknown) => {
+    if (!employee || typeof employee !== "object") {
+      throw new Error("Invalid employee input");
+    }
+    return getRepositoryOrThrow().updateEmployee(employee as EmployeeRecord);
+  });
+
+  ipcMain.handle("repo:employees:delete", (_event, id: unknown) => {
+    if (typeof id !== "number") {
+      throw new Error("Invalid employee id");
+    }
+    return getRepositoryOrThrow().deleteEmployee(id);
+  });
+
   ipcMain.handle("repo:data:backup:export", () => {
     return getRepositoryOrThrow().exportBackup();
   });

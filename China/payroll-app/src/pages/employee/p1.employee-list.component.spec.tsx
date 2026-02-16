@@ -8,25 +8,28 @@ import { useEmployeeStore } from "@/stores/employee-store";
 import {
   listRepositoryEmployees,
   loadRepositorySettings,
-  replaceRepositoryEmployees,
+  updateRepositoryEmployee,
 } from "@/lib/p1-repository";
 
 vi.mock("@/lib/p1-repository", () => ({
   listRepositoryEmployees: vi.fn(),
   loadRepositorySettings: vi.fn(),
+  addRepositoryEmployee: vi.fn(),
+  updateRepositoryEmployee: vi.fn(),
+  deleteRepositoryEmployee: vi.fn(),
   replaceRepositoryEmployees: vi.fn(),
 }));
 
 describe("P1 employee list page", () => {
   const mockedListEmployees = vi.mocked(listRepositoryEmployees);
   const mockedLoadSettings = vi.mocked(loadRepositorySettings);
-  const mockedReplaceEmployees = vi.mocked(replaceRepositoryEmployees);
+  const mockedUpdateEmployee = vi.mocked(updateRepositoryEmployee);
 
   beforeEach(() => {
     useEmployeeStore.getState().reset();
     mockedListEmployees.mockReset();
     mockedLoadSettings.mockReset();
-    mockedReplaceEmployees.mockReset();
+    mockedUpdateEmployee.mockReset();
 
     mockedListEmployees.mockResolvedValue([
       {
@@ -65,7 +68,21 @@ describe("P1 employee list page", () => {
       },
       companies: [{ short: "AC", full: "Acme Co" }],
     });
-    mockedReplaceEmployees.mockResolvedValue({ count: 1 });
+    mockedUpdateEmployee.mockResolvedValue({
+      id: 1,
+      name: "Alice Updated",
+      idCard: "",
+      companyShort: "AC",
+      company: "Acme Co",
+      dept: "HR",
+      position: "Manager",
+      type: "management",
+      baseSalary: 10000,
+      subsidy: 500,
+      hasSocial: true,
+      hasLocalPension: true,
+      fundAmount: 300,
+    });
   });
 
   it("supports inline edit and persists list", async () => {
@@ -83,11 +100,11 @@ describe("P1 employee list page", () => {
     await user.click(screen.getByRole("button", { name: "Save" }));
 
     await waitFor(() => {
-      expect(mockedReplaceEmployees).toHaveBeenCalled();
+      expect(mockedUpdateEmployee).toHaveBeenCalled();
     });
 
-    const payload = mockedReplaceEmployees.mock.calls[0]?.[0] ?? [];
-    expect(payload[0]?.name).toBe("Alice Updated");
+    const payload = mockedUpdateEmployee.mock.calls[0]?.[0];
+    expect(payload?.name).toBe("Alice Updated");
   });
 
   it("allows jumping from detail panel to inline edit", async () => {

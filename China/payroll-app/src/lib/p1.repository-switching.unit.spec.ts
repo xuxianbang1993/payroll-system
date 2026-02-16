@@ -68,6 +68,9 @@ function createAdapter(overrides: Partial<RepositoryAdapter> = {}): RepositoryAd
     getSettings: vi.fn().mockReturnValue(baseSettings),
     saveSettings: vi.fn(),
     listEmployees: vi.fn().mockReturnValue(baseEmployees),
+    addEmployee: vi.fn().mockReturnValue({ ...baseEmployees[0], id: 2, name: "New" }),
+    updateEmployee: vi.fn().mockReturnValue(baseEmployees[0]),
+    deleteEmployee: vi.fn().mockReturnValue({ deletedPayrollInputs: 0, deletedPayrollResults: 0 }),
     replaceEmployees: vi.fn().mockReturnValue({ count: baseEmployees.length }),
     exportBackup: vi.fn().mockReturnValue({
       version: 2,
@@ -231,6 +234,48 @@ describe("P1 repository switching", () => {
     expect(message).toContain("mode=dual");
     expect(message).toContain("op=saveSettings");
     expect(String(meta.requestId)).toMatch(/^req-/);
+  });
+
+  it("routes addEmployee/updateEmployee/deleteEmployee by WRITE_MODE", () => {
+    const legacy = createAdapter();
+    const sqlite = createAdapter();
+
+    const dualRepo = createSwitchingRepository({
+      context: { appEnv: "prod", readSource: "sqlite", writeMode: "dual" },
+      legacy,
+      sqlite,
+    });
+
+    const newEmployee = { ...baseEmployees[0], id: undefined };
+    const { id: _id, ...withoutId } = baseEmployees[0];
+
+    dualRepo.addEmployee(withoutId);
+    expect(legacy.addEmployee).toHaveBeenCalledTimes(1);
+    expect(sqlite.addEmployee).toHaveBeenCalledTimes(1);
+
+    dualRepo.updateEmployee(baseEmployees[0]);
+    expect(legacy.updateEmployee).toHaveBeenCalledTimes(1);
+    expect(sqlite.updateEmployee).toHaveBeenCalledTimes(1);
+
+    dualRepo.deleteEmployee(1);
+    expect(legacy.deleteEmployee).toHaveBeenCalledTimes(1);
+    expect(sqlite.deleteEmployee).toHaveBeenCalledTimes(1);
+  });
+
+  it("routes addEmployee only to sqlite in sqlite mode", () => {
+    const legacy = createAdapter();
+    const sqlite = createAdapter();
+
+    const sqliteRepo = createSwitchingRepository({
+      context: { appEnv: "prod", readSource: "sqlite", writeMode: "sqlite" },
+      legacy,
+      sqlite,
+    });
+
+    const { id: _id, ...withoutId } = baseEmployees[0];
+    sqliteRepo.addEmployee(withoutId);
+    expect(sqlite.addEmployee).toHaveBeenCalledTimes(1);
+    expect(legacy.addEmployee).toHaveBeenCalledTimes(0);
   });
 
   it("normalizes legacy backup payload to extended shape", () => {

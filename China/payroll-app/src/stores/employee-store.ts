@@ -1,13 +1,15 @@
 import { create } from "zustand";
 
 import {
+  addRepositoryEmployee,
+  deleteRepositoryEmployee,
   listRepositoryEmployees,
   loadRepositorySettings,
   replaceRepositoryEmployees,
+  updateRepositoryEmployee,
 } from "@/lib/p1-repository";
 import { toErrorMessage } from "@/utils/error";
 import {
-  nextEmployeeId,
   normalizeEmployeeType,
   sanitizeEmployeeInput,
   toEmployeeRecord,
@@ -40,37 +42,6 @@ function normalizeEmployees(employees: Employee[]): Employee[] {
 }
 
 export const useEmployeeStore = create<EmployeeStoreState>((set, get) => {
-  const persistEmployees = async (
-    nextEmployees: Employee[],
-    noticeKey: string,
-  ): Promise<boolean> => {
-    set({ saving: true, errorMessage: "", noticeMessage: "" });
-
-    try {
-      const result = await replaceRepositoryEmployees(nextEmployees);
-      if (!result) {
-        set({
-          saving: false,
-          errorMessage: "error.employeeSaveRepositoryUnavailable",
-        });
-        return false;
-      }
-
-      set({
-        employees: normalizeEmployees(nextEmployees),
-        saving: false,
-        noticeMessage: noticeKey,
-      });
-      return true;
-    } catch (error) {
-      set({
-        saving: false,
-        errorMessage: `error.employeeSaveFailed|${toErrorMessage(error)}`,
-      });
-      return false;
-    }
-  };
-
   return {
     employees: [],
     companyOptions: [],
@@ -107,9 +78,25 @@ export const useEmployeeStore = create<EmployeeStoreState>((set, get) => {
         return false;
       }
 
-      const nextId = nextEmployeeId(get().employees);
-      const nextEmployees = [...get().employees, toEmployeeRecord(model, nextId)];
-      return persistEmployees(nextEmployees, "success.employeeAdded");
+      set({ saving: true, errorMessage: "", noticeMessage: "" });
+      try {
+        const record = toEmployeeRecord(model, 0);
+        const { id: _id, ...withoutId } = record;
+        const created = await addRepositoryEmployee(withoutId);
+        if (!created) {
+          set({ saving: false, errorMessage: "error.employeeSaveRepositoryUnavailable" });
+          return false;
+        }
+        set({
+          employees: normalizeEmployees([...get().employees, created]),
+          saving: false,
+          noticeMessage: "success.employeeAdded",
+        });
+        return true;
+      } catch (error) {
+        set({ saving: false, errorMessage: `error.employeeSaveFailed|${toErrorMessage(error)}` });
+        return false;
+      }
     },
     updateEmployee: async (id: number, input: EmployeeFormModel) => {
       const normalized = sanitizeEmployeeInput(input);
@@ -125,23 +112,70 @@ export const useEmployeeStore = create<EmployeeStoreState>((set, get) => {
         return false;
       }
 
-      const nextEmployees = get().employees.map((employee) =>
-        employee.id === id ? toEmployeeRecord(model, id) : employee,
-      );
-
-      return persistEmployees(nextEmployees, "success.employeeUpdated");
+      set({ saving: true, errorMessage: "", noticeMessage: "" });
+      try {
+        const record = toEmployeeRecord(model, id);
+        const updated = await updateRepositoryEmployee(record);
+        if (!updated) {
+          set({ saving: false, errorMessage: "error.employeeSaveRepositoryUnavailable" });
+          return false;
+        }
+        set({
+          employees: normalizeEmployees(
+            get().employees.map((e) => (e.id === id ? updated : e)),
+          ),
+          saving: false,
+          noticeMessage: "success.employeeUpdated",
+        });
+        return true;
+      } catch (error) {
+        set({ saving: false, errorMessage: `error.employeeSaveFailed|${toErrorMessage(error)}` });
+        return false;
+      }
     },
     removeEmployee: async (id: number) => {
-      const nextEmployees = get().employees.filter((employee) => employee.id !== id);
-      if (nextEmployees.length === get().employees.length) {
+      const exists = get().employees.some((employee) => employee.id === id);
+      if (!exists) {
         set({ errorMessage: "error.employeeNotFound" });
         return false;
       }
 
-      return persistEmployees(nextEmployees, "success.employeeDeleted");
+      set({ saving: true, errorMessage: "", noticeMessage: "" });
+      try {
+        const result = await deleteRepositoryEmployee(id);
+        if (!result) {
+          set({ saving: false, errorMessage: "error.employeeSaveRepositoryUnavailable" });
+          return false;
+        }
+        set({
+          employees: get().employees.filter((e) => e.id !== id),
+          saving: false,
+          noticeMessage: "success.employeeDeleted",
+        });
+        return true;
+      } catch (error) {
+        set({ saving: false, errorMessage: `error.employeeSaveFailed|${toErrorMessage(error)}` });
+        return false;
+      }
     },
     replaceAll: async (nextEmployees: Employee[], noticeKey = "success.employeeListUpdated") => {
-      return persistEmployees(normalizeEmployees(nextEmployees), noticeKey);
+      set({ saving: true, errorMessage: "", noticeMessage: "" });
+      try {
+        const result = await replaceRepositoryEmployees(normalizeEmployees(nextEmployees));
+        if (!result) {
+          set({ saving: false, errorMessage: "error.employeeSaveRepositoryUnavailable" });
+          return false;
+        }
+        set({
+          employees: normalizeEmployees(nextEmployees),
+          saving: false,
+          noticeMessage: noticeKey,
+        });
+        return true;
+      } catch (error) {
+        set({ saving: false, errorMessage: `error.employeeSaveFailed|${toErrorMessage(error)}` });
+        return false;
+      }
     },
     clearMessages: () => {
       set({ errorMessage: "", noticeMessage: "" });

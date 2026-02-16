@@ -3,14 +3,20 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { Employee, Settings } from "@/types/payroll";
 import { useEmployeeStore } from "@/stores/employee-store";
 import {
+  addRepositoryEmployee,
+  deleteRepositoryEmployee,
   listRepositoryEmployees,
   loadRepositorySettings,
   replaceRepositoryEmployees,
+  updateRepositoryEmployee,
 } from "@/lib/p1-repository";
 
 vi.mock("@/lib/p1-repository", () => ({
   listRepositoryEmployees: vi.fn(),
   loadRepositorySettings: vi.fn(),
+  addRepositoryEmployee: vi.fn(),
+  updateRepositoryEmployee: vi.fn(),
+  deleteRepositoryEmployee: vi.fn(),
   replaceRepositoryEmployees: vi.fn(),
 }));
 
@@ -76,12 +82,18 @@ const employees: Employee[] = [
 describe("P1 employee store", () => {
   const mockedListEmployees = vi.mocked(listRepositoryEmployees);
   const mockedLoadSettings = vi.mocked(loadRepositorySettings);
+  const mockedAddEmployee = vi.mocked(addRepositoryEmployee);
+  const mockedUpdateEmployee = vi.mocked(updateRepositoryEmployee);
+  const mockedDeleteEmployee = vi.mocked(deleteRepositoryEmployee);
   const mockedReplaceEmployees = vi.mocked(replaceRepositoryEmployees);
 
   beforeEach(() => {
     useEmployeeStore.getState().reset();
     mockedListEmployees.mockReset();
     mockedLoadSettings.mockReset();
+    mockedAddEmployee.mockReset();
+    mockedUpdateEmployee.mockReset();
+    mockedDeleteEmployee.mockReset();
     mockedReplaceEmployees.mockReset();
 
     mockedListEmployees.mockResolvedValue(employees);
@@ -97,8 +109,25 @@ describe("P1 employee store", () => {
     expect(state.companyOptions.map((company) => company.short)).toEqual(["AC", "BC"]);
   });
 
-  it("adds employee with incremental id and persists", async () => {
+  it("adds employee via incremental API and appends to list", async () => {
     await useEmployeeStore.getState().load();
+
+    const createdEmployee: Employee = {
+      id: 4,
+      name: "Carol",
+      idCard: "110101199001010033",
+      companyShort: "AC",
+      company: "Acme Co",
+      dept: "Ops",
+      position: "Analyst",
+      type: "management",
+      baseSalary: 8000,
+      subsidy: 300,
+      hasSocial: true,
+      hasLocalPension: true,
+      fundAmount: 180,
+    };
+    mockedAddEmployee.mockResolvedValue(createdEmployee);
 
     const ok = await useEmployeeStore.getState().addEmployee({
       name: "Carol",
@@ -116,26 +145,43 @@ describe("P1 employee store", () => {
     });
 
     expect(ok).toBe(true);
-    expect(mockedReplaceEmployees).toHaveBeenCalledTimes(1);
-    const lastCall = mockedReplaceEmployees.mock.calls[0]?.[0] ?? [];
-    expect(lastCall).toHaveLength(3);
-    expect(lastCall[lastCall.length - 1]?.id).toBe(4);
+    expect(mockedAddEmployee).toHaveBeenCalledTimes(1);
+    expect(mockedReplaceEmployees).not.toHaveBeenCalled();
+    expect(useEmployeeStore.getState().employees).toHaveLength(3);
+    expect(useEmployeeStore.getState().employees[2]?.id).toBe(4);
   });
 
-  it("updates and deletes employee", async () => {
+  it("updates employee via incremental API", async () => {
     await useEmployeeStore.getState().load();
+
+    const updatedRecord: Employee = { ...employees[0], position: "Director" };
+    mockedUpdateEmployee.mockResolvedValue(updatedRecord);
 
     const updated = await useEmployeeStore.getState().updateEmployee(1, {
       ...employees[0],
       position: "Director",
     });
-    const deleted = await useEmployeeStore.getState().removeEmployee(3);
 
     expect(updated).toBe(true);
-    expect(deleted).toBe(true);
-    expect(mockedReplaceEmployees).toHaveBeenCalledTimes(2);
-    expect(useEmployeeStore.getState().employees).toHaveLength(1);
+    expect(mockedUpdateEmployee).toHaveBeenCalledTimes(1);
+    expect(mockedReplaceEmployees).not.toHaveBeenCalled();
     expect(useEmployeeStore.getState().employees[0]?.position).toBe("Director");
+  });
+
+  it("deletes employee via incremental API", async () => {
+    await useEmployeeStore.getState().load();
+
+    mockedDeleteEmployee.mockResolvedValue({
+      deletedPayrollInputs: 0,
+      deletedPayrollResults: 0,
+    });
+
+    const deleted = await useEmployeeStore.getState().removeEmployee(3);
+
+    expect(deleted).toBe(true);
+    expect(mockedDeleteEmployee).toHaveBeenCalledWith(3);
+    expect(mockedReplaceEmployees).not.toHaveBeenCalled();
+    expect(useEmployeeStore.getState().employees).toHaveLength(1);
   });
 
   it("validates required fields for add action", async () => {

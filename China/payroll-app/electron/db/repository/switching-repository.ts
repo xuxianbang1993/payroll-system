@@ -1,6 +1,7 @@
 import type {
   BackupExportFile,
   ClearDataResult,
+  DeleteEmployeeResult,
   EmployeeRecord,
   ImportBackupResult,
   ReplaceEmployeesResult,
@@ -106,6 +107,30 @@ export function createSwitchingRepository(
     },
 
     listEmployees: (): EmployeeRecord[] => getReadAdapter().listEmployees(),
+
+    addEmployee: (employee): EmployeeRecord => {
+      return writeByMode<Omit<EmployeeRecord, "id">>(
+        "addEmployee",
+        employee,
+        (adapter, cloned) => adapter.addEmployee(cloned),
+      ) as EmployeeRecord;
+    },
+
+    updateEmployee: (employee): EmployeeRecord => {
+      return writeByMode<EmployeeRecord>(
+        "updateEmployee",
+        employee,
+        (adapter, cloned) => adapter.updateEmployee(cloned),
+      ) as EmployeeRecord;
+    },
+
+    deleteEmployee: (id): DeleteEmployeeResult => {
+      return writeByMode<number>(
+        "deleteEmployee",
+        id,
+        (adapter, clonedId) => adapter.deleteEmployee(clonedId),
+      ) as DeleteEmployeeResult;
+    },
 
     replaceEmployees: (employees): ReplaceEmployeesResult => {
       return writeByMode<EmployeeRecord[]>(
