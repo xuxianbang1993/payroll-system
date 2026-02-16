@@ -59,7 +59,7 @@ describe("P1 org settings page", () => {
         company: "Acme Co",
         dept: "",
         position: "",
-        type: "管理",
+        type: "management",
         baseSalary: 10000,
         subsidy: 500,
         hasSocial: true,

@@ -36,7 +36,7 @@ const employee = {
   company: "Acme",
   dept: "",
   position: "",
-  type: "管理" as const,
+  type: "management" as const,
   baseSalary: 10000,
   subsidy: 0,
   hasSocial: true,

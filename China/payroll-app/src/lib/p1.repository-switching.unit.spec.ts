@@ -42,7 +42,7 @@ const baseEmployees: EmployeeRecord[] = [
     company: "Acme Co",
     dept: "HR",
     position: "Manager",
-    type: "管理",
+    type: "management",
     baseSalary: 10000,
     subsidy: 1000,
     hasSocial: true,
@@ -257,6 +257,6 @@ describe("P1 repository switching", () => {
     expect(normalized.data.payrollInputs).toEqual([]);
     expect(normalized.data.payrollResults).toEqual([]);
     expect(normalized.data.employees[0]?.id).toBe(7);
-    expect(normalized.data.employees[0]?.type).toBe("销售");
+    expect(normalized.data.employees[0]?.type).toBe("sales");
   });
 });

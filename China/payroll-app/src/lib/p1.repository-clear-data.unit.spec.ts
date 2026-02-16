@@ -62,7 +62,7 @@ describe("P1 repository clear data", () => {
         company: "Acme Co",
         dept: "HR",
         position: "Manager",
-        type: "管理",
+        type: "management",
         baseSalary: 10000,
         subsidy: 500,
         hasSocial: true,

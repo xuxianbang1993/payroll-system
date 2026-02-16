@@ -1,4 +1,15 @@
-import type { Employee, EmployeeFormModel } from "@/types/payroll";
+import type { Employee, EmployeeFormModel, EmployeeType } from "@/types/payroll";
+
+/**
+ * Normalizes legacy Chinese employee type values to English enum keys.
+ * Provides backward compatibility for data stored with "管理"/"销售".
+ */
+export function normalizeEmployeeType(value: string): EmployeeType {
+  if (value === "销售" || value === "sales") {
+    return "sales";
+  }
+  return "management";
+}
 
 /**
  * Validates that a numeric value is finite and non-negative.
@@ -73,7 +84,7 @@ export function sanitizeEmployeeInput(input: EmployeeFormModel): {
       company: toCompanyFullName(input.companyShort, input.company),
       dept: input.dept.trim(),
       position: input.position.trim(),
-      type: input.type === "销售" ? "销售" : "管理",
+      type: normalizeEmployeeType(input.type),
       hasLocalPension: input.hasSocial ? input.hasLocalPension : false,
     },
     errorKey: "",

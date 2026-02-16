@@ -29,7 +29,7 @@ function createEmptyForm(): EmployeeFormModel {
     company: "",
     dept: "",
     position: "",
-    type: "管理",
+    type: "management",
     baseSalary: 0,
     subsidy: 0,
     hasSocial: true,
@@ -99,6 +99,10 @@ export function EmployeeListPage() {
 
   const resolveCompanyFullName = (companyShort: string, fallback = ""): string => {
     return companyMap.get(companyShort) ?? (fallback || companyShort);
+  };
+
+  const translateEmployeeType = (type: EmployeeType): string => {
+    return type === "sales" ? t("employee.form.typeSales") : t("employee.form.typeManagement");
   };
 
   const handleAddEmployee = async () => {
@@ -452,7 +456,7 @@ export function EmployeeListPage() {
             <p>{t("employee.list.detail.company", { value: expandedEmployee.company })}</p>
             <p>{t("employee.list.detail.department", { value: expandedEmployee.dept || "-" })}</p>
             <p>{t("employee.list.detail.position", { value: expandedEmployee.position || "-" })}</p>
-            <p>{t("employee.list.detail.type", { value: expandedEmployee.type })}</p>
+            <p>{t("employee.list.detail.type", { value: translateEmployeeType(expandedEmployee.type) })}</p>
             <p>{t("employee.list.detail.baseSalary", { value: formatAmount(expandedEmployee.baseSalary) })}</p>
             <p>{t("employee.list.detail.subsidy", { value: formatAmount(expandedEmployee.subsidy) })}</p>
             <p>{t("employee.list.detail.hasSocial", { value: expandedEmployee.hasSocial ? t("common.yes") : t("common.no") })}</p>
@@ -522,8 +526,8 @@ export function EmployeeListPage() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="管理">{t("employee.form.typeManagement")}</SelectItem>
-                  <SelectItem value="销售">{t("employee.form.typeSales")}</SelectItem>
+                  <SelectItem value="management">{t("employee.form.typeManagement")}</SelectItem>
+                  <SelectItem value="sales">{t("employee.form.typeSales")}</SelectItem>
                 </SelectContent>
               </Select>
             </label>

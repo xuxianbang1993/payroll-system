@@ -17,8 +17,8 @@ export const EMPLOYEE_IMPORT_TEMPLATE_HEADERS = [
   "公积金金额",
 ] as const;
 
-const PERSON_TYPE_MANAGEMENT: EmployeeType = "管理";
-const PERSON_TYPE_SALES: EmployeeType = "销售";
+const PERSON_TYPE_MANAGEMENT: EmployeeType = "management";
+const PERSON_TYPE_SALES: EmployeeType = "sales";
 
 type ConflictDecision = "overwrite" | "skip";
 

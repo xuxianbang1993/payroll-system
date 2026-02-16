@@ -1,6 +1,6 @@
 import type { AppEnv, ReadSource, WriteMode } from "../config.js";
 
-export type EmployeeType = "管理" | "销售";
+export type EmployeeType = "management" | "sales";
 
 export interface SocialConfig {
   compPension: number;

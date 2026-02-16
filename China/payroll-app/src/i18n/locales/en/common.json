@@ -55,7 +55,22 @@
     "status": {
       "ready": "This module is delivered in P1 and ready to use.",
       "pending": "This module shell is ready and awaiting a later delivery phase."
-    }
+    },
+    "kpi": {
+      "people": "Active Employees",
+      "peopleValue": "0",
+      "peopleSub": "Pending calculation",
+      "pay": "Gross Pay This Month",
+      "payValue": "¥ 0",
+      "paySub": "Currency: ¥",
+      "done": "Calculation Complete",
+      "doneValue": "0%",
+      "doneSub": "Completion rate",
+      "warn": "Anomalies",
+      "warnValue": "0",
+      "warnSub": "Needs review"
+    },
+    "enterAction": "Enter: {{page}}"
   },
   "data": {
     "backup": {

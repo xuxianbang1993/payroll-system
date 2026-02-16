@@ -48,7 +48,7 @@ describe("P1 db reset and sandbox", () => {
           id, name, company_id, employee_type, base_salary, subsidy, has_social, has_local_pension, fund_amount
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       )
-      .run(1, "Alice", "c1", "管理", 10000, 500, 1, 1, 800);
+      .run(1, "Alice", "c1", "management", 10000, 500, 1, 1, 800);
 
     const migrationCountBefore = client.db
       .prepare("SELECT COUNT(1) as c FROM schema_migrations")

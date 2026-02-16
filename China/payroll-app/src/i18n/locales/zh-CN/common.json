@@ -55,7 +55,22 @@
     "status": {
       "ready": "该模块已完成 P1 收口，可直接进入使用。",
       "pending": "该模块骨架已就绪，待后续阶段实现业务逻辑。"
-    }
+    },
+    "kpi": {
+      "people": "在职人数",
+      "peopleValue": "0",
+      "peopleSub": "待计算",
+      "pay": "本月应发",
+      "payValue": "¥ 0",
+      "paySub": "单位 ¥",
+      "done": "已完成核算",
+      "doneValue": "0%",
+      "doneSub": "完成率",
+      "warn": "异常条目",
+      "warnValue": "0",
+      "warnSub": "需复核"
+    },
+    "enterAction": "进入：{{page}}"
   },
   "data": {
     "backup": {

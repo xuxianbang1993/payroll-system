@@ -55,7 +55,22 @@
     "status": {
       "ready": "此模組已完成 P1 收口，可直接進入使用。",
       "pending": "此模組骨架已就緒，待後續階段實作業務邏輯。"
-    }
+    },
+    "kpi": {
+      "people": "在職人數",
+      "peopleValue": "0",
+      "peopleSub": "待計算",
+      "pay": "本月應發",
+      "payValue": "¥ 0",
+      "paySub": "單位 ¥",
+      "done": "已完成核算",
+      "doneValue": "0%",
+      "doneSub": "完成率",
+      "warn": "異常條目",
+      "warnValue": "0",
+      "warnSub": "需複核"
+    },
+    "enterAction": "進入：{{page}}"
   },
   "data": {
     "backup": {

@@ -8,6 +8,7 @@ import {
 import { toErrorMessage } from "@/utils/error";
 import {
   nextEmployeeId,
+  normalizeEmployeeType,
   sanitizeEmployeeInput,
   toEmployeeRecord,
 } from "@/utils/employee-utils";
@@ -30,7 +31,12 @@ interface EmployeeStoreState {
 }
 
 function normalizeEmployees(employees: Employee[]): Employee[] {
-  return [...employees].sort((left, right) => left.id - right.id);
+  return [...employees]
+    .map((employee) => ({
+      ...employee,
+      type: normalizeEmployeeType(employee.type),
+    }))
+    .sort((left, right) => left.id - right.id);
 }
 
 export const useEmployeeStore = create<EmployeeStoreState>((set, get) => {

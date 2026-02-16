@@ -7,10 +7,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAppStore } from "@/stores/app-store";
 
 const kpiItems = [
-  { key: "people", label: "在职人数", value: "0", sub: "待计算" },
-  { key: "pay", label: "本月应发", value: "¥ 0", sub: "单位 ¥" },
-  { key: "done", label: "已完成核算", value: "0%", sub: "完成率" },
-  { key: "warn", label: "异常条目", value: "0", sub: "需复核" },
+  { key: "people", labelKey: "overview.kpi.people", valueKey: "overview.kpi.peopleValue", subKey: "overview.kpi.peopleSub" },
+  { key: "pay", labelKey: "overview.kpi.pay", valueKey: "overview.kpi.payValue", subKey: "overview.kpi.paySub" },
+  { key: "done", labelKey: "overview.kpi.done", valueKey: "overview.kpi.doneValue", subKey: "overview.kpi.doneSub" },
+  { key: "warn", labelKey: "overview.kpi.warn", valueKey: "overview.kpi.warnValue", subKey: "overview.kpi.warnSub" },
 ] as const;
 
 const overviewCards = [
@@ -89,9 +89,9 @@ export function OverviewPage() {
         {kpiItems.map((item) => (
           <Card key={item.key} className="border-border/80 bg-card/95 py-3">
             <CardContent className="grid gap-1.5 px-4">
-              <p className="text-xs font-semibold text-muted-foreground">{item.label}</p>
-              <p className="mono-num text-[30px] leading-none text-foreground">{item.value}</p>
-              <p className="text-xs text-muted-foreground">{item.sub}</p>
+              <p className="text-xs font-semibold text-muted-foreground">{t(item.labelKey)}</p>
+              <p className="mono-num text-[30px] leading-none text-foreground">{t(item.valueKey)}</p>
+              <p className="text-xs text-muted-foreground">{t(item.subKey)}</p>
             </CardContent>
           </Card>
         ))}
@@ -135,7 +135,7 @@ export function OverviewPage() {
 
                 <div className="mt-auto pt-1">
                   <Button asChild variant="outline" size="sm" className="h-9">
-                    <Link to={card.route}>进入：{t(firstItem.titleKey)}</Link>
+                    <Link to={card.route}>{t("overview.enterAction", { page: t(firstItem.titleKey) })}</Link>
                   </Button>
                 </div>
               </CardContent>

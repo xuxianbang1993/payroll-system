@@ -96,14 +96,14 @@ describe("P1 migration 0002 employee id integer", () => {
         id, name, id_number, company_id, department, position, employee_type,
         base_salary, subsidy, has_social, has_local_pension, fund_amount
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
-    ).run("101", "Numeric Employee", "ID101", "c1", "Ops", "Lead", "管理", 10000, 500, 1, 1, 300);
+    ).run("101", "Numeric Employee", "ID101", "c1", "Ops", "Lead", "management", 10000, 500, 1, 1, 300);
 
     db.prepare(
       `INSERT INTO employees (
         id, name, id_number, company_id, department, position, employee_type,
         base_salary, subsidy, has_social, has_local_pension, fund_amount
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
-    ).run("emp-alpha", "String Employee", "ID102", "c1", "Ops", "Analyst", "销售", 9000, 200, 0, 0, 100);
+    ).run("emp-alpha", "String Employee", "ID102", "c1", "Ops", "Analyst", "sales", 9000, 200, 0, 0, 100);
 
     db.prepare("INSERT INTO payroll_inputs (id, employee_id, payroll_month, payload) VALUES (?, ?, ?, ?)")
       .run("pi1", "101", "2026-02", "{}");
