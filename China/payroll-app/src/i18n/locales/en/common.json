@@ -148,12 +148,22 @@
     "settingsRepositoryUnavailable": "Failed to save settings: Repository interface unavailable",
     "orgNameEmpty": "Organization name cannot be empty",
     "companyShortEmpty": "Company short name cannot be empty",
-    "companyShortDuplicate": "Company short name is duplicated. Please modify and retry"
+    "companyShortDuplicate": "Company short name is duplicated. Please modify and retry",
+    "employeeLoadFailed": "Failed to load employees: {{reason}}",
+    "employeeSaveFailed": "Failed to save employee: {{reason}}",
+    "employeeSaveRepositoryUnavailable": "Failed to save employee: Repository interface unavailable",
+    "employeeNameEmpty": "Employee name cannot be empty",
+    "employeeNotFound": "Employee not found",
+    "numericFieldInvalid": "{{reason}} must be a number greater than or equal to 0"
   },
   "success": {
     "orgNameSaved": "Organization name saved",
     "socialConfigSaved": "Social insurance configuration saved",
-    "companiesSaved": "Company entities saved"
+    "companiesSaved": "Company entities saved",
+    "employeeAdded": "Employee added",
+    "employeeUpdated": "Employee updated",
+    "employeeDeleted": "Employee deleted",
+    "employeeListUpdated": "Employee list updated"
   },
   "settings": {
     "org": {

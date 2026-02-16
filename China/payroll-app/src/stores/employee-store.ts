@@ -6,6 +6,11 @@ import {
   replaceRepositoryEmployees,
 } from "@/lib/p1-repository";
 import { toErrorMessage } from "@/utils/error";
+import {
+  nextEmployeeId,
+  sanitizeEmployeeInput,
+  toEmployeeRecord,
+} from "@/utils/employee-utils";
 import type { Company, Employee, EmployeeFormModel } from "@/types/payroll";
 
 interface EmployeeStoreState {
@@ -28,103 +33,10 @@ function normalizeEmployees(employees: Employee[]): Employee[] {
   return [...employees].sort((left, right) => left.id - right.id);
 }
 
-function nextEmployeeId(employees: Employee[]): number {
-  if (employees.length === 0) {
-    return 1;
-  }
-
-  const maxId = employees.reduce((max, employee) => Math.max(max, employee.id), 0);
-  return maxId + 1;
-}
-
-function toCompanyFullName(companyShort: string, company: string): string {
-  const full = company.trim();
-  if (full !== "") {
-    return full;
-  }
-
-  return companyShort.trim();
-}
-
-function validateNumeric(value: number, label: string): string | null {
-  if (!Number.isFinite(value) || value < 0) {
-    return `${label} 必须是大于等于 0 的数字`;
-  }
-
-  return null;
-}
-
-function sanitizeEmployeeInput(input: EmployeeFormModel): { employee: EmployeeFormModel | null; errorMessage: string } {
-  const name = input.name.trim();
-  if (name === "") {
-    return {
-      employee: null,
-      errorMessage: "姓名不能为空",
-    };
-  }
-
-  const baseError = validateNumeric(input.baseSalary, "基本工资");
-  if (baseError) {
-    return {
-      employee: null,
-      errorMessage: baseError,
-    };
-  }
-
-  const subsidyError = validateNumeric(input.subsidy, "补助");
-  if (subsidyError) {
-    return {
-      employee: null,
-      errorMessage: subsidyError,
-    };
-  }
-
-  const fundAmountError = validateNumeric(input.fundAmount, "公积金金额");
-  if (fundAmountError) {
-    return {
-      employee: null,
-      errorMessage: fundAmountError,
-    };
-  }
-
-  return {
-    employee: {
-      ...input,
-      name,
-      idCard: input.idCard.trim(),
-      companyShort: input.companyShort.trim(),
-      company: toCompanyFullName(input.companyShort, input.company),
-      dept: input.dept.trim(),
-      position: input.position.trim(),
-      type: input.type === "销售" ? "销售" : "管理",
-      hasLocalPension: input.hasSocial ? input.hasLocalPension : false,
-    },
-    errorMessage: "",
-  };
-}
-
-function toEmployeeRecord(model: EmployeeFormModel, id: number): Employee {
-  return {
-    id,
-    name: model.name,
-    idCard: model.idCard,
-    companyShort: model.companyShort,
-    company: model.company,
-    dept: model.dept,
-    position: model.position,
-    type: model.type,
-    baseSalary: model.baseSalary,
-    subsidy: model.subsidy,
-    hasSocial: model.hasSocial,
-    hasLocalPension: model.hasLocalPension,
-    fundAmount: model.fundAmount,
-  };
-}
-
 export const useEmployeeStore = create<EmployeeStoreState>((set, get) => {
   const persistEmployees = async (
     nextEmployees: Employee[],
-    noticeMessage: string,
+    noticeKey: string,
   ): Promise<boolean> => {
     set({ saving: true, errorMessage: "", noticeMessage: "" });
 
@@ -133,7 +45,7 @@ export const useEmployeeStore = create<EmployeeStoreState>((set, get) => {
       if (!result) {
         set({
           saving: false,
-          errorMessage: "保存员工失败：仓储接口不可用",
+          errorMessage: "error.employeeSaveRepositoryUnavailable",
         });
         return false;
       }
@@ -141,13 +53,13 @@ export const useEmployeeStore = create<EmployeeStoreState>((set, get) => {
       set({
         employees: normalizeEmployees(nextEmployees),
         saving: false,
-        noticeMessage,
+        noticeMessage: noticeKey,
       });
       return true;
     } catch (error) {
       set({
         saving: false,
-        errorMessage: `保存员工失败：${toErrorMessage(error)}`,
+        errorMessage: `error.employeeSaveFailed|${toErrorMessage(error)}`,
       });
       return false;
     }
@@ -177,7 +89,7 @@ export const useEmployeeStore = create<EmployeeStoreState>((set, get) => {
       } catch (error) {
         set({
           loading: false,
-          errorMessage: `加载员工失败：${toErrorMessage(error)}`,
+          errorMessage: `error.employeeLoadFailed|${toErrorMessage(error)}`,
         });
       }
     },
@@ -185,25 +97,25 @@ export const useEmployeeStore = create<EmployeeStoreState>((set, get) => {
       const normalized = sanitizeEmployeeInput(input);
       const model = normalized.employee;
       if (!model) {
-        set({ errorMessage: normalized.errorMessage });
+        set({ errorMessage: normalized.errorKey });
         return false;
       }
 
       const nextId = nextEmployeeId(get().employees);
       const nextEmployees = [...get().employees, toEmployeeRecord(model, nextId)];
-      return persistEmployees(nextEmployees, "员工已新增");
+      return persistEmployees(nextEmployees, "success.employeeAdded");
     },
     updateEmployee: async (id: number, input: EmployeeFormModel) => {
       const normalized = sanitizeEmployeeInput(input);
       const model = normalized.employee;
       if (!model) {
-        set({ errorMessage: normalized.errorMessage });
+        set({ errorMessage: normalized.errorKey });
         return false;
       }
 
       const exists = get().employees.some((employee) => employee.id === id);
       if (!exists) {
-        set({ errorMessage: "未找到要编辑的员工" });
+        set({ errorMessage: "error.employeeNotFound" });
         return false;
       }
 
@@ -211,19 +123,19 @@ export const useEmployeeStore = create<EmployeeStoreState>((set, get) => {
         employee.id === id ? toEmployeeRecord(model, id) : employee,
       );
 
-      return persistEmployees(nextEmployees, "员工已更新");
+      return persistEmployees(nextEmployees, "success.employeeUpdated");
     },
     removeEmployee: async (id: number) => {
       const nextEmployees = get().employees.filter((employee) => employee.id !== id);
       if (nextEmployees.length === get().employees.length) {
-        set({ errorMessage: "未找到要删除的员工" });
+        set({ errorMessage: "error.employeeNotFound" });
         return false;
       }
 
-      return persistEmployees(nextEmployees, "员工已删除");
+      return persistEmployees(nextEmployees, "success.employeeDeleted");
     },
-    replaceAll: async (nextEmployees: Employee[], noticeMessage = "员工列表已更新") => {
-      return persistEmployees(normalizeEmployees(nextEmployees), noticeMessage);
+    replaceAll: async (nextEmployees: Employee[], noticeKey = "success.employeeListUpdated") => {
+      return persistEmployees(normalizeEmployees(nextEmployees), noticeKey);
     },
     clearMessages: () => {
       set({ errorMessage: "", noticeMessage: "" });

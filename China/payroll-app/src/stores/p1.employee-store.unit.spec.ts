@@ -158,6 +158,6 @@ describe("P1 employee store", () => {
 
     expect(ok).toBe(false);
     expect(mockedReplaceEmployees).not.toHaveBeenCalled();
-    expect(useEmployeeStore.getState().errorMessage).toContain("姓名");
+    expect(useEmployeeStore.getState().errorMessage).toBe("error.employeeNameEmpty");
   });
 });
