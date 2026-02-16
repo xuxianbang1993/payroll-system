@@ -6,10 +6,12 @@ import {
   EMPLOYEE_IMPORT_TEMPLATE_HEADERS,
   buildEmployeeWorkbook,
   createEmployeeTemplateWorkbook,
+  parseEmployeeWorkbook,
+} from "@/lib/employee-import-parse";
+import {
   findEmployeeImportConflicts,
   mergeEmployeeImportRows,
-  parseEmployeeWorkbook,
-} from "@/lib/p1-employee-import-export";
+} from "@/lib/employee-import-merge";
 
 const existingEmployees: Employee[] = [
   {

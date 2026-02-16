@@ -12,10 +12,13 @@ const importExportMocks = vi.hoisted(() => ({
   mergeRows: vi.fn(),
 }));
 
-vi.mock("@/lib/p1-employee-import-export", () => ({
+vi.mock("@/lib/employee-import-parse", () => ({
   createEmployeeTemplateWorkbook: importExportMocks.createTemplate,
   buildEmployeeWorkbook: importExportMocks.buildWorkbook,
   parseEmployeeWorkbook: importExportMocks.parseWorkbook,
+}));
+
+vi.mock("@/lib/employee-import-merge", () => ({
   findEmployeeImportConflicts: importExportMocks.findConflicts,
   mergeEmployeeImportRows: importExportMocks.mergeRows,
 }));
