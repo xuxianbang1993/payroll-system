@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useEmployeeStore } from "@/stores/employee-store";
 import type { Employee, EmployeeFormModel, EmployeeType } from "@/types/payroll";
+import { formatAmount, parseNumber } from "@/utils/format";
 
 interface InlineEditDraft {
   name: string;
@@ -52,26 +53,6 @@ function toFormModel(employee: Employee): EmployeeFormModel {
     hasLocalPension: employee.hasLocalPension,
     fundAmount: employee.fundAmount,
   };
-}
-
-function formatAmount(value: number): string {
-  return value.toLocaleString(undefined, {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  });
-}
-
-function parseNumber(value: string, fallback: number): number {
-  if (value.trim() === "") {
-    return fallback;
-  }
-
-  const parsed = Number(value);
-  if (!Number.isFinite(parsed)) {
-    return fallback;
-  }
-
-  return parsed;
 }
 
 export function EmployeeListPage() {

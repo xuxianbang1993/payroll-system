@@ -1,3 +1,5 @@
+import { asObject } from "@/utils/type-guards";
+
 export interface SaveBackupJsonRequest {
   payload: unknown;
   orgName?: string;
@@ -18,14 +20,6 @@ export interface OpenBackupJsonResult {
   canceled: boolean;
   filePath: string | null;
   payload: unknown | null;
-}
-
-function asObject(value: unknown): Record<string, unknown> | null {
-  if (!value || typeof value !== "object" || Array.isArray(value)) {
-    return null;
-  }
-
-  return value as Record<string, unknown>;
 }
 
 export async function saveBackupJsonFile(

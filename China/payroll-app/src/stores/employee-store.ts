@@ -5,6 +5,7 @@ import {
   loadRepositorySettings,
   replaceRepositoryEmployees,
 } from "@/lib/p1-repository";
+import { toErrorMessage } from "@/utils/error";
 import type { Company, Employee, EmployeeFormModel } from "@/types/payroll";
 
 interface EmployeeStoreState {
@@ -21,10 +22,6 @@ interface EmployeeStoreState {
   replaceAll: (nextEmployees: Employee[], noticeMessage?: string) => Promise<boolean>;
   clearMessages: () => void;
   reset: () => void;
-}
-
-function toErrorMessage(error: unknown): string {
-  return error instanceof Error ? error.message : String(error);
 }
 
 function normalizeEmployees(employees: Employee[]): Employee[] {

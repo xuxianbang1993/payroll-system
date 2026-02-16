@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { useSettingsStore } from "@/stores/settings-store";
 import type { SocialConfig } from "@/types/payroll";
+import { formatAmount, toNumber } from "@/utils/format";
 
 interface SocialField {
   key: keyof SocialConfig;
@@ -47,26 +48,6 @@ const baseFields: SocialField[] = [
   { key: "injuryBase", labelKey: "settings.social.fields.injuryBase", unitKey: "settings.social.units.yuan" },
   { key: "maternityBase", labelKey: "settings.social.fields.maternityBase", unitKey: "settings.social.units.yuan" },
 ];
-
-function toNumber(value: string, fallback: number): number {
-  if (value.trim() === "") {
-    return fallback;
-  }
-
-  const parsed = Number(value);
-  if (!Number.isFinite(parsed)) {
-    return fallback;
-  }
-
-  return parsed;
-}
-
-function formatAmount(value: number): string {
-  return value.toLocaleString(undefined, {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  });
-}
 
 export function SocialConfigPage() {
   const { t } = useTranslation();

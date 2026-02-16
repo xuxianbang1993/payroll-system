@@ -1,4 +1,5 @@
 import type { Employee, Settings } from "@/types/payroll";
+import { asObject } from "@/utils/type-guards";
 
 export interface RepositoryPayrollPayload {
   id: string;
@@ -45,14 +46,6 @@ export interface RepositoryStorageInfo {
   companyCount: number;
   payrollInputCount: number;
   payrollResultCount: number;
-}
-
-function asObject(value: unknown): Record<string, unknown> | null {
-  if (!value || typeof value !== "object" || Array.isArray(value)) {
-    return null;
-  }
-
-  return value as Record<string, unknown>;
 }
 
 export async function loadRepositorySettings(): Promise<Settings | null> {

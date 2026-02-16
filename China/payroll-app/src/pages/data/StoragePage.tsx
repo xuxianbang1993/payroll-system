@@ -5,21 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { loadDbRuntimeInfo, type DbRuntimeInfo } from "@/lib/db-admin";
 import { loadRepositoryStorageInfo, type RepositoryStorageInfo } from "@/lib/p1-repository";
-
-function formatBytes(bytes: number): string {
-  if (bytes < 1024) {
-    return `${bytes} B`;
-  }
-  if (bytes < 1024 * 1024) {
-    return `${(bytes / 1024).toFixed(1)} KB`;
-  }
-
-  return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
-}
-
-function toErrorMessage(error: unknown): string {
-  return error instanceof Error ? error.message : String(error);
-}
+import { toErrorMessage } from "@/utils/error";
+import { formatBytes } from "@/utils/format";
 
 export function StoragePage() {
   const { t } = useTranslation();

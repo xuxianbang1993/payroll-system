@@ -5,6 +5,7 @@ import {
   loadRepositorySettings,
   saveRepositorySettings,
 } from "@/lib/p1-repository";
+import { toErrorMessage } from "@/utils/error";
 import type { Company, Employee, Settings, SocialConfig } from "@/types/payroll";
 
 const DEFAULT_SOCIAL_CONFIG: SocialConfig = {
@@ -52,10 +53,6 @@ interface SettingsStoreState {
   removeCompany: (companyShort: string) => Promise<boolean>;
   clearMessages: () => void;
   reset: () => void;
-}
-
-function toErrorMessage(error: unknown): string {
-  return error instanceof Error ? error.message : String(error);
 }
 
 function normalizeSettings(value: Settings | null): Settings {

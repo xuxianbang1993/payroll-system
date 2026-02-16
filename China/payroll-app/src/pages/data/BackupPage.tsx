@@ -12,6 +12,9 @@ import {
   loadRepositoryStorageInfo,
   type RepositoryStorageInfo,
 } from "@/lib/p1-repository";
+import { toErrorMessage } from "@/utils/error";
+import { formatBytes } from "@/utils/format";
+import { asRecord } from "@/utils/type-guards";
 
 type NoticeTone = "info" | "success" | "error";
 
@@ -20,13 +23,6 @@ interface NoticeState {
   message: string;
 }
 
-function asRecord(value: unknown): Record<string, unknown> | null {
-  if (!value || typeof value !== "object" || Array.isArray(value)) {
-    return null;
-  }
-
-  return value as Record<string, unknown>;
-}
 
 function readBackupSummary(payload: unknown): { orgName: string; employeeCount: number; companyCount: number } {
   const root = asRecord(payload);
@@ -42,29 +38,13 @@ function readBackupSummary(payload: unknown): { orgName: string; employeeCount: 
   };
 }
 
-function toErrorMessage(error: unknown): string {
-  return error instanceof Error ? error.message : String(error);
-}
-
-function formatBytes(bytes: number): string {
-  if (bytes < 1024) {
-    return `${bytes} B`;
-  }
-  if (bytes < 1024 * 1024) {
-    return `${(bytes / 1024).toFixed(1)} KB`;
-  }
-
-  return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
-}
-
 export function BackupPage() {
   const { t } = useTranslation();
-
   const [busyAction, setBusyAction] = useState<"export" | "import" | "clear" | null>(null);
   const [notice, setNotice] = useState<NoticeState | null>(null);
   const [storage, setStorage] = useState<RepositoryStorageInfo | null>(null);
-  const [lastExportPath, setLastExportPath] = useState<string>("");
-  const [lastExportedAt, setLastExportedAt] = useState<string>("");
+  const [lastExportPath, setLastExportPath] = useState("");
+  const [lastExportedAt, setLastExportedAt] = useState("");
 
   const noticeClassName = useMemo(() => {
     if (!notice) {
