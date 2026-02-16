@@ -49,7 +49,7 @@ export interface RepositoryStorageInfo {
 
 async function invokeRepo<T>(
   fn: (repo: NonNullable<Window["payrollRepository"]>) => Promise<unknown>,
-  validate: (result: unknown) => boolean = asObject,
+  validate: (result: unknown) => boolean = (v) => asObject(v) !== null,
 ): Promise<T | null> {
   if (!window.payrollRepository) return null;
   const result = await fn(window.payrollRepository);
