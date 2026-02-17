@@ -19,7 +19,7 @@ export function parseJsonRecord(value: string): Record<string, unknown> {
 }
 
 export function asEmployeeType(raw: string): EmployeeRecord["type"] {
-  return raw === "销售" ? "销售" : "管理";
+  return raw === "销售" || raw === "sales" ? "sales" : "management";
 }
 
 export function ensureCompanies(

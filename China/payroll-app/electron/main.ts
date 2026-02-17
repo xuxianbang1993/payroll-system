@@ -7,15 +7,13 @@ import { resolveRendererIndexPath } from "./app-paths.js";
 import { createDatabaseClient, type DatabaseClient } from "./db/client.js";
 import { resolveRuntimeConfig } from "./db/config.js";
 import { createPayrollRepository } from "./db/repository/index.js";
-import type {
-  EmployeeRecord,
-  RepositoryAdapter,
-  RepositorySettings,
-} from "./db/repository/contracts.js";
-import { resetDatabase } from "./db/reset.js";
-import { openBackupJsonFile, saveBackupJsonFile } from "./file/backup-file-service.js";
-
-type StoreValue = string | number | boolean | null | Record<string, unknown>;
+import type { RepositoryAdapter } from "./db/repository/contracts.js";
+import {
+  registerStoreIpc,
+  registerDbIpc,
+  registerRepositoryIpc,
+  registerFileIpc,
+} from "./ipc/index.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -28,12 +26,18 @@ const appStore = new Store<Record<string, unknown>>({
 let dbClient: DatabaseClient | null = null;
 let repository: RepositoryAdapter | null = null;
 
-function asRecord(value: unknown): Record<string, unknown> {
-  if (!value || typeof value !== "object" || Array.isArray(value)) {
-    return {};
+function getDbClientOrThrow(): DatabaseClient {
+  if (!dbClient) {
+    throw new Error("Database client is not initialized.");
   }
+  return dbClient;
+}
 
-  return value as Record<string, unknown>;
+function getRepositoryOrThrow(): RepositoryAdapter {
+  if (!repository) {
+    throw new Error("Repository is not initialized.");
+  }
+  return repository;
 }
 
 function createWindow(): BrowserWindow {
@@ -59,132 +63,6 @@ function createWindow(): BrowserWindow {
   }
 
   return window;
-}
-
-function registerStoreIpc(): void {
-  ipcMain.handle("store:get", (_event, key: string) => {
-    return appStore.get(key);
-  });
-
-  ipcMain.handle("store:set", (_event, key: string, value: StoreValue) => {
-    appStore.set(key, value);
-    return true;
-  });
-
-  ipcMain.handle("store:delete", (_event, key: string) => {
-    appStore.delete(key);
-    return true;
-  });
-
-  ipcMain.handle("store:clear", () => {
-    appStore.clear();
-    return true;
-  });
-}
-
-function getDbClientOrThrow(): DatabaseClient {
-  if (!dbClient) {
-    throw new Error("Database client is not initialized.");
-  }
-
-  return dbClient;
-}
-
-function getRepositoryOrThrow(): RepositoryAdapter {
-  if (!repository) {
-    throw new Error("Repository is not initialized.");
-  }
-
-  return repository;
-}
-
-function registerDbIpc(): void {
-  ipcMain.handle("db:runtime-info", () => {
-    const client = getDbClientOrThrow();
-
-    return {
-      appEnv: client.config.appEnv,
-      readSource: client.config.readSource,
-      writeMode: client.config.writeMode,
-      dbPath: client.config.dbPath,
-      schemaVersion: client.schemaVersion,
-      pragmas: client.pragmas,
-    };
-  });
-
-  ipcMain.handle("db:reset", () => {
-    const client = getDbClientOrThrow();
-    return resetDatabase({
-      appEnv: client.config.appEnv,
-      db: client.db,
-    });
-  });
-}
-
-function registerRepositoryIpc(): void {
-  ipcMain.handle("repo:settings:get", () => {
-    return getRepositoryOrThrow().getSettings();
-  });
-
-  ipcMain.handle("repo:settings:save", (_event, settings: unknown) => {
-    const repo = getRepositoryOrThrow();
-    repo.saveSettings(settings as RepositorySettings);
-    return repo.getSettings();
-  });
-
-  ipcMain.handle("repo:employees:list", () => {
-    return getRepositoryOrThrow().listEmployees();
-  });
-
-  ipcMain.handle("repo:employees:replace", (_event, employees: unknown) => {
-    const safeEmployees = Array.isArray(employees) ? employees : [];
-    return getRepositoryOrThrow().replaceEmployees(safeEmployees as EmployeeRecord[]);
-  });
-
-  ipcMain.handle("repo:data:backup:export", () => {
-    return getRepositoryOrThrow().exportBackup();
-  });
-
-  ipcMain.handle("repo:data:backup:import", (_event, payload: unknown) => {
-    return getRepositoryOrThrow().importBackup(payload);
-  });
-
-  ipcMain.handle("repo:data:clear", () => {
-    return getRepositoryOrThrow().clearData();
-  });
-
-  ipcMain.handle("repo:data:storage-info", () => {
-    return getRepositoryOrThrow().getStorageInfo();
-  });
-}
-
-function registerFileIpc(): void {
-  ipcMain.handle("file:backup:save-json", (event, request: unknown) => {
-    const payload = asRecord(request);
-    const ownerWindow = BrowserWindow.fromWebContents(event.sender) ?? null;
-    const orgName = typeof payload.orgName === "string" ? payload.orgName : undefined;
-    const suggestedPath =
-      typeof payload.suggestedPath === "string" ? payload.suggestedPath : undefined;
-
-    return saveBackupJsonFile({
-      ownerWindow,
-      payload: payload.payload,
-      orgName,
-      suggestedPath,
-    });
-  });
-
-  ipcMain.handle("file:backup:open-json", (event, request: unknown) => {
-    const payload = asRecord(request);
-    const ownerWindow = BrowserWindow.fromWebContents(event.sender) ?? null;
-    const selectedPath =
-      typeof payload.selectedPath === "string" ? payload.selectedPath : undefined;
-
-    return openBackupJsonFile({
-      ownerWindow,
-      selectedPath,
-    });
-  });
 }
 
 async function bootstrapApp(): Promise<void> {
@@ -217,10 +95,10 @@ async function bootstrapApp(): Promise<void> {
     }),
   );
 
-  registerStoreIpc();
-  registerDbIpc();
-  registerRepositoryIpc();
-  registerFileIpc();
+  registerStoreIpc(ipcMain, appStore);
+  registerDbIpc(ipcMain, getDbClientOrThrow);
+  registerRepositoryIpc(ipcMain, getRepositoryOrThrow);
+  registerFileIpc(ipcMain);
   createWindow();
 
   app.on("activate", () => {

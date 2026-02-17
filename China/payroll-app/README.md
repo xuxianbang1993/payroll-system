@@ -4,8 +4,8 @@
 
 ## Release Status
 
-- Current release target: `2.1.2-p1-layoutfix-finish`
-- Milestone: P1 (SQLite foundation + Data/Settings/Employee/Import-Export) closed
+- Current release: `2.1.2-p1-current-bug-fixed`
+- Milestone: P1 bugfix complete — all code review issues resolved
 
 ## Tech Stack
 
@@ -53,8 +53,8 @@ npm run test:all
 
 ## Test File Layout (Locked)
 
-- Vitest：`src/**/*.{test,spec}.{ts,tsx}`
-- Playwright：`tests/e2e/*.spec.ts`
+- Vitest unit/component：`tests/unit/**/*.{test,spec}.{ts,tsx}`
+- Playwright E2E：`tests/e2e/*.spec.ts`
 - E2E fixtures：`tests/fixtures/*`
 
 ## P1 Full Closeout (Current Branch)
@@ -69,7 +69,7 @@ npm run test:all
   - `/employee/list`（新增、行内编辑、删除、详情）
   - `/employee/import`
   - `/employee/export`
-- Import/Export 域工具：`src/lib/p1-employee-import-export.ts`
+- Import/Export 域工具：`src/lib/employee-import-parse.ts` + `src/lib/employee-import-merge.ts`
 - 新增 Zustand store：
   - `src/stores/settings-store.ts`
   - `src/stores/employee-store.ts`
@@ -90,6 +90,20 @@ npm run test:all
 - 导入冲突未处理前禁止主入口直接导入
 - 员工详情支持直接跳转行内编辑
 - 概览页按模块显示 ready/pending 真实状态
+
+## P1 Bugfix (2.1.2-p1-current-bug-fixed)
+
+Code review 发现问题全部修复：
+
+- **Batch A:** 提取共享工具函数（format/error/type-guards）+ E2E test helpers
+- **Batch B:** settings/employee store i18n 化 + utils 提取 + EmployeeType 枚举化
+- **Batch C:** EmployeeListPage/ImportExportPage/BackupPage 拆分至 ≤200 行
+- **Batch D:** 增量 CRUD（addEmployee/updateEmployee/deleteEmployee），废弃 replaceEmployees
+- **Batch E:** electron/main.ts IPC 拆分为 4 模块，依赖注入
+- **Batch F:** 新增 13 个组件测试 + SocialConfigPage decimal.js 精确计算
+- **Batch G:** 全量回归验证通过（83 unit + 4 E2E + build + 文件/i18n 审计）
+
+统计：131 files changed, +5348 insertions, -2357 deletions
 
 ## Remaining Work
 
@@ -128,21 +142,17 @@ node scripts/generate-p1-xlsx-report.mjs
 - 技术架构不变：React + TypeScript + Vite + Tailwind/shadcn
 - 约束：只做布局与样式统一，不改业务逻辑、route 和 IPC
 
-## Current Status Snapshot (2026-02-15)
+## Current Status Snapshot (2026-02-17)
 
-- Branch: `codex/bugfix/layout-fix`
-- Completed:
-  - docs baseline sync (`0c289d6`)
-  - UI layout/style migration (`783999e`)
-- In progress:
-  - `dev:electron` pre-run ABI stabilization (`abi:electron`)
-  - Overview KPI fallback to zero values (no demo hardcoded business numbers)
+- Branch: `main` (merged from `bugfix/P1-current-issue`)
+- Tag: `v2.1.2-p1-current-bug-fixed`
+- Tests: 83 unit + 4 E2E, all passing
+- Build: tsc + vite + tsc-electron all passing
+- P1 bugfix complete, ready for P2
 
-## Next Steps (Before Merge)
+## Next Steps
 
-1. Commit the stabilization files: `package.json`, `src/pages/home/OverviewPage.tsx`.
-2. Re-verify:
-   - `npm run build`
-   - `npm run test -- src/pages/home/p1.overview-status.component.spec.tsx src/layouts/p0.layout-navigation.component.spec.tsx`
-3. Run `npm run dev` for Electron startup smoke check.
-4. Merge branch and continue P2 payroll implementation.
+1. Start P2 payroll implementation (`codex/p2-payroll-foundation`)
+2. `calculator.ts` + `calculator.test.ts`
+3. `/payroll/employee`, `/payroll/detail`
+4. `payroll-flow.spec.ts`

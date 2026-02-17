@@ -55,7 +55,22 @@
     "status": {
       "ready": "此模組已完成 P1 收口，可直接進入使用。",
       "pending": "此模組骨架已就緒，待後續階段實作業務邏輯。"
-    }
+    },
+    "kpi": {
+      "people": "在職人數",
+      "peopleValue": "0",
+      "peopleSub": "待計算",
+      "pay": "本月應發",
+      "payValue": "¥ 0",
+      "paySub": "單位 ¥",
+      "done": "已完成核算",
+      "doneValue": "0%",
+      "doneSub": "完成率",
+      "warn": "異常條目",
+      "warnValue": "0",
+      "warnSub": "需複核"
+    },
+    "enterAction": "進入：{{page}}"
   },
   "data": {
     "backup": {
@@ -141,6 +156,29 @@
     "refresh": "重新整理",
     "yes": "是",
     "no": "否"
+  },
+  "error": {
+    "settingsLoadFailed": "載入設定失敗：{{reason}}",
+    "settingsSaveFailed": "儲存設定失敗：{{reason}}",
+    "settingsRepositoryUnavailable": "儲存設定失敗：Repository 介面不可用",
+    "orgNameEmpty": "組織名稱不可為空",
+    "companyShortEmpty": "公司簡稱不可為空",
+    "companyShortDuplicate": "公司簡稱重複，請修改後重試",
+    "employeeLoadFailed": "載入員工失敗：{{reason}}",
+    "employeeSaveFailed": "儲存員工失敗：{{reason}}",
+    "employeeSaveRepositoryUnavailable": "儲存員工失敗：Repository 介面不可用",
+    "employeeNameEmpty": "姓名不可為空",
+    "employeeNotFound": "未找到要操作的員工",
+    "numericFieldInvalid": "{{reason}} 必須為大於等於 0 的數字"
+  },
+  "success": {
+    "orgNameSaved": "組織名稱已儲存",
+    "socialConfigSaved": "社保設定已儲存",
+    "companiesSaved": "公司主體已儲存",
+    "employeeAdded": "員工已新增",
+    "employeeUpdated": "員工已更新",
+    "employeeDeleted": "員工已刪除",
+    "employeeListUpdated": "員工列表已更新"
   },
   "settings": {
     "org": {

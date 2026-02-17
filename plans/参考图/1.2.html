@@ -1,0 +1,1676 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>薪酬管理系统 Demo 1.2（整合互动版）</title>
+  <style>
+    :root {
+      --background: hsl(48 33% 96%);
+      --foreground: hsl(60 5% 11%);
+      --card: hsl(0 0% 100%);
+      --card-foreground: hsl(60 5% 11%);
+      --primary: hsl(155 37% 27%);
+      --primary-foreground: hsl(48 33% 96%);
+      --secondary: hsl(40 12% 91%);
+      --secondary-foreground: hsl(60 5% 11%);
+      --muted: hsl(42 18% 97%);
+      --muted-foreground: hsl(44 7% 40%);
+      --accent: hsl(42 18% 97%);
+      --accent-foreground: hsl(60 5% 11%);
+      --destructive: hsl(6 51% 47%);
+      --destructive-foreground: hsl(0 60% 97%);
+      --warning-bg: hsl(0 60% 97%);
+      --border: hsl(40 14% 90%);
+      --input: hsl(40 14% 90%);
+      --ring: hsl(155 37% 27%);
+      --border-light: hsl(38 17% 94%);
+      --text-3: hsl(42 5% 61%);
+      --text-4: hsl(42 6% 75%);
+      --accent-green-light: hsl(150 26% 94%);
+      --radius: 10px;
+      --radius-sm: 7px;
+      --shadow: 0 12px 28px rgba(24, 24, 20, 0.08);
+      --topbar-h: 52px;
+      --shell-max: 1320px;
+      --shell-pad: 14px;
+      --shell-pad-2: 28px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html,
+    body {
+      min-height: 100%;
+      background:
+        radial-gradient(900px 320px at 80% -12%, rgba(44, 95, 74, 0.11), transparent 62%),
+        radial-gradient(900px 360px at -12% 110%, rgba(181, 69, 58, 0.08), transparent 64%),
+        var(--background);
+      color: var(--foreground);
+      font-family: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    button,
+    select,
+    input {
+      font: inherit;
+      color: inherit;
+    }
+
+    :focus-visible {
+      outline: 2px solid color-mix(in srgb, var(--ring) 70%, white);
+      outline-offset: 2px;
+    }
+
+    .app {
+      max-width: var(--shell-max);
+      margin: 0 auto;
+      min-height: 100vh;
+      position: relative;
+      padding-top: var(--topbar-h);
+    }
+
+    .topbar {
+      position: fixed;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: min(calc(var(--shell-max) - var(--shell-pad-2)), calc(100vw - var(--shell-pad-2)));
+      z-index: 40;
+      height: var(--topbar-h);
+      border: 1px solid var(--border);
+      border-bottom: 0;
+      border-radius: var(--radius) var(--radius) 0 0;
+      background: color-mix(in srgb, var(--card) 90%, var(--background));
+      backdrop-filter: blur(6px);
+      padding: 0 var(--shell-pad);
+      display: grid;
+      grid-template-columns: auto auto 1fr auto;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo-btn {
+      border: 0;
+      background: transparent;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      color: var(--foreground);
+      font-weight: 700;
+      font-size: 22px;
+      letter-spacing: 0.2px;
+    }
+
+    .logo-badge {
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      display: grid;
+      place-items: center;
+      background: var(--primary);
+      color: var(--primary-foreground);
+      font-size: 12px;
+      line-height: 1;
+      box-shadow: 0 5px 10px rgba(44, 95, 74, 0.35);
+    }
+
+    .menu-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 7px;
+      border: 1px solid var(--border);
+      background: var(--card);
+      cursor: pointer;
+      color: var(--muted-foreground);
+      transition: all 0.16s ease;
+    }
+
+    .menu-btn:hover,
+    .menu-btn[data-active="true"] {
+      border-color: var(--primary);
+      color: var(--primary);
+      background: var(--accent-green-light);
+    }
+
+    .top-center {
+      display: flex;
+      justify-content: center;
+    }
+
+    .status-pill {
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-size: 12px;
+      color: var(--muted-foreground);
+      background: var(--card);
+    }
+
+    .lang-switch {
+      display: inline-flex;
+      gap: 4px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 3px;
+      background: var(--card);
+    }
+
+    .lang-btn {
+      border: 0;
+      border-radius: 999px;
+      padding: 4px 10px;
+      cursor: pointer;
+      font-size: 12px;
+      color: var(--muted-foreground);
+      background: transparent;
+    }
+
+    .lang-btn[data-active="true"] {
+      background: var(--primary);
+      color: var(--primary-foreground);
+    }
+
+    .main {
+      padding: 0 var(--shell-pad) var(--shell-pad);
+    }
+
+    .content-frame {
+      border: 1px solid var(--border);
+      border-top: 0;
+      border-radius: 0 0 var(--radius) var(--radius);
+      background: color-mix(in srgb, var(--card) 94%, var(--background));
+      box-shadow: var(--shadow);
+      min-height: calc(100vh - var(--topbar-h) - var(--shell-pad));
+      overflow: hidden;
+    }
+
+    .content-head {
+      border-bottom: 1px solid var(--border-light);
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      background: color-mix(in srgb, var(--muted) 70%, white);
+    }
+
+    .content-head[hidden] {
+      display: none !important;
+    }
+
+    .breadcrumbs {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--muted-foreground);
+      font-size: 13px;
+      min-height: 24px;
+      flex-wrap: wrap;
+    }
+
+    .breadcrumbs .sep {
+      color: var(--text-4);
+    }
+
+    .month-picker {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--muted-foreground);
+    }
+
+    .month-picker[hidden] {
+      display: none !important;
+    }
+
+    .month-picker input[type="month"] {
+      border: 1px solid var(--input);
+      border-radius: var(--radius-sm);
+      background: var(--card);
+      padding: 6px 8px;
+      min-width: 120px;
+    }
+
+    .content-body {
+      padding: 14px;
+    }
+
+    .overview-title {
+      font-size: 22px;
+      font-weight: 700;
+    }
+
+    .overview-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .overview-controls {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .overview-control {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--muted-foreground);
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 5px 8px;
+    }
+
+    .overview-control select {
+      border: 0;
+      background: transparent;
+      color: var(--foreground);
+      min-width: 84px;
+      outline: none;
+    }
+
+    .status-inline {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 5px 8px;
+      background: var(--card);
+    }
+
+    .status-inline label {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 12px;
+      color: var(--muted-foreground);
+      cursor: pointer;
+    }
+
+    .overview-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      align-items: stretch;
+    }
+
+    .kpi-strip {
+      margin-bottom: 12px;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .kpi-card {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: linear-gradient(180deg, #fff 0%, #fcfaf8 100%);
+      padding: 10px;
+      display: grid;
+      gap: 6px;
+    }
+
+    .kpi-label {
+      font-size: 12px;
+      color: var(--text-3);
+      font-weight: 600;
+    }
+
+    .kpi-value {
+      font-family: "DM Mono", "SFMono-Regular", Menlo, Consolas, monospace;
+      font-size: 28px;
+      letter-spacing: -0.5px;
+      line-height: 1.1;
+    }
+
+    .kpi-sub {
+      font-size: 12px;
+      color: var(--muted-foreground);
+    }
+
+    .module-card {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--card);
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      cursor: default;
+      transition: border-color 0.2s, box-shadow 0.2s, transform 0.14s;
+      position: relative;
+      overflow: hidden;
+      min-height: 320px;
+    }
+
+    .module-card:hover,
+    .module-card:focus-within {
+      border-color: var(--primary);
+      box-shadow: 0 10px 16px rgba(24, 24, 20, 0.08);
+      transform: translateY(-1px);
+    }
+
+    .module-card[data-status="pending"] {
+      background: linear-gradient(180deg, color-mix(in srgb, var(--warning-bg) 35%, white) 0%, white 100%);
+    }
+
+    .module-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .module-name {
+      font-size: 18px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .badge {
+      font-size: 11px;
+      border-radius: 999px;
+      padding: 2px 8px;
+      border: 1px solid transparent;
+      width: fit-content;
+    }
+
+    .badge.ready {
+      background: var(--accent-green-light);
+      color: var(--primary);
+      border-color: color-mix(in srgb, var(--primary) 16%, transparent);
+    }
+
+    .badge.pending {
+      background: var(--warning-bg);
+      color: var(--destructive);
+      border-color: color-mix(in srgb, var(--destructive) 16%, transparent);
+    }
+
+    .module-links {
+      display: grid;
+      gap: 4px;
+      min-height: 52px;
+    }
+
+    .module-link {
+      border: 1px solid transparent;
+      border-radius: var(--radius-sm);
+      background: transparent;
+      color: var(--muted-foreground);
+      font-size: 13px;
+      text-align: left;
+      padding: 4px 6px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      transition: background-color 0.16s ease, color 0.16s ease, border-color 0.16s ease, transform 0.14s ease;
+    }
+
+    .module-link:hover,
+    .module-link:focus-visible {
+      background: color-mix(in srgb, var(--accent-green-light) 68%, white);
+      color: var(--foreground);
+      border-color: color-mix(in srgb, var(--primary) 20%, transparent);
+    }
+
+    .module-link:active {
+      transform: translateY(1px);
+    }
+
+    .module-link-arrow {
+      color: var(--text-4);
+      transform: translateX(0);
+      transition: transform 0.16s ease, color 0.16s ease;
+      margin-left: 10px;
+      font-size: 12px;
+    }
+
+    .module-link:hover .module-link-arrow,
+    .module-link:focus-visible .module-link-arrow {
+      color: var(--primary);
+      transform: translateX(2px);
+    }
+
+    .module-go {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 7px 10px;
+      background: var(--muted);
+      color: var(--foreground);
+      width: fit-content;
+      font-size: 12px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .module-card > .module-go,
+    .module-card > .module-action-row {
+      margin-top: auto;
+    }
+
+    .module-action-row {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .module-action-row .module-go {
+      width: 100%;
+    }
+
+    .module-extra {
+      border-top: 1px dashed var(--border-light);
+      padding-top: 8px;
+      margin-top: 2px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .mini-title {
+      font-size: 12px;
+      color: var(--text-3);
+      font-weight: 600;
+    }
+
+    .mini-employee-list {
+      display: grid;
+      gap: 6px;
+    }
+
+    .mini-employee {
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-sm);
+      background: var(--card);
+      padding: 7px 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      text-align: left;
+      cursor: pointer;
+      transition: border-color 0.16s ease, transform 0.16s ease;
+    }
+
+    .mini-employee:hover,
+    .mini-employee:focus-visible {
+      border-color: var(--primary);
+      transform: translateX(2px);
+    }
+
+    .mini-employee-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--foreground);
+    }
+
+    .mini-employee-meta {
+      font-size: 11px;
+      color: var(--text-3);
+    }
+
+    .mini-chip {
+      font-size: 11px;
+      border-radius: 999px;
+      border: 1px solid color-mix(in srgb, var(--destructive) 18%, transparent);
+      background: var(--warning-bg);
+      color: var(--destructive);
+      padding: 2px 8px;
+      white-space: nowrap;
+    }
+
+    .mini-progress {
+      height: 8px;
+      border-radius: 999px;
+      background: var(--secondary);
+      overflow: hidden;
+    }
+
+    .mini-progress-label {
+      font-size: 12px;
+      color: var(--muted-foreground);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .mini-progress > span {
+      display: block;
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #ef8b4a, #f3a76d);
+      transition: width 0.3s ease;
+    }
+
+    .placeholder {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--card);
+      padding: 14px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .placeholder h2 {
+      font-size: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .status-block {
+      font-size: 13px;
+      color: var(--muted-foreground);
+      display: grid;
+      gap: 6px;
+    }
+
+    .metric-row {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 2px;
+    }
+
+    .metric {
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-sm);
+      background: color-mix(in srgb, var(--muted) 62%, white);
+      padding: 8px;
+      display: grid;
+      gap: 4px;
+    }
+
+    .metric-label {
+      color: var(--text-3);
+      font-size: 12px;
+    }
+
+    .metric-value {
+      font-family: "DM Mono", "SFMono-Regular", Menlo, Consolas, monospace;
+      font-size: 22px;
+      font-weight: 500;
+    }
+
+    .nav-overlay {
+      position: fixed;
+      inset: var(--topbar-h) 0 0 0;
+      background: rgba(26, 24, 20, 0.25);
+      z-index: 45;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.18s ease;
+    }
+
+    .nav-overlay.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .nav-sheet {
+      position: fixed;
+      top: calc(var(--topbar-h) - 1px);
+      left: max(var(--shell-pad), calc((100vw - var(--shell-max)) / 2 + var(--shell-pad)));
+      width: min(760px, calc(100vw - var(--shell-pad-2)));
+      border: 1px solid var(--border);
+      border-top: 0;
+      border-radius: 0 0 var(--radius) var(--radius);
+      background: var(--card);
+      z-index: 50;
+      box-shadow: 0 20px 40px rgba(24, 24, 20, 0.24);
+      overflow: hidden;
+      transform: translateY(-8px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.18s ease, transform 0.2s ease;
+      display: grid;
+      grid-template-columns: 190px 1fr;
+      min-height: 360px;
+    }
+
+    .nav-sheet.show {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    .detail-drawer {
+      position: fixed;
+      right: 16px;
+      top: 90px;
+      width: 300px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--card);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.16);
+      padding: 14px;
+      transform: translateX(360px);
+      transition: transform 0.26s ease;
+      z-index: 65;
+    }
+
+    .detail-drawer.show {
+      transform: translateX(0);
+    }
+
+    .detail-drawer h4 {
+      font-size: 15px;
+      margin-bottom: 8px;
+    }
+
+    .detail-drawer p {
+      color: var(--muted-foreground);
+      font-size: 13px;
+      margin-bottom: 8px;
+    }
+
+    .drawer-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .drawer-btn-primary {
+      border: 1px solid color-mix(in srgb, var(--primary) 14%, transparent);
+      border-radius: var(--radius-sm);
+      padding: 7px 10px;
+      font-size: 12px;
+      background: linear-gradient(90deg, #ef8b4a 0%, #f3a76d 100%);
+      color: #fff;
+      cursor: pointer;
+    }
+
+    .nav-cats {
+      border-right: 1px solid var(--border-light);
+      background: color-mix(in srgb, var(--muted) 75%, white);
+      padding: 10px;
+      display: grid;
+      align-content: start;
+      gap: 4px;
+    }
+
+    .cat-btn {
+      border: 1px solid transparent;
+      border-radius: var(--radius-sm);
+      background: transparent;
+      text-align: left;
+      padding: 8px 9px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted-foreground);
+      transition: all 0.16s;
+    }
+
+    .cat-btn:hover,
+    .cat-btn[data-active="true"] {
+      background: var(--card);
+      color: var(--foreground);
+      border-color: var(--border);
+    }
+
+    .cat-divider {
+      margin: 4px 2px;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .nav-detail {
+      padding: 12px;
+      display: grid;
+      gap: 10px;
+      align-content: start;
+    }
+
+    .group {
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-sm);
+      background: color-mix(in srgb, var(--muted) 45%, white);
+      padding: 10px;
+    }
+
+    .group-title {
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: var(--foreground);
+    }
+
+    .module-list {
+      display: grid;
+      gap: 6px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .module-item {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 7px 8px;
+      background: var(--card);
+      text-align: left;
+      cursor: pointer;
+      font-size: 12px;
+      color: var(--muted-foreground);
+      transition: all 0.15s;
+    }
+
+    .module-item:hover {
+      border-color: var(--primary);
+      color: var(--foreground);
+      background: var(--accent-green-light);
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 16px;
+      transform: translateX(-50%) translateY(20px);
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: var(--foreground);
+      color: var(--background);
+      font-size: 13px;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.22s ease;
+      z-index: 70;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    @media (max-width: 960px) {
+      .topbar {
+        grid-template-columns: auto auto 1fr;
+      }
+
+      .top-center {
+        display: none;
+      }
+
+      .overview-grid,
+      .kpi-strip,
+      .metric-row,
+      .module-list {
+        grid-template-columns: 1fr;
+      }
+
+      .overview-toolbar {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .overview-controls {
+        justify-content: flex-start;
+      }
+
+      .nav-sheet {
+        grid-template-columns: 1fr;
+        max-height: calc(100vh - var(--topbar-h) - 18px);
+        overflow: auto;
+      }
+
+      .nav-cats {
+        border-right: 0;
+        border-bottom: 1px solid var(--border-light);
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .detail-drawer {
+        left: 14px;
+        right: 14px;
+        width: auto;
+        transform: translateY(120%);
+      }
+
+      .detail-drawer.show {
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <button class="logo-btn" id="logoBtn" aria-label="返回概览">
+        <span class="logo-badge">薪</span>
+        <span>薪酬管理系统</span>
+      </button>
+
+      <button class="menu-btn" id="menuBtn" aria-label="打开分类面板" aria-expanded="false">☰</button>
+
+      <div class="top-center">
+        <span class="status-pill" id="appHint">SOP 对齐 Demo 1.2</span>
+      </div>
+
+      <div class="lang-switch" role="group" aria-label="语言切换">
+        <button class="lang-btn" data-lang="zh-HK">繁</button>
+        <button class="lang-btn" data-lang="zh-CN" data-active="true">简</button>
+        <button class="lang-btn" data-lang="en">EN</button>
+      </div>
+    </header>
+
+    <main class="main">
+      <section class="content-frame">
+        <div class="content-head" id="contentHead">
+          <nav class="breadcrumbs" id="breadcrumbs"></nav>
+
+          <label class="month-picker" id="monthPickerWrap" hidden>
+            <span aria-hidden="true">📅</span>
+            月份
+            <input id="monthPicker" type="month" value="2026-02" />
+          </label>
+        </div>
+
+        <div class="content-body" id="contentBody"></div>
+      </section>
+    </main>
+  </div>
+
+  <div class="nav-overlay" id="overlay"></div>
+
+  <section class="nav-sheet" id="navSheet" aria-label="功能分类面板">
+    <aside class="nav-cats" id="catList"></aside>
+    <div class="nav-detail" id="navDetail"></div>
+  </section>
+
+  <aside class="detail-drawer" id="detailDrawer" aria-label="员工详情抽屉">
+    <h4 id="detailDrawerName">员工详情</h4>
+    <p id="detailDrawerMeta"></p>
+    <p>提示：已融合 1.html 互动能力，支持抽屉详情与联动演示。</p>
+    <div class="drawer-actions">
+      <button class="module-go" id="detailDrawerClose" type="button">关闭</button>
+      <button class="drawer-btn-primary" id="detailDrawerAction" type="button">发起复核</button>
+    </div>
+  </aside>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    (() => {
+      const MODEL = {
+        settings: {
+          icon: '⚙️',
+          label: '基础设置',
+          status: 'ready',
+          phase: 'P1 已完成',
+          groups: [
+            {
+              title: '组织与公司',
+              items: [
+                { id: 'settings-org', label: '组织信息', sub: '组织与公司', route: '/settings/org' },
+                { id: 'settings-company', label: '公司主体管理', sub: '组织与公司', route: '/settings/company' }
+              ]
+            },
+            {
+              title: '社保与公积金',
+              items: [
+                { id: 'settings-social', label: '社保比例配置', sub: '社保与公积金', route: '/settings/social' },
+                { id: 'settings-fund', label: '公积金比例配置', sub: '社保与公积金', route: '/settings/fund' },
+                { id: 'settings-base', label: '缴费基数设置', sub: '社保与公积金', route: '/settings/base' }
+              ]
+            }
+          ],
+          overviewLines: ['组织信息', '社保配置', '公司主体']
+        },
+        employee: {
+          icon: '👥',
+          label: '人员管理',
+          status: 'ready',
+          phase: 'P1 已完成',
+          groups: [
+            {
+              title: '员工信息',
+              items: [
+                { id: 'employee-list', label: '员工列表', sub: '员工信息', route: '/employee/list' },
+                { id: 'employee-entry', label: '入职登记', sub: '员工信息', route: '/employee/entry' },
+                { id: 'employee-leave', label: '离职处理', sub: '员工信息', route: '/employee/leave' }
+              ]
+            },
+            {
+              title: '批量操作',
+              items: [
+                { id: 'employee-import', label: 'Excel 导入', sub: '批量操作', route: '/employee/import' },
+                { id: 'employee-export', label: 'Excel 导出', sub: '批量操作', route: '/employee/export' },
+                { id: 'employee-template', label: '模板下载', sub: '批量操作', route: '/employee/template' }
+              ]
+            }
+          ],
+          overviewLines: ['员工列表', 'Excel 导入', 'Excel 导出']
+        },
+        payroll: {
+          icon: '💰',
+          label: '薪资核算',
+          status: 'pending',
+          phase: 'P2 待开发',
+          groups: [
+            {
+              title: '月度核算',
+              items: [
+                { id: 'payroll-by-emp', label: '按员工录入', sub: '月度核算', route: '/payroll/employee' },
+                { id: 'payroll-gen', label: '一键生成工资', sub: '月度核算', route: '/payroll/generate' },
+                { id: 'payroll-vars', label: '月度变量录入', sub: '月度核算', route: '/payroll/vars' }
+              ]
+            },
+            {
+              title: '报表查看',
+              items: [
+                { id: 'payroll-detail', label: '全员明细表（28列）', sub: '报表查看', route: '/payroll/detail' },
+                { id: 'payroll-pdf', label: 'PDF 工资条导出', sub: '报表查看', route: '/payroll/pdf' }
+              ]
+            }
+          ],
+          overviewLines: ['按员工录入', '一键生成工资', '月度变量录入']
+        },
+        voucher: {
+          icon: '📋',
+          label: '会计凭证',
+          status: 'pending',
+          phase: 'P3 待开发',
+          groups: [
+            {
+              title: '凭证管理',
+              items: [
+                { id: 'voucher-overview', label: '凭证总览', sub: '凭证管理', route: '/voucher' },
+                { id: 'voucher-accrue-pay', label: '计提工资凭证', sub: '凭证管理', route: '/voucher/accrue-pay' },
+                { id: 'voucher-accrue-social', label: '计提社保凭证', sub: '凭证管理', route: '/voucher/accrue-social' },
+                { id: 'voucher-pay', label: '发放工资凭证', sub: '凭证管理', route: '/voucher/pay' },
+                { id: 'voucher-social', label: '缴纳社保凭证', sub: '凭证管理', route: '/voucher/social' },
+                { id: 'voucher-tax', label: '缴纳个税凭证', sub: '凭证管理', route: '/voucher/tax' }
+              ]
+            },
+            {
+              title: '导出',
+              items: [
+                { id: 'voucher-csv', label: 'CSV 导出凭证', sub: '导出', route: '/voucher/csv' },
+                { id: 'voucher-filter', label: '按主体筛选', sub: '导出', route: '/voucher/filter' }
+              ]
+            }
+          ],
+          overviewLines: ['凭证总览', '计提工资凭证', 'CSV 导出凭证']
+        },
+        data: {
+          icon: '🔧',
+          label: '数据管理',
+          status: 'ready',
+          phase: 'P1 已完成',
+          groups: [
+            {
+              title: '备份与恢复',
+              items: [
+                { id: 'data-backup', label: 'JSON 备份', sub: '备份与恢复', route: '/data/backup' },
+                { id: 'data-restore', label: 'JSON 恢复', sub: '备份与恢复', route: '/data/restore' },
+                { id: 'data-clear', label: '数据清空', sub: '备份与恢复', route: '/data/clear' }
+              ]
+            },
+            {
+              title: '存储信息',
+              items: [
+                { id: 'data-storage', label: 'SQLite 占用统计', sub: '存储信息', route: '/data/storage' },
+                { id: 'data-schema', label: 'schema 版本', sub: '存储信息', route: '/data/schema' },
+                { id: 'data-count', label: '记录数摘要', sub: '存储信息', route: '/data/count' }
+              ]
+            }
+          ],
+          overviewLines: ['JSON 备份', 'SQLite 占用统计', '记录数摘要']
+        }
+      };
+
+      const BASE_EMPLOYEES = [
+        { name: '张雨桐', id: 'ID/980001', role: '运营总监', state: '已处理', dept: 'ops' },
+        { name: '陈屿凡', id: 'ID/680902', role: '数据管理', state: '待处理', dept: 'sales' },
+        { name: '刘骁', id: 'ID/680905', role: '薪酬导师', state: '待处理', dept: 'hr' },
+        { name: '周晨', id: 'ID/680930', role: '薪酬专员', state: '已处理', dept: 'ops' },
+        { name: '王葭', id: 'ID/681101', role: '人事BP', state: '待处理', dept: 'hr' }
+      ];
+
+      const STATUS_OPTIONS = [
+        { key: 'done', label: '已核算' },
+        { key: 'pending', label: '待处理' },
+        { key: 'warn', label: '异常条目' }
+      ];
+      const CATEGORY_ORDER = ['settings', 'employee', 'payroll', 'voucher', 'divider', 'data'];
+      const OVERVIEW_ORDER = CATEGORY_ORDER.filter((key) => key !== 'divider');
+      const LANG_LABEL = {
+        'zh-HK': '繁體中文',
+        'zh-CN': '简体中文',
+        en: 'English'
+      };
+
+      const state = {
+        menuOpen: false,
+        hoverCat: 'settings',
+        current: { type: 'overview' },
+        lang: 'zh-CN',
+        filters: {
+          month: '2026-02',
+          dept: 'all',
+          statusSet: new Set(['done', 'pending', 'warn'])
+        },
+        metrics: {
+          people: 1245,
+          pay: 12350000,
+          done: 98,
+          warn: 3
+        },
+        calc: {
+          progress: 48
+        }
+      };
+
+      const refs = {
+        menuBtn: document.getElementById('menuBtn'),
+        logoBtn: document.getElementById('logoBtn'),
+        navSheet: document.getElementById('navSheet'),
+        overlay: document.getElementById('overlay'),
+        catList: document.getElementById('catList'),
+        navDetail: document.getElementById('navDetail'),
+        contentHead: document.getElementById('contentHead'),
+        contentBody: document.getElementById('contentBody'),
+        breadcrumbs: document.getElementById('breadcrumbs'),
+        monthPicker: document.getElementById('monthPicker'),
+        monthPickerWrap: document.getElementById('monthPickerWrap'),
+        langButtons: Array.from(document.querySelectorAll('.lang-btn')),
+        detailDrawer: document.getElementById('detailDrawer'),
+        detailDrawerName: document.getElementById('detailDrawerName'),
+        detailDrawerMeta: document.getElementById('detailDrawerMeta'),
+        detailDrawerClose: document.getElementById('detailDrawerClose'),
+        detailDrawerAction: document.getElementById('detailDrawerAction'),
+        toast: document.getElementById('toast'),
+        hint: document.getElementById('appHint')
+      };
+
+      function createElement(tag, className, text) {
+        const el = document.createElement(tag);
+        if (className) el.className = className;
+        if (text !== undefined) el.textContent = text;
+        return el;
+      }
+
+      function createButton(className, text) {
+        const btn = createElement('button', className, text);
+        btn.type = 'button';
+        return btn;
+      }
+
+      function clearNode(node) {
+        node.replaceChildren();
+      }
+
+      function showToast(text) {
+        refs.toast.textContent = text;
+        refs.toast.classList.add('show');
+        clearTimeout(showToast.timer);
+        showToast.timer = setTimeout(() => refs.toast.classList.remove('show'), 1400);
+      }
+
+      function isPending(status) {
+        return status !== 'ready';
+      }
+
+      function isMonthCategory(catKey) {
+        return catKey === 'payroll' || catKey === 'voucher';
+      }
+
+      function statusText(status) {
+        return isPending(status) ? 'pending' : 'ready';
+      }
+
+      function withCategoryMeta(catKey, item) {
+        const cat = MODEL[catKey];
+        return {
+          ...item,
+          catKey,
+          catLabel: cat.label,
+          phase: cat.phase,
+          status: cat.status
+        };
+      }
+
+      function getCategoryModules(catKey) {
+        const cat = MODEL[catKey];
+        return cat.groups.flatMap((group) => group.items.map((item) => withCategoryMeta(catKey, item)));
+      }
+
+      function getFirstModule(catKey) {
+        const [first] = getCategoryModules(catKey);
+        return first || null;
+      }
+
+      function getDefaultModuleLabel(catKey) {
+        const first = getFirstModule(catKey);
+        return first ? first.label : '默认功能';
+      }
+
+      function setMonthValue(nextMonth, notify = false) {
+        if (!nextMonth || nextMonth === state.filters.month) return;
+        state.filters.month = nextMonth;
+        refs.monthPicker.value = state.filters.month;
+        if (notify) showToast(`已切换月份：${state.filters.month}`);
+      }
+
+      function setMenuOpen(open) {
+        state.menuOpen = open;
+        refs.menuBtn.dataset.active = String(open);
+        refs.menuBtn.setAttribute('aria-expanded', String(open));
+        refs.navSheet.classList.toggle('show', open);
+        refs.overlay.classList.toggle('show', open);
+      }
+
+      function openDrawer(employee) {
+        refs.detailDrawerName.textContent = employee.name;
+        refs.detailDrawerMeta.textContent = `${employee.id} · ${employee.role}`;
+        refs.detailDrawer.classList.add('show');
+      }
+
+      function closeDrawer() {
+        refs.detailDrawer.classList.remove('show');
+      }
+
+      function formatMetric(key, value) {
+        if (key === 'pay') return `¥ ${value.toLocaleString('zh-CN')}`;
+        if (key === 'done') return `${value}%`;
+        return value.toLocaleString('zh-CN');
+      }
+
+      function animateMetric(el, target, key) {
+        const frames = 24;
+        const start = Number(el.dataset.current || 0);
+        let i = 0;
+        clearInterval(el._timer);
+        el._timer = setInterval(() => {
+          i += 1;
+          const val = Math.round(start + (target - start) * (i / frames));
+          el.dataset.current = String(val);
+          el.textContent = formatMetric(key, val);
+          if (i >= frames) clearInterval(el._timer);
+        }, 16);
+      }
+
+      function computeMetrics(filters) {
+        const checkedCount = filters.statusSet.size;
+        const people = filters.dept === 'all'
+          ? 1245
+          : filters.dept === 'sales'
+            ? 428
+            : filters.dept === 'ops'
+              ? 512
+              : 305;
+        const pay = Math.round((people * 9800) * (0.9 + checkedCount * 0.05));
+        const done = Math.min(99, 70 + checkedCount * 9);
+        const warn = Math.max(1, 6 - checkedCount);
+        return { people, pay, done, warn };
+      }
+
+      function getFilteredEmployees() {
+        return BASE_EMPLOYEES.filter((employee) => {
+          return state.filters.dept === 'all' || employee.dept === state.filters.dept;
+        });
+      }
+
+      function syncOverviewInteractions(toastText) {
+        state.metrics = computeMetrics(state.filters);
+        state.calc.progress = state.metrics.done;
+        if (state.current.type === 'overview') {
+          renderContent();
+        }
+        if (toastText) showToast(toastText);
+      }
+
+      function goOverview(withToast = false) {
+        state.current = { type: 'overview' };
+        setMenuOpen(false);
+        closeDrawer();
+        renderPage();
+        if (withToast) showToast('已返回概览页');
+      }
+
+      function goModule(item, withToast = true) {
+        state.current = { type: 'module', ...item };
+        setMenuOpen(false);
+        closeDrawer();
+        renderPage();
+        if (withToast) {
+          if (isPending(item.status)) {
+            showToast('该模块开发中，当前为演示页');
+          } else {
+            showToast(`已进入 ${item.label}`);
+          }
+        }
+      }
+
+      function renderNavCategories() {
+        clearNode(refs.catList);
+        CATEGORY_ORDER.forEach((key) => {
+          if (key === 'divider') {
+            refs.catList.appendChild(createElement('div', 'cat-divider'));
+            return;
+          }
+
+          const cat = MODEL[key];
+          const btn = createButton('cat-btn');
+          btn.dataset.active = String(state.hoverCat === key);
+          btn.append(createElement('span', '', cat.icon), createElement('span', '', cat.label));
+
+          const activateCategory = () => {
+            if (state.hoverCat === key) return;
+            state.hoverCat = key;
+            renderNavigationPanel();
+          };
+
+          btn.addEventListener('mouseenter', activateCategory);
+          btn.addEventListener('click', activateCategory);
+          refs.catList.appendChild(btn);
+        });
+      }
+
+      function renderNavDetail() {
+        const cat = MODEL[state.hoverCat];
+        clearNode(refs.navDetail);
+
+        cat.groups.forEach((group) => {
+          const section = createElement('section', 'group');
+          const title = createElement('h4', 'group-title', group.title);
+          const list = createElement('div', 'module-list');
+
+          group.items.forEach((item) => {
+            const btn = createButton('module-item', item.label);
+            btn.addEventListener('click', () => goModule(withCategoryMeta(state.hoverCat, item)));
+            list.appendChild(btn);
+          });
+
+          section.append(title, list);
+          refs.navDetail.appendChild(section);
+        });
+      }
+
+      function renderNavigationPanel() {
+        renderNavCategories();
+        renderNavDetail();
+      }
+
+      function renderOverviewToolbarControls() {
+        const controls = createElement('div', 'overview-controls');
+
+        const monthWrap = createElement('label', 'month-picker');
+        const monthIcon = createElement('span');
+        monthIcon.setAttribute('aria-hidden', 'true');
+        monthIcon.textContent = '📅';
+        const monthText = createElement('span', '', '月份');
+        const monthInput = createElement('input');
+        monthInput.type = 'month';
+        monthInput.value = state.filters.month;
+        monthInput.addEventListener('change', (event) => {
+          setMonthValue(event.target.value);
+          syncOverviewInteractions('已切换月份，指标已刷新');
+        });
+        monthWrap.append(monthIcon, monthText, monthInput);
+
+        const deptWrap = createElement('label', 'overview-control');
+        deptWrap.appendChild(createElement('span', '', '部门'));
+        const deptSelect = createElement('select');
+        [
+          { value: 'all', label: '全部门' },
+          { value: 'sales', label: '销售' },
+          { value: 'ops', label: '运营' },
+          { value: 'hr', label: '人事' }
+        ].forEach((option) => {
+          const node = createElement('option', '', option.label);
+          node.value = option.value;
+          if (option.value === state.filters.dept) node.selected = true;
+          deptSelect.appendChild(node);
+        });
+        deptSelect.addEventListener('change', (event) => {
+          state.filters.dept = event.target.value;
+          syncOverviewInteractions('部门已切换，指标已刷新');
+        });
+        deptWrap.appendChild(deptSelect);
+
+        const statusWrap = createElement('div', 'status-inline');
+        statusWrap.appendChild(createElement('span', '', '状态'));
+        STATUS_OPTIONS.forEach((item) => {
+          const label = createElement('label');
+          const checkbox = createElement('input');
+          checkbox.type = 'checkbox';
+          checkbox.checked = state.filters.statusSet.has(item.key);
+          checkbox.addEventListener('change', () => {
+            if (checkbox.checked) {
+              state.filters.statusSet.add(item.key);
+            } else {
+              state.filters.statusSet.delete(item.key);
+            }
+
+            if (state.filters.statusSet.size === 0) {
+              checkbox.checked = true;
+              state.filters.statusSet.add(item.key);
+              showToast('至少保留一个状态');
+              return;
+            }
+
+            syncOverviewInteractions('状态已更新，指标已刷新');
+          });
+          label.append(checkbox, createElement('span', '', item.label));
+          statusWrap.appendChild(label);
+        });
+
+        controls.append(monthWrap, deptWrap, statusWrap);
+        return controls;
+      }
+
+      function createModuleStatusBadge(status) {
+        const text = statusText(status);
+        return createElement('span', `badge ${text}`, text);
+      }
+
+      function renderKpiSection() {
+        const strip = createElement('section', 'kpi-strip');
+        strip.dataset.kpiStrip = 'true';
+        const defs = [
+          { key: 'people', label: '在职人数', sub: '动态联动' },
+          { key: 'pay', label: '本月应发', sub: '单位 ¥' },
+          { key: 'done', label: '已完成核算', sub: '完成率' },
+          { key: 'warn', label: '异常条目', sub: '需复核' }
+        ];
+
+        defs.forEach((def) => {
+          const card = createElement('article', 'kpi-card');
+          const value = createElement('div', 'kpi-value', '0');
+          value.dataset.kpiKey = def.key;
+          value.dataset.current = '0';
+          card.append(
+            createElement('div', 'kpi-label', def.label),
+            value,
+            createElement('div', 'kpi-sub', def.sub)
+          );
+          strip.appendChild(card);
+        });
+
+        return strip;
+      }
+
+      function animateKpis() {
+        const strip = refs.contentBody.querySelector('[data-kpi-strip]');
+        if (!strip) return;
+        strip.querySelectorAll('[data-kpi-key]').forEach((el) => {
+          const key = el.dataset.kpiKey;
+          animateMetric(el, state.metrics[key], key);
+        });
+      }
+
+      function createEmployeeMiniList() {
+        const extra = createElement('div', 'module-extra');
+        extra.appendChild(createElement('div', 'mini-title', '人员快照'));
+        const list = createElement('div', 'mini-employee-list');
+
+        const employees = getFilteredEmployees().slice(0, 3);
+        if (!employees.length) {
+          list.appendChild(createElement('div', 'mini-employee-meta', '当前筛选无员工数据'));
+        } else {
+          employees.forEach((employee) => {
+            const row = createButton('mini-employee');
+            const left = createElement('div');
+            left.append(
+              createElement('div', 'mini-employee-name', employee.name),
+              createElement('div', 'mini-employee-meta', `${employee.id} · ${employee.role}`)
+            );
+            row.append(left, createElement('span', 'mini-chip', employee.state));
+            row.addEventListener('click', () => openDrawer(employee));
+            list.appendChild(row);
+          });
+        }
+
+        extra.appendChild(list);
+        return extra;
+      }
+
+      function createPayrollProgressMini() {
+        const extra = createElement('div', 'module-extra');
+        extra.appendChild(createElement('div', 'mini-title', '核算进度'));
+
+        const progressLabel = createElement('div', 'mini-progress-label');
+        progressLabel.append(
+          createElement('span', '', '当前进度'),
+          createElement('span', '', `${state.calc.progress}%`)
+        );
+
+        const progress = createElement('div', 'mini-progress');
+        const progressInner = createElement('span');
+        progressInner.style.width = `${state.calc.progress}%`;
+        progress.appendChild(progressInner);
+
+        extra.append(progressLabel, progress);
+        return extra;
+      }
+
+      function createDataActionsMini() {
+        const extra = createElement('div', 'module-extra');
+        extra.appendChild(createElement('div', 'mini-title', '快捷操作'));
+        const actionRow = createElement('div', 'module-action-row');
+        const exportBtn = createButton('module-go', '导出数据');
+        exportBtn.addEventListener('click', () => showToast('数据导出任务已创建'));
+        const backupBtn = createButton('module-go', '进入：JSON 备份');
+        backupBtn.addEventListener('click', () => {
+          const backupModule = getCategoryModules('data').find((item) => item.id === 'data-backup');
+          if (backupModule) goModule(backupModule);
+        });
+        actionRow.append(exportBtn, backupBtn);
+        extra.appendChild(actionRow);
+        return extra;
+      }
+
+      function createOverviewCard(catKey) {
+        const cat = MODEL[catKey];
+        const modules = getCategoryModules(catKey);
+        const card = createElement('article', 'module-card');
+        card.dataset.status = cat.status;
+
+        const head = createElement('div', 'module-head');
+        const name = createElement('div', 'module-name');
+        name.append(createElement('span', '', cat.icon), createElement('span', '', cat.label));
+        head.append(name, createModuleStatusBadge(cat.status));
+
+        const links = createElement('div', 'module-links');
+        cat.overviewLines.forEach((line, idx) => {
+          const target = modules[idx] || modules[0];
+          if (!target) return;
+          const link = createButton('module-link');
+          link.setAttribute('aria-label', `进入 ${target.label}`);
+          link.append(createElement('span', '', line), createElement('span', 'module-link-arrow', '→'));
+          link.addEventListener('click', () => goModule(target));
+          links.appendChild(link);
+        });
+
+        card.append(head, links);
+
+        if (catKey === 'employee') {
+          card.appendChild(createEmployeeMiniList());
+        } else if (catKey === 'payroll') {
+          card.appendChild(createPayrollProgressMini());
+        } else if (catKey === 'data') {
+          card.appendChild(createDataActionsMini());
+        }
+
+        if (catKey !== 'data') {
+          const enterButton = createButton('module-go', `进入：${getDefaultModuleLabel(catKey)}`);
+          enterButton.addEventListener('click', () => {
+            const first = getFirstModule(catKey);
+            if (first) goModule(first);
+          });
+          card.appendChild(enterButton);
+        }
+
+        return card;
+      }
+
+      function renderOverview() {
+        const wrapper = createElement('div');
+        const toolbar = createElement('div', 'overview-toolbar');
+        toolbar.append(createElement('h1', 'overview-title', '概览'), renderOverviewToolbarControls());
+        wrapper.append(toolbar, renderKpiSection());
+
+        const grid = createElement('div', 'overview-grid');
+        OVERVIEW_ORDER.forEach((key) => grid.appendChild(createOverviewCard(key)));
+        wrapper.appendChild(grid);
+
+        requestAnimationFrame(animateKpis);
+        return wrapper;
+      }
+
+      function createMetricItem(label, value) {
+        const box = createElement('div', 'metric');
+        box.append(createElement('div', 'metric-label', label), createElement('div', 'metric-value', value));
+        return box;
+      }
+
+      function createStatusBlock(lines) {
+        const block = createElement('div', 'status-block');
+        lines.forEach((line) => block.appendChild(createElement('div', '', line)));
+        return block;
+      }
+
+      function renderModulePage() {
+        const { catKey, catLabel, label, sub, route, phase, status } = state.current;
+        const card = createElement('section', 'placeholder');
+        const title = createElement('h2');
+        title.append(createElement('span', '', label), createModuleStatusBadge(status));
+
+        card.append(title);
+        card.append(createStatusBlock([
+          `所属大类：${catLabel}`,
+          `所属子类：${sub}`,
+          `路由映射：${route}`,
+          `阶段状态：${phase}`
+        ]));
+
+        const metricRow = createElement('div', 'metric-row');
+        metricRow.append(
+          createMetricItem('在职人数', formatMetric('people', state.metrics.people)),
+          createMetricItem('本月应发', formatMetric('pay', state.metrics.pay)),
+          createMetricItem('完成核算', formatMetric('done', state.metrics.done)),
+          createMetricItem('异常条目', formatMetric('warn', state.metrics.warn))
+        );
+        card.append(metricRow);
+
+        if (isMonthCategory(catKey)) {
+          card.append(createStatusBlock([
+            `说明：该模块当前在 SOP 中为 ${phase}，此页面仅为结构/交互 Demo。`,
+            '交互建议：可从概览页直接联动 KPI、进度与数据趋势。'
+          ]));
+        }
+
+        return card;
+      }
+
+      function renderContent() {
+        clearNode(refs.contentBody);
+        refs.contentBody.appendChild(state.current.type === 'overview' ? renderOverview() : renderModulePage());
+      }
+
+      function renderHeader() {
+        if (state.current.type === 'overview') {
+          refs.contentHead.hidden = true;
+          refs.breadcrumbs.textContent = '';
+          refs.monthPickerWrap.hidden = true;
+          refs.monthPicker.value = state.filters.month;
+          return;
+        }
+
+        refs.contentHead.hidden = false;
+        refs.monthPicker.value = state.filters.month;
+
+        const { catKey, catLabel, sub, label } = state.current;
+        refs.monthPickerWrap.hidden = !isMonthCategory(catKey);
+        refs.breadcrumbs.innerHTML = `
+          <span>${catLabel}</span>
+          <span class="sep">&gt;</span>
+          <span>${sub}</span>
+          <span class="sep">&gt;</span>
+          <span>${label}</span>
+        `;
+      }
+
+      function renderPage() {
+        renderHeader();
+        renderContent();
+      }
+
+      function bindLanguageEvents() {
+        refs.langButtons.forEach((btn) => {
+          btn.addEventListener('click', () => {
+            const next = btn.dataset.lang;
+            if (!next || next === state.lang) return;
+
+            state.lang = next;
+            refs.langButtons.forEach((node) => {
+              node.dataset.active = String(node.dataset.lang === state.lang);
+            });
+
+            const langText = LANG_LABEL[state.lang] || LANG_LABEL['zh-CN'];
+            refs.hint.textContent = `当前语言：${langText}`;
+            showToast(`语言已切换：${langText}`);
+          });
+        });
+      }
+
+      function bindEvents() {
+        refs.menuBtn.addEventListener('click', () => setMenuOpen(!state.menuOpen));
+        refs.overlay.addEventListener('click', () => setMenuOpen(false));
+        refs.logoBtn.addEventListener('click', () => goOverview(true));
+
+        refs.detailDrawerClose.addEventListener('click', closeDrawer);
+        refs.detailDrawerAction.addEventListener('click', () => showToast('已发起复核流程'));
+
+        document.addEventListener('keydown', (event) => {
+          if (event.key === 'Escape' && state.menuOpen) setMenuOpen(false);
+          if (event.key === 'Escape' && refs.detailDrawer.classList.contains('show')) closeDrawer();
+        });
+
+        refs.monthPicker.addEventListener('change', (event) => {
+          setMonthValue(event.target.value, true);
+          state.metrics = computeMetrics(state.filters);
+          state.calc.progress = state.metrics.done;
+        });
+
+        bindLanguageEvents();
+      }
+
+      function init() {
+        state.metrics = computeMetrics(state.filters);
+        state.calc.progress = state.metrics.done;
+        refs.monthPicker.value = state.filters.month;
+        bindEvents();
+        renderNavigationPanel();
+        renderPage();
+      }
+
+      init();
+    })();
+  </script>
+</body>
+</html>

@@ -1,6 +1,6 @@
 import type { AppEnv, ReadSource, WriteMode } from "../config.js";
 
-export type EmployeeType = "管理" | "销售";
+export type EmployeeType = "management" | "sales";
 
 export interface SocialConfig {
   compPension: number;
@@ -81,6 +81,11 @@ export interface ReplaceEmployeesResult {
   count: number;
 }
 
+export interface DeleteEmployeeResult {
+  deletedPayrollInputs: number;
+  deletedPayrollResults: number;
+}
+
 export interface ClearDataResult {
   clearedTables: string[];
 }
@@ -99,6 +104,10 @@ export interface RepositoryAdapter {
   getSettings: () => RepositorySettings;
   saveSettings: (settings: RepositorySettings) => void;
   listEmployees: () => EmployeeRecord[];
+  addEmployee: (employee: Omit<EmployeeRecord, "id">) => EmployeeRecord;
+  updateEmployee: (employee: EmployeeRecord) => EmployeeRecord;
+  deleteEmployee: (id: number) => DeleteEmployeeResult;
+  /** @deprecated Use addEmployee/updateEmployee/deleteEmployee instead. */
   replaceEmployees: (employees: EmployeeRecord[]) => ReplaceEmployeesResult;
   exportBackup: () => BackupExportFile;
   importBackup: (payload: unknown) => ImportBackupResult;

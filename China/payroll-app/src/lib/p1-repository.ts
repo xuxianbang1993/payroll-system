@@ -1,4 +1,5 @@
 import type { Employee, Settings } from "@/types/payroll";
+import { asObject } from "@/utils/type-guards";
 
 export interface RepositoryPayrollPayload {
   id: string;
@@ -29,12 +30,11 @@ export interface RepositoryImportResult {
   importedPayrollResults: number;
 }
 
-export interface RepositoryReplaceEmployeesResult {
-  count: number;
-}
-
-export interface RepositoryClearDataResult {
-  clearedTables: string[];
+export interface RepositoryReplaceEmployeesResult { count: number }
+export interface RepositoryClearDataResult { clearedTables: string[] }
+export interface RepositoryDeleteEmployeeResult {
+  deletedPayrollInputs: number;
+  deletedPayrollResults: number;
 }
 
 export interface RepositoryStorageInfo {
@@ -47,118 +47,57 @@ export interface RepositoryStorageInfo {
   payrollResultCount: number;
 }
 
-function asObject(value: unknown): Record<string, unknown> | null {
-  if (!value || typeof value !== "object" || Array.isArray(value)) {
-    return null;
-  }
-
-  return value as Record<string, unknown>;
+async function invokeRepo<T>(
+  fn: (repo: NonNullable<Window["payrollRepository"]>) => Promise<unknown>,
+  validate: (result: unknown) => boolean = (v) => asObject(v) !== null,
+): Promise<T | null> {
+  if (!window.payrollRepository) return null;
+  const result = await fn(window.payrollRepository);
+  return validate(result) ? (result as T) : null;
 }
 
-export async function loadRepositorySettings(): Promise<Settings | null> {
-  if (!window.payrollRepository) {
-    return null;
-  }
-
-  const result = await window.payrollRepository.getSettings();
-  if (!asObject(result)) {
-    return null;
-  }
-
-  return result as Settings;
+export function loadRepositorySettings(): Promise<Settings | null> {
+  return invokeRepo<Settings>((r) => r.getSettings());
 }
 
-export async function saveRepositorySettings(settings: Settings): Promise<Settings | null> {
-  if (!window.payrollRepository) {
-    return null;
-  }
-
-  const result = await window.payrollRepository.saveSettings(settings);
-  if (!asObject(result)) {
-    return null;
-  }
-
-  return result as Settings;
+export function saveRepositorySettings(settings: Settings): Promise<Settings | null> {
+  return invokeRepo<Settings>((r) => r.saveSettings(settings));
 }
 
 export async function listRepositoryEmployees(): Promise<Employee[]> {
-  if (!window.payrollRepository) {
-    return [];
-  }
-
+  if (!window.payrollRepository) return [];
   const result = await window.payrollRepository.listEmployees();
-  if (!Array.isArray(result)) {
-    return [];
-  }
-
-  return result as Employee[];
+  return Array.isArray(result) ? (result as Employee[]) : [];
 }
 
-export async function replaceRepositoryEmployees(
-  employees: Employee[],
-): Promise<RepositoryReplaceEmployeesResult | null> {
-  if (!window.payrollRepository) {
-    return null;
-  }
-
-  const result = await window.payrollRepository.replaceEmployees(employees);
-  if (!asObject(result)) {
-    return null;
-  }
-
-  return result as RepositoryReplaceEmployeesResult;
+export function addRepositoryEmployee(employee: Omit<Employee, "id">): Promise<Employee | null> {
+  return invokeRepo<Employee>((r) => r.addEmployee(employee));
 }
 
-export async function exportRepositoryBackup(): Promise<RepositoryBackupFile | null> {
-  if (!window.payrollRepository) {
-    return null;
-  }
-
-  const result = await window.payrollRepository.exportBackup();
-  if (!asObject(result)) {
-    return null;
-  }
-
-  return result as RepositoryBackupFile;
+export function updateRepositoryEmployee(employee: Employee): Promise<Employee | null> {
+  return invokeRepo<Employee>((r) => r.updateEmployee(employee));
 }
 
-export async function importRepositoryBackup(
-  payload: unknown,
-): Promise<RepositoryImportResult | null> {
-  if (!window.payrollRepository) {
-    return null;
-  }
-
-  const result = await window.payrollRepository.importBackup(payload);
-  if (!asObject(result)) {
-    return null;
-  }
-
-  return result as RepositoryImportResult;
+export function deleteRepositoryEmployee(id: number): Promise<RepositoryDeleteEmployeeResult | null> {
+  return invokeRepo<RepositoryDeleteEmployeeResult>((r) => r.deleteEmployee(id));
 }
 
-export async function clearRepositoryData(): Promise<RepositoryClearDataResult | null> {
-  if (!window.payrollRepository) {
-    return null;
-  }
-
-  const result = await window.payrollRepository.clearData();
-  if (!asObject(result)) {
-    return null;
-  }
-
-  return result as RepositoryClearDataResult;
+export function replaceRepositoryEmployees(employees: Employee[]): Promise<RepositoryReplaceEmployeesResult | null> {
+  return invokeRepo<RepositoryReplaceEmployeesResult>((r) => r.replaceEmployees(employees));
 }
 
-export async function loadRepositoryStorageInfo(): Promise<RepositoryStorageInfo | null> {
-  if (!window.payrollRepository) {
-    return null;
-  }
+export function exportRepositoryBackup(): Promise<RepositoryBackupFile | null> {
+  return invokeRepo<RepositoryBackupFile>((r) => r.exportBackup());
+}
 
-  const result = await window.payrollRepository.getStorageInfo();
-  if (!asObject(result)) {
-    return null;
-  }
+export function importRepositoryBackup(payload: unknown): Promise<RepositoryImportResult | null> {
+  return invokeRepo<RepositoryImportResult>((r) => r.importBackup(payload));
+}
 
-  return result as RepositoryStorageInfo;
+export function clearRepositoryData(): Promise<RepositoryClearDataResult | null> {
+  return invokeRepo<RepositoryClearDataResult>((r) => r.clearData());
+}
+
+export function loadRepositoryStorageInfo(): Promise<RepositoryStorageInfo | null> {
+  return invokeRepo<RepositoryStorageInfo>((r) => r.getStorageInfo());
 }

@@ -1,3 +1,4 @@
+import Decimal from "decimal.js";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -6,6 +7,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { useSettingsStore } from "@/stores/settings-store";
 import type { SocialConfig } from "@/types/payroll";
+import { formatAmount, toNumber } from "@/utils/format";
+import { resolveMessage } from "@/utils/i18n-utils";
 
 interface SocialField {
   key: keyof SocialConfig;
@@ -48,26 +51,6 @@ const baseFields: SocialField[] = [
   { key: "maternityBase", labelKey: "settings.social.fields.maternityBase", unitKey: "settings.social.units.yuan" },
 ];
 
-function toNumber(value: string, fallback: number): number {
-  if (value.trim() === "") {
-    return fallback;
-  }
-
-  const parsed = Number(value);
-  if (!Number.isFinite(parsed)) {
-    return fallback;
-  }
-
-  return parsed;
-}
-
-function formatAmount(value: number): string {
-  return value.toLocaleString(undefined, {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  });
-}
-
 export function SocialConfigPage() {
   const { t } = useTranslation();
   const {
@@ -91,22 +74,18 @@ export function SocialConfigPage() {
   }, [settings.social]);
 
   const example = useMemo(() => {
-    const employerTotal =
-      (draft.pensionBase * (draft.compPension + draft.compLocalPension)) / 100 +
-      (draft.unemploymentBase * draft.compUnemploy) / 100 +
-      (draft.medicalBase * draft.compMedical) / 100 +
-      (draft.injuryBase * draft.compInjury) / 100 +
-      (draft.maternityBase * draft.compMaternity) / 100;
-
-    const workerTotal =
-      (draft.pensionBase * draft.workerPension) / 100 +
-      (draft.unemploymentBase * draft.workerUnemploy) / 100 +
-      (draft.medicalBase * draft.workerMedical) / 100;
-
-    return {
-      employerTotal,
-      workerTotal,
-    };
+    const pct = (base: number, rate: number) => new Decimal(base).mul(rate).div(100);
+    const employerTotal = pct(draft.pensionBase, draft.compPension + draft.compLocalPension)
+      .plus(pct(draft.unemploymentBase, draft.compUnemploy))
+      .plus(pct(draft.medicalBase, draft.compMedical))
+      .plus(pct(draft.injuryBase, draft.compInjury))
+      .plus(pct(draft.maternityBase, draft.compMaternity))
+      .toNumber();
+    const workerTotal = pct(draft.pensionBase, draft.workerPension)
+      .plus(pct(draft.unemploymentBase, draft.workerUnemploy))
+      .plus(pct(draft.medicalBase, draft.workerMedical))
+      .toNumber();
+    return { employerTotal, workerTotal };
   }, [draft]);
 
   const handleChange = (key: keyof SocialConfig, value: string) => {
@@ -130,13 +109,13 @@ export function SocialConfigPage() {
         <CardContent className="space-y-4">
           {errorMessage ? (
             <div className="rounded-md border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-800">
-              {errorMessage}
+              {resolveMessage(errorMessage, t)}
             </div>
           ) : null}
 
           {!errorMessage && noticeMessage ? (
             <div className="rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-800">
-              {noticeMessage}
+              {resolveMessage(noticeMessage, t)}
             </div>
           ) : null}
 

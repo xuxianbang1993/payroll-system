@@ -55,7 +55,22 @@
     "status": {
       "ready": "This module is delivered in P1 and ready to use.",
       "pending": "This module shell is ready and awaiting a later delivery phase."
-    }
+    },
+    "kpi": {
+      "people": "Active Employees",
+      "peopleValue": "0",
+      "peopleSub": "Pending calculation",
+      "pay": "Gross Pay This Month",
+      "payValue": "¥ 0",
+      "paySub": "Currency: ¥",
+      "done": "Calculation Complete",
+      "doneValue": "0%",
+      "doneSub": "Completion rate",
+      "warn": "Anomalies",
+      "warnValue": "0",
+      "warnSub": "Needs review"
+    },
+    "enterAction": "Enter: {{page}}"
   },
   "data": {
     "backup": {
@@ -141,6 +156,29 @@
     "refresh": "Refresh",
     "yes": "Yes",
     "no": "No"
+  },
+  "error": {
+    "settingsLoadFailed": "Failed to load settings: {{reason}}",
+    "settingsSaveFailed": "Failed to save settings: {{reason}}",
+    "settingsRepositoryUnavailable": "Failed to save settings: Repository interface unavailable",
+    "orgNameEmpty": "Organization name cannot be empty",
+    "companyShortEmpty": "Company short name cannot be empty",
+    "companyShortDuplicate": "Company short name is duplicated. Please modify and retry",
+    "employeeLoadFailed": "Failed to load employees: {{reason}}",
+    "employeeSaveFailed": "Failed to save employee: {{reason}}",
+    "employeeSaveRepositoryUnavailable": "Failed to save employee: Repository interface unavailable",
+    "employeeNameEmpty": "Employee name cannot be empty",
+    "employeeNotFound": "Employee not found",
+    "numericFieldInvalid": "{{reason}} must be a number greater than or equal to 0"
+  },
+  "success": {
+    "orgNameSaved": "Organization name saved",
+    "socialConfigSaved": "Social insurance configuration saved",
+    "companiesSaved": "Company entities saved",
+    "employeeAdded": "Employee added",
+    "employeeUpdated": "Employee updated",
+    "employeeDeleted": "Employee deleted",
+    "employeeListUpdated": "Employee list updated"
   },
   "settings": {
     "org": {

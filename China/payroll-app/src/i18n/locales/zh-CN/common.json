@@ -55,7 +55,22 @@
     "status": {
       "ready": "该模块已完成 P1 收口，可直接进入使用。",
       "pending": "该模块骨架已就绪，待后续阶段实现业务逻辑。"
-    }
+    },
+    "kpi": {
+      "people": "在职人数",
+      "peopleValue": "0",
+      "peopleSub": "待计算",
+      "pay": "本月应发",
+      "payValue": "¥ 0",
+      "paySub": "单位 ¥",
+      "done": "已完成核算",
+      "doneValue": "0%",
+      "doneSub": "完成率",
+      "warn": "异常条目",
+      "warnValue": "0",
+      "warnSub": "需复核"
+    },
+    "enterAction": "进入：{{page}}"
   },
   "data": {
     "backup": {
@@ -141,6 +156,29 @@
     "refresh": "刷新",
     "yes": "是",
     "no": "否"
+  },
+  "error": {
+    "settingsLoadFailed": "加载设置失败：{{reason}}",
+    "settingsSaveFailed": "保存设置失败：{{reason}}",
+    "settingsRepositoryUnavailable": "保存设置失败：仓储接口不可用",
+    "orgNameEmpty": "组织名称不能为空",
+    "companyShortEmpty": "公司简称不能为空",
+    "companyShortDuplicate": "公司简称重复，请修改后重试",
+    "employeeLoadFailed": "加载员工失败：{{reason}}",
+    "employeeSaveFailed": "保存员工失败：{{reason}}",
+    "employeeSaveRepositoryUnavailable": "保存员工失败：仓储接口不可用",
+    "employeeNameEmpty": "姓名不能为空",
+    "employeeNotFound": "未找到要操作的员工",
+    "numericFieldInvalid": "{{reason}} 必须是大于等于 0 的数字"
+  },
+  "success": {
+    "orgNameSaved": "组织名称已保存",
+    "socialConfigSaved": "社保配置已保存",
+    "companiesSaved": "公司主体已保存",
+    "employeeAdded": "员工已新增",
+    "employeeUpdated": "员工已更新",
+    "employeeDeleted": "员工已删除",
+    "employeeListUpdated": "员工列表已更新"
   },
   "settings": {
     "org": {

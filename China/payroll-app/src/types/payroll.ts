@@ -22,7 +22,7 @@ export interface Company {
   full: string;
 }
 
-export type EmployeeType = "管理" | "销售";
+export type EmployeeType = "management" | "sales";
 
 export interface Employee {
   id: number;
