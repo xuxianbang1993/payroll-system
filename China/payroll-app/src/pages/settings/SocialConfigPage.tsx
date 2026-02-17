@@ -1,3 +1,4 @@
+import Decimal from "decimal.js";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -73,22 +74,18 @@ export function SocialConfigPage() {
   }, [settings.social]);
 
   const example = useMemo(() => {
-    const employerTotal =
-      (draft.pensionBase * (draft.compPension + draft.compLocalPension)) / 100 +
-      (draft.unemploymentBase * draft.compUnemploy) / 100 +
-      (draft.medicalBase * draft.compMedical) / 100 +
-      (draft.injuryBase * draft.compInjury) / 100 +
-      (draft.maternityBase * draft.compMaternity) / 100;
-
-    const workerTotal =
-      (draft.pensionBase * draft.workerPension) / 100 +
-      (draft.unemploymentBase * draft.workerUnemploy) / 100 +
-      (draft.medicalBase * draft.workerMedical) / 100;
-
-    return {
-      employerTotal,
-      workerTotal,
-    };
+    const pct = (base: number, rate: number) => new Decimal(base).mul(rate).div(100);
+    const employerTotal = pct(draft.pensionBase, draft.compPension + draft.compLocalPension)
+      .plus(pct(draft.unemploymentBase, draft.compUnemploy))
+      .plus(pct(draft.medicalBase, draft.compMedical))
+      .plus(pct(draft.injuryBase, draft.compInjury))
+      .plus(pct(draft.maternityBase, draft.compMaternity))
+      .toNumber();
+    const workerTotal = pct(draft.pensionBase, draft.workerPension)
+      .plus(pct(draft.unemploymentBase, draft.workerUnemploy))
+      .plus(pct(draft.medicalBase, draft.workerMedical))
+      .toNumber();
+    return { employerTotal, workerTotal };
   }, [draft]);
 
   const handleChange = (key: keyof SocialConfig, value: string) => {
