@@ -13,33 +13,27 @@ npm run dev
 
 ## 基线版本（main）
 
-- Git tag: `2.1.2-p1-layoutfix-finish`
+- Git tag: `v2.1.2-p1-current-bug-fixed`
 - 分支基线: `main`
 
 ## 当前状态
 
-- P1 SQLite 收口版本已合并到 `main`
-- 发布 tag：`2.1.2-p1-layoutfix-finish`
+- P1 bugfix 全部完成，已合并到 `main`
+- 发布 tag：`v2.1.2-p1-current-bug-fixed`
 
-## 本次主线更新重点（P1 全模块收口）
+## 本次主线更新重点（P1 Bugfix）
 
-- 已完成 P1 SQLite Foundation + Data 收口（仓储清空、备份文件 IPC、`/data/backup`、`/data/storage`）。
-- 新增 Settings 模块落地页面：
-  - `/settings/org`
-  - `/settings/social`（并复用到 `/settings/fund`、`/settings/base`）
-  - `/settings/company`
-- 新增 Employee 与 Import/Export 页面：
-  - `/employee/list`
-  - `/employee/import`
-  - `/employee/export`
-- 新增前端域层能力：
-  - `src/stores/settings-store.ts`
-  - `src/stores/employee-store.ts`
-  - `src/lib/p1-employee-import-export.ts`
-- 新增测试覆盖：
-  - settings/employee/import-export 的 unit + component
-  - `tests/e2e/p1-settings-employee-data.spec.ts`
-- 治理映射与 case map 已扩展到 25 条并完成对账。
+Code review 发现问题全部修复（Batch A-G）：
+
+- 提取共享工具函数（format/error/type-guards）+ E2E test helpers
+- settings/employee store 全面 i18n 化 + utils 提取
+- EmployeeType 枚举化（`"management" | "sales"`）
+- EmployeeListPage/ImportExportPage/BackupPage 拆分至小模块
+- 增量 CRUD（addEmployee/updateEmployee/deleteEmployee），废弃 replaceEmployees
+- electron/main.ts IPC 拆分为 4 模块，依赖注入模式
+- 新增 13 个组件测试 + decimal.js 精确计算
+- 全量回归验证通过（83 unit + 4 E2E + build + 文件/i18n 审计）
+- 统计：131 files changed, +5348 insertions, -2357 deletions
 
 ## 既有重点（v2.1.2）
 
@@ -56,7 +50,7 @@ npm run dev
 ## 测试与证据
 
 - `npm run build`：通过
-- `npm run test`：通过（67/67）
+- `npm run test`：通过（83/83）
 - `ALLOW_ELECTRON_GUI_IN_CODEX=1 npm run test:e2e -- tests/e2e/db-isolation.spec.ts tests/e2e/backup-restore.spec.ts tests/e2e/p1-settings-employee-data.spec.ts`：通过（4/4）
 - 证据目录：`China/test/06-reports/`
 - 治理映射：`China/test/00-governance/`
@@ -75,33 +69,3 @@ npm run dev
 - P4（未完成）：安装包与离线验收（`B-01`~`B-04`）。
 
 推荐下一开发分支：`codex/p2-payroll-foundation`（以 `main` 最新提交为基线）。
-
-## 本次收口修复（Closeout Review）
-
-- 导入冲突未处理时，主按钮禁止直接导入。
-- 员工详情增加“跳转编辑”操作。
-- 概览页状态文案改为按模块真实交付状态显示（ready/pending）。
-
-## UI 布局与样式迁移基线（2026-02-15）
-
-- 正式项目采用 `plans/参考图/1.2.html` 的信息架构（概览工具条 + KPI + 模块卡）。
-- 颜色与阴影采用 `plans/参考图/1.html` 的视觉 token（暖色中性 + 橙色主交互 + 统一阴影）。
-- 前端技术架构保持不变：React + TypeScript + Vite + Tailwind/shadcn。
-- 本轮仅做布局和样式统一，不改业务逻辑、路由语义和 IPC 接口。
-
-## 当前进度定位（2026-02-15）
-
-- 当前分支：`codex/bugfix/layout-fix`
-- 已完成：
-  - 文档同步提交：`0c289d6`
-  - UI 布局与视觉统一提交：`783999e`
-- 收尾中：
-  - `npm run dev` 的 ABI 启动稳定性修复（`dev:electron` 前置 `abi:electron`）
-  - 概览 KPI 默认值改为 `0`（移除 demo 固定业务数值）
-
-## 下一步建议（明确执行顺序）
-
-1. 合并收尾修复并提交（`package.json`、`OverviewPage.tsx`）。
-2. 复验：`npm run build` + 定向测试（overview/layout）。
-3. 手工执行 `npm run dev` smoke，确认 Electron 启动稳定。
-4. 合并 `codex/bugfix/layout-fix` 后切入 P2（`plans/2026-02-14-p2-payroll-kickoff.md`）。

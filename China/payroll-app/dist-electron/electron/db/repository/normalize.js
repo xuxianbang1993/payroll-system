@@ -57,9 +57,9 @@ export function asPositiveInteger(value) {
 export function normalizeEmployeeType(raw) {
     const value = asString(raw);
     if (value === "销售" || value.toLowerCase() === "sales") {
-        return "销售";
+        return "sales";
     }
-    return "管理";
+    return "management";
 }
 export function resolveCompanyFullName(short, full) {
     if (full !== "") {

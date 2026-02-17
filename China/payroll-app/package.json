@@ -1,7 +1,7 @@
 {
   "name": "payroll-app",
   "private": true,
-  "version": "2.1.2-p1-layoutfix-finish",
+  "version": "2.1.2-p1-current-bug-fixed",
   "main": "dist-electron/electron/main.js",
   "type": "module",
   "scripts": {

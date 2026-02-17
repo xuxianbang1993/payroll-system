@@ -14,7 +14,7 @@ export function parseJsonRecord(value) {
     }
 }
 export function asEmployeeType(raw) {
-    return raw === "销售" ? "销售" : "管理";
+    return raw === "销售" || raw === "sales" ? "sales" : "management";
 }
 export function ensureCompanies(db, companies) {
     const upsert = db.prepare(`

@@ -61,6 +61,15 @@ export function createSwitchingRepository(options) {
             writeByMode("saveSettings", settings, (adapter, cloned) => adapter.saveSettings(cloned));
         },
         listEmployees: () => getReadAdapter().listEmployees(),
+        addEmployee: (employee) => {
+            return writeByMode("addEmployee", employee, (adapter, cloned) => adapter.addEmployee(cloned));
+        },
+        updateEmployee: (employee) => {
+            return writeByMode("updateEmployee", employee, (adapter, cloned) => adapter.updateEmployee(cloned));
+        },
+        deleteEmployee: (id) => {
+            return writeByMode("deleteEmployee", id, (adapter, clonedId) => adapter.deleteEmployee(clonedId));
+        },
         replaceEmployees: (employees) => {
             return writeByMode("replaceEmployees", employees, (adapter, cloned) => adapter.replaceEmployees(cloned));
         },
