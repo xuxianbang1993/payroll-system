@@ -389,3 +389,69 @@
 2. 复跑 build + 定向测试，确认无回归。
 3. 执行 `npm run dev` 手工 smoke，确认 Electron 正常启动。
 4. 完成分支合并后，进入 P2 payroll 基础开发。
+
+## Session: 2026-02-18 (P2 Kickoff — P2.1 Calculator)
+
+### Current Status
+- **Phase:** P2.1 — calculator.ts + calculator.test.ts
+- **Branch:** `codex/p2-payroll`（基于 main `2e2b706`）
+- **总纲文件：** `plans/P2阶段开发总纲.md`
+
+### Scope
+- P2.1 是 P2 的第一个子阶段，交付薪资核算的核心计算引擎（纯函数）及其完整单元测试。
+- 严格遵循：
+  - PRD：`01-data-model.md` + `05-mod-payroll.md §二（6 步计算公式）`
+  - 开发策略：`薪酬系统-开发策略文档.md` v3.6（decimal.js 红线、测试策略、代码质量准则）
+  - 开发总纲：`plans/P2阶段开发总纲.md`（子阶段定义、依赖链、验证标准）
+
+### Execution Model
+- **开发执行：** Codex (GPT-5.3-codex xhigh)
+- **代码审查 + 修复 + 文档更新：** Claude Code (Opus 4.6)
+
+### Actions Taken
+- 阅读全部 plans 文档、SOP 文档、README，确认 P1 已完成
+- 完成 P2 头脑风暴：评估 3 种子阶段划分方案，选定 Vertical Slice + 细粒度
+- 创建 `plans/P2阶段开发总纲.md`（10 个子阶段、依赖链、验证标准、风险缓解）
+- 更新 `plans/task_plan.md`（追加 P2 全部子阶段 checklist）
+- 更新 `plans/findings.md`（P2 kickoff 发现与决策）
+- 准备 P2.1 Codex prompt
+
+### P2.1 Expected Deliverables
+- `src/services/calculator.ts` — 单人工资条计算纯函数
+- `tests/unit/services/calculator.test.ts` — 覆盖全部场景
+
+### P2.1 Verification
+- `npm run test -- tests/unit/services/calculator.test.ts`
+
+### Next Steps
+1. 用户将 P2.1 Codex prompt 发送给 Codex 执行
+2. Codex 交付代码后，Claude Code 审查 + 修复
+3. 审查通过后进入 P2.2（aggregator）
+
+### P2.1 Code Review Results (2026-02-18)
+
+#### Review Outcome: PASS — 零缺陷，无需修复
+
+- **审查方：** Claude Code (Opus 4.6)
+- **审查文件：**
+  - `src/services/calculator.ts`（101 行，单一纯函数）
+  - `tests/unit/services/calculator.test.ts`（13 个测试）
+
+#### Formula Verification
+- PRD 05-mod-payroll.md §二 六步公式逐条核验全部通过
+- decimal.js 全覆盖，无原生浮点运算
+- Rounding 策略正确：每项社保 round(2) 后求和
+
+#### Quality Checks
+- 纯函数 ✅ | TypeScript strict ✅ | 无 `any` ✅ | 无硬编码中文 ✅ | PaySlip 31 字段完整 ✅
+
+#### Test Verification
+```
+npx vitest run tests/unit/services/calculator.test.ts
+→ 13/13 PASS (4ms)
+```
+
+覆盖场景：纯基本工资、含绩效全项、含缺勤扣款、hasSocial 开关、hasLocalPension 开关、公积金（>0/=0）、精度敏感（rounding + floating-point）、netPay 公式、otherAdj 正负
+
+#### Status
+- P2.1 审查通过，可进入 P2.2（aggregator）

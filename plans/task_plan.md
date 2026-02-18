@@ -120,8 +120,128 @@ Phase 7 (Completed)
 - **Status:** in progress
 
 ## Next Execution Plan (P2)
-- Plan file: `plans/2026-02-14-p2-payroll-kickoff.md`
+- Plan file: `plans/P2阶段开发总纲.md`
 - Goal: deliver payroll module foundation (`calculator`, payroll pages, payroll e2e) while keeping P1 gates green.
+
+---
+
+# Task Plan Update: P2 薪资核算模块（2026-02-18）
+
+## Goal
+
+交付薪资核算的核心计算引擎 + 全链路 CRUD + 两个交互页面，通过 P2 门槛验证。
+
+## 总纲文件
+
+`plans/P2阶段开发总纲.md` — 子阶段划分、依赖关系、执行规范、验证标准的完整定义。
+
+## 执行约束
+
+- **PRD 强制遵循：** 所有实现严格对照 `01-data-model.md` + `05-mod-payroll.md`
+- **开发策略：** `China/Devolop files SOP/薪酬系统-开发策略文档.md`（v3.6）全程有效
+- **代码质量：** 不设硬性行数上限；单一职责、简洁优雅、模块化、可维护、解读性强；>300 行必须拆分
+- **金额精度：** `decimal.js` 强制，禁原生浮点
+
+## Current Phase
+
+P2.2（待执行）
+
+## Branch
+
+`codex/p2-payroll`（基于 main `2e2b706`）
+
+## P2 Phases
+
+### P2.1: calculator.ts + calculator.test.ts
+- [x] 实现 `src/services/calculator.ts` — 单人工资条计算纯函数
+- [x] 实现 `tests/unit/services/calculator.test.ts` — 覆盖 SOP 4.7 全部场景
+- [x] 验证：`npm run test -- tests/unit/services/calculator.test.ts`（13/13 PASS）
+- [x] Claude Code 代码审查：公式逐条对齐 PRD，decimal.js 全覆盖，零缺陷通过
+- **执行方：** Codex (GPT-5.3-codex xhigh)
+- **审查方：** Claude Code (Opus 4.6)
+- **Status:** ✅ complete (reviewed 2026-02-18)
+
+### P2.2: aggregator.ts + aggregator.test.ts
+- [ ] 实现 `src/services/aggregator.ts` — 全员汇总纯函数
+- [ ] 实现 `tests/unit/services/aggregator.test.ts`
+- [ ] 验证：`npm run test -- tests/unit/services/aggregator.test.ts`
+- **前置：** P2.1 已审查合并
+- **Status:** pending
+
+### P2.3: Payroll repository contracts + SQLite CRUD
+- [ ] 扩展 `contracts.ts` payroll CRUD 接口
+- [ ] 新建 `sqlite-payroll.ts` SQLite 操作
+- [ ] 接入 `sqlite-adapter.ts`
+- [ ] 新建 unit test
+- **前置：** P2.2 已审查合并
+- **Status:** pending
+
+### P2.4: IPC + preload + renderer bridge
+- [ ] 扩展 `repository-ipc.ts` — 5 个 payroll channels
+- [ ] 扩展 `preload.cts` + `electron-api.d.ts` + `p1-repository.ts`
+- [ ] 验证：`npm run build`
+- **前置：** P2.3 已审查合并
+- **Status:** pending
+
+### P2.5: payroll-store.ts + unit test
+- [ ] 实现 `src/stores/payroll-store.ts`
+- [ ] 实现 `tests/unit/stores/payroll-store.test.ts`
+- **前置：** P2.1 + P2.2 + P2.4 已审查合并
+- **Status:** pending
+
+### P2.6: MonthPicker + PayCard 组件
+- [ ] 实现 `src/components/MonthPicker.tsx`
+- [ ] 实现 `src/components/PayCard.tsx`
+- **前置：** P2.5 已审查合并
+- **Status:** pending
+
+### P2.7: PayrollByEmpPage
+- [ ] 实现 `src/pages/payroll/PayrollByEmpPage.tsx`
+- [ ] 替换 `app-routes.tsx` payroll/employee 占位
+- [ ] 补充 i18n keys
+- **前置：** P2.5 + P2.6 已审查合并
+- **Status:** pending
+
+### P2.8: PayrollDetailPage（28 列明细表）
+- [ ] 实现 `src/pages/payroll/PayrollDetailPage.tsx`
+- [ ] 替换 `app-routes.tsx` payroll/detail 占位
+- [ ] 补充 i18n keys
+- **前置：** P2.5 已审查合并
+- **Status:** pending
+
+### P2.9: payroll-flow.spec.ts E2E + 组件测试
+- [ ] 实现 `tests/e2e/payroll-flow.spec.ts`
+- [ ] 更新 governance 文件
+- **前置：** P2.7 + P2.8 已审查合并
+- **Status:** pending
+
+### P2.10: 全量回归 + 里程碑证据
+- [ ] `npm run test` 全量通过
+- [ ] `npm run test:e2e` 全量通过
+- [ ] 三件套证据齐全
+- [ ] 更新 plans + README + SOP
+- [ ] Commit + Tag
+- **前置：** P2.9 已审查合并
+- **Status:** pending
+
+## P2 完成门槛
+
+```
+✅ calculator.test.ts 全部通过
+✅ payroll-flow.spec.ts 全部通过
+✅ npm run test 全量通过（含 P1 回归）
+✅ 里程碑三件套证据齐全（raw JSON + case map + XLSX）
+```
+
+## P2 架构决策（已锁定）
+
+| 决策 | 选择 | 理由 |
+|------|------|------|
+| calculator 签名 | `(Employee, PayrollInput, SocialConfig) → PaySlip` | 纯函数，零副作用，最大可测试性 |
+| aggregator 签名 | `(PaySlip[], filterCompany?) → AggregateResult` | 解耦 calculator，P3 凭证直接消费 |
+| payroll 持久化 | JSON payload 存入已有 `payroll_inputs` / `payroll_results` 表 | 复用 P1 schema，无需新 migration |
+| store 粒度 | 单一 `payroll-store`，按 month 管理 | 月度数据天然一体 |
+| PDF/CSV 导出 | P2 不做 | 聚焦核心计算 + UI |
 
 ---
 

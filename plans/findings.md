@@ -274,3 +274,101 @@
 1. 提交 `package.json`（ABI 修复）与 `OverviewPage.tsx`（KPI 置零）。
 2. 复验 build + 定向测试 + dev smoke。
 3. 分支合并后进入 P2 payroll 开发。
+
+---
+
+## P2 Kickoff Findings (2026-02-18)
+
+### 基线确认
+
+- P1 全部完成，main HEAD `2e2b706`（tag `v2.1.2-p1-current-bug-fixed`）
+- P1 测试状态：83 unit ✅ + 4 E2E ✅ + case map `match=25/mismatch=0/noEvidence=0` ✅
+- P2 开发分支：`codex/p2-payroll`
+
+### 现有基础设施盘点
+
+| 层级 | 已有 | 缺失 |
+|------|------|------|
+| 数据库 schema | `payroll_inputs` + `payroll_results` 表已在 P1 migration 中建好 | 无需新 migration |
+| Repository contracts | Employee / Settings / Backup CRUD | Payroll CRUD 接口 |
+| SQLite actions | `sqlite-employees.ts` / `sqlite-settings.ts` | `sqlite-payroll.ts` |
+| IPC channels | 11 个（settings + employee + data） | payroll 相关 channels |
+| Preload / bridge | `payrollRepository` 已暴露 settings + employee + data | payroll 方法未暴露 |
+| Store | `settings-store` / `employee-store` / `app-store` | `payroll-store` |
+| Services | 无 | `calculator.ts` / `aggregator.ts` |
+| Pages | payroll 路由为占位 `ModulePlaceholderPage` | `PayrollByEmpPage` / `PayrollDetailPage` |
+| Components | 无 payroll 专用组件 | `MonthPicker` / `PayCard` |
+
+### P2 架构决策
+
+| 决策 | 选择 | 理由 |
+|------|------|------|
+| calculator 是纯函数 | `(Employee, PayrollInput, SocialConfig) → PaySlip` | 零副作用，最大可测试性，SOP 1.5 要求 |
+| aggregator 是纯函数 | `(PaySlip[], filterCompany?) → AggregateResult` | 与 calculator 解耦，P3 凭证直接消费 |
+| 不需要新 migration | JSON payload 存入已有表 | `payroll_inputs` / `payroll_results` 已在 `0001_init.sql` 建表 |
+| rounding 双轨制 | calculator 逐项 round → aggregator 累加后 round | PRD 05 §二 vs §2.2 的精度规则不同 |
+| PDF/CSV 推迟 | P2 只做核心计算 + UI | 用户确认，避免分散精力 |
+| 子阶段划分 | 10 个细粒度子阶段（Vertical Slice） | 用户选择细粒度，每次 Codex 任务 1-3 文件 |
+
+### P2.1 执行上下文
+
+- P2.1 是 P2 的第一个子阶段，零基础设施依赖
+- 产出：`src/services/calculator.ts` + `tests/unit/services/calculator.test.ts`
+- 函数签名：`calculatePaySlip(employee, input, socialConfig) → PaySlip`
+- 必须用 `decimal.js`，禁原生浮点
+- 社保六险每项先独立 `round(2)` 再求和
+- 测试需覆盖 SOP 4.7 全部 calculator 场景
+
+### 分工模式
+
+| 角色 | 职责 |
+|------|------|
+| Codex (GPT-5.3-codex xhigh) | 按子阶段执行开发 |
+| 用户 | 将 Codex 产出交给 Claude Code 审查 |
+| Claude Code (Opus 4.6) | 代码审查 + 修复 + 更新 plans 文档 |
+
+## P2.1 Code Review (2026-02-18)
+
+### Review Outcome: PASS — 零缺陷，无需修复
+
+### Formula Verification (PRD 05 §二 6 步公式)
+
+- 第一步（收入）：`base`, `totalPerf`, `fullGrossPay` 全部与 PRD 对齐 ✅
+- 第二步（缺勤）：`hourlyRate = base / 21.75 / 8`, `absentDeduct`, `grossPay` 正确 ✅
+- 第三步（单位社保六险）：每项 `percentAmount` 独立 round(2) 后 `sumRound2` 求和，hasSocial / hasLocalPension 双重守卫正确 ✅
+- 第四步（单位公积金）：`cFund = fundAmount`, `cTotal = cSocial + cFund` ✅
+- 第五步（个人扣除）：三险 + wFund 正确 ✅
+- 第六步（实发）：`totalDeduct = wSocial + wFund + tax`, `netPay = grossPay - totalDeduct` ✅
+
+### Quality Checks
+
+| 检查项 | 结果 |
+|--------|------|
+| decimal.js 全覆盖，无原生浮点 | ✅ |
+| 纯函数，零副作用 | ✅ |
+| TypeScript strict，无 `any` | ✅ |
+| 单一职责，101 行 | ✅ |
+| 无硬编码中文 | ✅ |
+| PaySlip 31 字段全部返回 | ✅ |
+
+### Test Coverage (13/13 PASS)
+
+| SOP 场景 | 测试 | 状态 |
+|----------|------|------|
+| 纯基本工资 | "calculates base-only salary..." | ✅ |
+| 含绩效全项 | "calculates fullGrossPay with all..." | ✅ |
+| 含缺勤扣款 | "calculates absence deduction..." | ✅ |
+| hasSocial 开关 | "zeros all social insurance..." | ✅ |
+| hasLocalPension 开关 | "sets cLocalPension to zero..." | ✅ |
+| 公积金（>0 / =0） | "sets both cFund and wFund..." (×2) | ✅ |
+| 精度敏感 | "rounds each social item..." + "floating-point sensitive" | ✅ |
+| netPay 公式 | "calculates netPay..." | ✅ |
+| otherAdj 正负 | `it.each` 正/负两组 | ✅ |
+
+### Decisions
+
+| Decision | Rationale |
+|----------|-----------|
+| hourlyRate 中间 round(2) 后再乘 absentHours | 业务惯例：小时工资是独立展示字段，先定值再扣款。PRD PaySlip 含 hourlyRate 字段佐证此设计 |
+| EmployeeType 使用 "management" / "sales" 而非 PRD 的 "管理" / "销售" | P1 已锁定的编码决策，codebase 内部一致 |
+| 无需补充全路径集成测试 | 各路径独立覆盖充分，netPay 测试已做端到端公式验证 |
