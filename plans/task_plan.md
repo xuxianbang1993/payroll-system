@@ -144,7 +144,7 @@ Phase 7 (Completed)
 
 ## Current Phase
 
-P2.2（待执行）
+P2.3（待执行）
 
 ## Branch
 
@@ -162,11 +162,13 @@ P2.2（待执行）
 - **Status:** ✅ complete (reviewed 2026-02-18)
 
 ### P2.2: aggregator.ts + aggregator.test.ts
-- [ ] 实现 `src/services/aggregator.ts` — 全员汇总纯函数
-- [ ] 实现 `tests/unit/services/aggregator.test.ts`
-- [ ] 验证：`npm run test -- tests/unit/services/aggregator.test.ts`
-- **前置：** P2.1 已审查合并
-- **Status:** pending
+- [x] 实现 `src/services/aggregator.ts` — 全员汇总纯函数
+- [x] 实现 `tests/unit/services/aggregator.test.ts`
+- [x] 验证：`npm run test -- tests/unit/services/aggregator.test.ts`（7/7 PASS）
+- [x] Claude Code 代码审查：PRD §2.2 逐条对齐，rounding 双轨制正确区分，零缺陷通过
+- **执行方：** Codex (GPT-5.3-codex xhigh)
+- **审查方：** Claude Code (Opus 4.6)
+- **Status:** ✅ complete (reviewed 2026-02-19)
 
 ### P2.3: Payroll repository contracts + SQLite CRUD
 - [ ] 扩展 `contracts.ts` payroll CRUD 接口

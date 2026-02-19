@@ -115,3 +115,20 @@ export interface PaySlip {
   type: EmployeeType;
   companyShort: string;
 }
+
+export interface AggregateGroup {
+  fullGrossPay: number;
+  cSocial: number;
+  cFund: number;
+  wSocial: number;
+  wFund: number;
+  tax: number;
+  netPay: number;
+  absentDeduct: number;
+}
+
+export interface AggregateResult {
+  sale: AggregateGroup;
+  manage: AggregateGroup;
+  total: AggregateGroup;
+}

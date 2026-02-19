@@ -372,3 +372,61 @@
 | hourlyRate 中间 round(2) 后再乘 absentHours | 业务惯例：小时工资是独立展示字段，先定值再扣款。PRD PaySlip 含 hourlyRate 字段佐证此设计 |
 | EmployeeType 使用 "management" / "sales" 而非 PRD 的 "管理" / "销售" | P1 已锁定的编码决策，codebase 内部一致 |
 | 无需补充全路径集成测试 | 各路径独立覆盖充分，netPay 测试已做端到端公式验证 |
+
+## P2.2 Code Review (2026-02-19)
+
+### Review Outcome: PASS — 零缺陷，无需修复
+
+### PRD §2.2 Verification (汇总规则)
+
+- 汇总 8 字段（fullGrossPay/cSocial/cFund/wSocial/wFund/tax/netPay/absentDeduct）：与 PRD 完全匹配 ✅
+- 按 type 分类：`slip.type === "sales"` → sale，else → manage（EmployeeType 仅有 "sales" | "management"，else 分支安全） ✅
+- total = sale + manage：通过对所有 slip 并行执行 addSlip(totalGroup) 保证 ✅
+- 精度规则：addSlip 用 `Decimal.plus()` 累加原始值，roundGroup 最终统一 `toDecimalPlaces(2)` ✅
+- 公司主体筛选：`filterCompany !== undefined && slip.companyShort !== filterCompany` → skip ✅
+
+### Rounding 双轨制验证（P2.2 审查重点）
+
+| 模块 | 策略 | PRD 来源 | 实现 |
+|------|------|----------|------|
+| calculator.ts | 逐项 round(2) 后求和 | PRD 05 §二 "每一项先单独四舍五入到 2 位小数，再求和" | `sumRound2` / `percentAmount` |
+| aggregator.ts | 累加原始值后统一 round(2) | PRD 05 §1.4 / §2.2 "先逐人累加原始值（不取整），全部累加完后统一四舍五入" | `Decimal.plus` → `toDecimalPlaces(2)` |
+
+两套策略在代码中正确区分，无混淆。
+
+### Quality Checks
+
+| 检查项 | 结果 |
+|--------|------|
+| decimal.js 全覆盖，无原生浮点 | ✅ |
+| 纯函数，零副作用 | ✅ |
+| TypeScript strict，无 `any` | ✅ |
+| 单一职责，77 行 | ✅ |
+| 无硬编码中文 | ✅ |
+| AggregateResult 类型完整（sale/manage/total） | ✅ |
+
+### Test Coverage (7/7 PASS)
+
+| SOP 场景 | 测试 | 状态 |
+|----------|------|------|
+| 按 type 分类 | "aggregates slips by type into sale/manage groups" | ✅ |
+| 全员合计 = 销售 + 管理 | "makes total equal to sale + manage for every aggregate field" | ✅ |
+| 精度规则 | "applies precision rule..." — 3×0.105=0.315→0.32（验证非 round-first 的 0.33） | ✅ |
+| 按公司主体筛选 | "filters by companyShort when filterCompany is provided" | ✅ |
+| 空输入 | "returns all-zero groups for empty input" | ✅ |
+| undefined filter | "treats filterCompany = undefined as aggregating all slips" | ✅ |
+| 单一类型 | "keeps missing type group at zero when only one type exists" | ✅ |
+
+### Regression Verification
+
+```
+npx vitest run → 30 files / 103 tests PASS（含 P1 全部 + P2.1 calculator）
+```
+
+### Decisions
+
+| Decision | Rationale |
+|----------|-----------|
+| else 分支处理 management 而非显式 `=== "management"` | EmployeeType 是二元联合类型，TypeScript strict 保证穷尽；与 calculator.ts 的 `employee.type` 传递风格一致 |
+| AGGREGATE_FIELDS 使用 `as const` + 派生类型 | 类型安全：确保 addSlip/roundGroup 的字段访问与 PaySlip/AggregateGroup 接口同步 |
+| 测试数据使用 4 人混合（2 sales + 2 management，分属 AC/BC） | 覆盖分类 + 筛选的交叉场景，与 SOP 4.10 fixtures 要求一致 |

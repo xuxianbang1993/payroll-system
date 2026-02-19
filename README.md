@@ -13,13 +13,34 @@ npm run dev
 
 ## 基线版本（main）
 
-- Git tag: `v2.1.2-p1-current-bug-fixed`
+- Git tag: `v2.1.2-p2-p2.2-aggregator`
 - 分支基线: `main`
 
 ## 当前状态
 
-- P1 bugfix 全部完成，已合并到 `main`
-- 发布 tag：`v2.1.2-p1-current-bug-fixed`
+- P1 全部完成，已合并到 `main`
+- P2 薪资核算模块进行中（P2.1-P2.2 纯逻辑层已完成）
+- 发布 tag：`v2.1.2-p2-p2.2-aggregator`
+
+## P2 薪资核算进展（P2.1 — P2.2）
+
+### P2.1: calculator.ts — 单人工资条计算引擎
+- 纯函数 `calculatePaySlip(employee, input, socialConfig) → PaySlip`
+- 严格对照 PRD 05-mod-payroll.md §二 六步公式
+- decimal.js 全覆盖，社保六险每项独立 round(2) 后求和
+- 单元测试 13/13 PASS（覆盖全部 SOP 4.7 场景）
+- 代码审查：Opus 4.6 逐条核验，零缺陷通过
+
+### P2.2: aggregator.ts — 全员汇总纯函数
+- 纯函数 `aggregatePaySlips(slips, filterCompany?) → { sale, manage, total }`
+- 汇总 8 字段：fullGrossPay/cSocial/cFund/wSocial/wFund/tax/netPay/absentDeduct
+- 精度规则：先逐人累加原始值（Decimal.plus），最后统一 round(2)（与 calculator 的逐项 round 策略正确区分）
+- 按 type 分类（sales/management）+ 按公司主体筛选
+- 单元测试 7/7 PASS（含精度验证 3×0.105=0.315→0.32）
+- 代码审查：Opus 4.6 + pr-review-toolkit agent 双重校验，零缺陷通过
+
+### 全量回归
+- `npm run test`：103/103 PASS（含 P1 全部回归）
 
 ## 本次主线更新重点（P1 Bugfix）
 
@@ -50,12 +71,12 @@ Code review 发现问题全部修复（Batch A-G）：
 ## 测试与证据
 
 - `npm run build`：通过
-- `npm run test`：通过（83/83）
+- `npm run test`：通过（103/103）
 - `ALLOW_ELECTRON_GUI_IN_CODEX=1 npm run test:e2e -- tests/e2e/db-isolation.spec.ts tests/e2e/backup-restore.spec.ts tests/e2e/p1-settings-employee-data.spec.ts`：通过（4/4）
 - 证据目录：`China/test/06-reports/`
 - 治理映射：`China/test/00-governance/`
 
-## P1 门槛状态（当前分支）
+## P1 门槛状态
 
 - `backup-restore.spec.ts`：已实现并通过。
 - `db-isolation.spec.ts`：已通过并保持。
@@ -64,8 +85,8 @@ Code review 发现问题全部修复（Batch A-G）：
 
 ## 下一步
 
-- P2（未完成）：`payroll` 模块（`calculator.ts`、`PayrollByEmpPage`、`PayrollDetailPage`、`payroll-flow.spec.ts`）。
-- P3（未完成）：`voucher` 模块（`voucherGenerator.ts`、`VoucherPage`、`voucher-flow.spec.ts`）。
-- P4（未完成）：安装包与离线验收（`B-01`~`B-04`）。
+- P2.3-P2.10（进行中）：Payroll repository CRUD → IPC → store → UI 组件 → 页面 → E2E → 里程碑关门。
+- P3（未开始）：`voucher` 模块（`voucherGenerator.ts`、`VoucherPage`、`voucher-flow.spec.ts`）。
+- P4（未开始）：安装包与离线验收（`B-01`~`B-04`）。
 
-推荐下一开发分支：`codex/p2-payroll-foundation`（以 `main` 最新提交为基线）。
+推荐下一开发分支：`codex/P2-payroll-P2.3`（以 `main` 最新提交为基线）。
