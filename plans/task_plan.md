@@ -184,18 +184,58 @@ P2.3（Codex prompt 已准备）
 - **Status:** ✅ complete (reviewed & fixed 2026-02-21)
 
 ### P2.4: IPC + preload + renderer bridge
+
+**定位**: 打通 renderer→main 的 payroll 数据通路，复用 P1 四层模式
+
+**前置**: P2.3 已合并 ✅ (CRITICAL修复完成，113/113 PASS)
+
+**产出**: 4个已有文件扩展（无新建）
+- `electron/ipc/repository-ipc.ts` — 添加 `// --- Payroll ---` section，5个ipcMain.handle
+- `electron/preload.cts` — 扩展 `payrollRepository` object，5个方法
+- `src/types/electron-api.d.ts` — 扩展 `Window.payrollRepository?` interface，5个签名
+- `src/lib/p1-repository.ts` — 添加5个export函数 + `RepositoryDeletePayrollResult` interface
+
+**5个IPC Channels**:
+| Channel | Parameters | Return | Maps To |
+|---------|-----------|--------|---------|
+| `repo:payroll:input:save` | employeeId: number, month: string, payload: Record | PayrollPayloadRecord | savePayrollInput() |
+| `repo:payroll:input:list` | month: string | PayrollPayloadRecord[] | listPayrollInputs() |
+| `repo:payroll:result:save` | employeeId: number, month: string, payload: Record | PayrollPayloadRecord | savePayrollResult() |
+| `repo:payroll:result:list` | month: string | PayrollPayloadRecord[] | listPayrollResults() |
+| `repo:payroll:result:delete` | month: string | { deletedInputs: number; deletedResults: number } | deletePayrollByMonth() |
+
+**命名Pattern**: `repo:payroll:{input|result}:{save|list|delete}` — 遵循P1规范
+
+**TypeScript要求**:
+- Layer 2 (IPC): `unknown`参数 + runtime type check (typeof验证)
+- Layer 3 (preload): typed parameters (number / string / Record)
+- Layer 4 (api.d.ts): `Promise<unknown>` 返回类型
+- Layer 5 (p1-repo): 完整返回类型 (Promise<RepositoryPayrollPayload | null>)
+- **No `any` type anywhere**
+
+**审查重点**:
+- ✅ channel命名与P1风格一致
+- ✅ TypeScript类型链路完整（从contracts→ipc→preload→api.d.ts→p1-repository）
+- ✅ preload暴露正确（window.payrollRepository包含5个方法）
+- ✅ IPC handler runtime validation全覆盖
+- ✅ 无新建文件，只有文件扩展
+
+**验证命令**: `npm run build`
+
+**交付物**:
 - [x] 读取P2.4定义（P2阶段开发总纲.md）
 - [x] 审阅P1的repository-ipc.ts模式
 - [x] 审阅现有preload.cts + electron-api.d.ts
 - [x] 审阅p1-repository.ts的helper模式
 - [x] 用Opus 4.6生成详细Prompt
 - [x] 保存Prompt到plans/2026-02-21-p2.4-codex-prompt.md
-- [ ] Codex执行P2.4开发
-- [ ] 运行npm run build验证编译
-- [ ] Claude Code CLI代码审查（Opus 4.6）
-- [ ] 合并到main
-- **前置：** P2.3 已合并 ✅
-- **Status:** ✅ Prompt ready (2026-02-21), awaiting Codex execution
+- [ ] **Codex执行P2.4开发**（复制Prompt给Codex）
+- [ ] **运行npm run build验证编译**（Codex完成后，0 TS errors）
+- [ ] **Claude Code CLI代码审查（Opus 4.6）**（final review：channel命名/类型完整/preload暴露）
+- [ ] **合并到main**
+- [ ] **生成P2.5 Prompt**
+
+**Status**: ✅ Prompt ready (2026-02-21), 交付物检查清单已准备，awaiting Codex execution
 
 ### P2.5: payroll-store.ts + unit test
 - [ ] 实现 `src/stores/payroll-store.ts`

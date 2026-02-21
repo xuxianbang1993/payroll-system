@@ -583,40 +583,82 @@ npm run build
 ## Session: 2026-02-21 (P2.4 Prompt Generation)
 
 ### Current Status
-- **Phase:** P2.4 — Prompt生成完成
+- **Phase:** P2.4 — Prompt生成完成，awaiting Codex execution
+- **前置条件**: P2.3已合并（CRITICAL修复✅，113/113 PASS✅）
 - **Model**: Opus 4.6 (High-difficulty task)
+- **Workflow**: Codex执行 → Claude Code CLI final review（Opus 4.6） → 合并main
 
 ### Actions Taken
-- 读取P2阶段开发总纲.md中P2.4的定义
-- 读取SOP 05-mod-payroll.md和开发策略文档
+- 读取P2阶段开发总纲.md中P2.4的规范定义（前置/定位/产出/channels/审查重点/验证）
+- 读取SOP 05-mod-payroll.md和开发策略文档v3.6
+- 审阅P1现有四层IPC实装模式（contracts→ipc→preload→api.d.ts→repository）
 - 用Opus 4.6生成详细的P2.4 Codex Prompt
-- 保存到 `plans/2026-02-21-p2.4-codex-prompt.md`
+- 保存到 `plans/2026-02-21-p2.4-codex-prompt.md`（11KB，包含全部细节）
 
-### Prompt Content
+### Prompt Content Overview
 **文件**: `plans/2026-02-21-p2.4-codex-prompt.md`
 
-**Sections**:
-1. Task Overview — 4层IPC模式说明
-2. Pre-flight Checks — 前置条件验证
-3. Files to Modify (4个文件，精确位置+代码示例)
-4. Channel Naming Convention — 5个channels定义表
-5. TypeScript Requirements — 类型要求
-6. Verification — npm run build
-7. Delivery Checklist — 交付物清单
+**结构**:
+1. **Task Overview** — 四层IPC模式说明 + P1参考
+2. **Pre-flight Checks** — P2.3 contracts.ts验证、PayrollPayloadRecord确认
+3. **Files to Modify (4个文件)** — 精确文件路径 + 行号定位 + 代码示例
+4. **Channel Naming Convention** — 5个channels完整对照表
+5. **TypeScript Requirements** — 类型链路完整要求（unknown+runtime check、typed preload、Promise<unknown>、no any）
+6. **Verification** — `npm run build` success criteria
+7. **Delivery Checklist** — 交付物验证清单（12项）
 
-**5 IPC Channels**:
-- `repo:payroll:input:save` — savePayrollInput()
-- `repo:payroll:input:list` — listPayrollInputs()
-- `repo:payroll:result:save` — savePayrollResult()
-- `repo:payroll:result:list` — listPayrollResults()
-- `repo:payroll:result:delete` — deletePayrollByMonth()
+### 5 IPC Channels 完整规范
+
+| Channel | Layer 2 (IPC Handler) | Layer 3 (Preload) | Layer 4 (p1-repo export) |
+|---------|-------|---------|---------|
+| `repo:payroll:input:save` | ipcMain.handle("repo:payroll:input:save") | `payrollRepository.savePayrollInput()` | `saveRepositoryPayrollInput()` |
+| `repo:payroll:input:list` | ipcMain.handle("repo:payroll:input:list") | `payrollRepository.listPayrollInputs()` | `listRepositoryPayrollInputs()` |
+| `repo:payroll:result:save` | ipcMain.handle("repo:payroll:result:save") | `payrollRepository.savePayrollResult()` | `saveRepositoryPayrollResult()` |
+| `repo:payroll:result:list` | ipcMain.handle("repo:payroll:result:list") | `payrollRepository.listPayrollResults()` | `listRepositoryPayrollResults()` |
+| `repo:payroll:result:delete` | ipcMain.handle("repo:payroll:result:delete") | `payrollRepository.deletePayrollByMonth()` | `deleteRepositoryPayrollByMonth()` |
+
+**Pattern**: `repo:payroll:{input|result}:{save|list|delete}` — 严格对齐P1命名规范
+
+### 4个文件扩展 精确位置
+
+| 文件 | 位置 | 任务 |
+|------|------|------|
+| `electron/ipc/repository-ipc.ts` | After line 77（`// --- Data management ---` section） | 新增 `// --- Payroll ---` section + 5个ipcMain.handle + runtime validation |
+| `electron/preload.cts` | After line 28（`getStorageInfo` 之后） | 扩展 `payrollRepository` object + 5个方法 |
+| `src/types/electron-api.d.ts` | `Window.payrollRepository?` interface 内部 | 5个方法签名 + `Promise<unknown>` 返回类型 |
+| `src/lib/p1-repository.ts` | After line 103（`loadRepositoryStorageInfo` 之后） | 5个export函数 + `RepositoryDeletePayrollResult` interface |
+
+**关键**: 无新建文件，所有修改都在已有文件内进行
+
+### TypeScript类型链路验证
+- **Layer 2 (IPC Handler)**: `(_event, ...unknown) → typeof contracts.RepositoryAdapter.savePayrollInput() → Promise<PayrollPayloadRecord>`
+- **Layer 3 (Preload)**: `(employeeId: number, month: string, payload: Record) → ipcRenderer.invoke() → Promise<unknown>`
+- **Layer 4 (electron-api.d.ts)**: `(params) → Promise<unknown>` ✅ （runtime facade由p1-repository提供类型）
+- **Layer 5 (p1-repository.ts)**: `export function saveRepositoryPayrollInput(...): Promise<RepositoryPayrollPayload | null>` ✅ （类型完整）
+
+**要求**: 全链路无`any`，编译通过即验证成功
+
+### 审查重点（Claude Code final review标准）
+
+| 审查点 | 验证方法 | 通过标准 |
+|--------|--------|--------|
+| **Channel命名与P1风格一致** | grep `"repo:payroll:"` 4个文件 | 都遵循 `repo:<domain>:<entity>:<action>` pattern |
+| **TypeScript类型完整** | `npm run build` 编译结果 | 0 TS errors + 0 warnings |
+| **Preload暴露正确** | 检查 `electron/preload.cts` payrollRepository对象 | 5个方法都有，签名与contracts对应 |
+| **IPC Handler runtime validation** | 检查 `repository-ipc.ts` 每个handler | 所有参数都做typeof验证 + throw Error处理 |
+| **Channel-Method映射完整** | 对照 P2阶段开发总纲.md + contracts.ts | 5个channels各映射到1个RepositoryAdapter方法 |
 
 ### Next Steps
-- 复制Prompt给Codex执行P2.4
-- Codex完成后交给Claude Code CLI审查（Opus 4.6）
-- 审查通过后合并到main
-- 生成P2.5 Prompt
+1. Codex执行P2.4：复制 `plans/2026-02-21-p2.4-codex-prompt.md` → 发送Codex
+2. Codex完成后：交给Claude Code CLI做final review（Opus 4.6）
+   - 验证4个文件的修改是否符合规范
+   - 检查5个channels的实装
+   - 运行 `npm run build` 确认TypeScript链路完整
+3. 审查通过后：合并到main
+4. 生成P2.5 Prompt（payroll-store.ts）
 
 ### Status
-- **P2.4 Prompt**: ✅ Ready for Codex
-- **Next milestone**: P2.4 Codex execution (expected 2026-02-22)
+- **P2.4 Prompt**: ✅ Ready for Codex (2026-02-21)
+- **P2.4 Codex执行**: ⏳ Awaiting（expected 2026-02-22）
+- **P2.4 Claude Code final review**: ⏳ Pending
+- **Next milestone**: P2.4 completion + P2.5 kickoff (expected 2026-02-22~23)
