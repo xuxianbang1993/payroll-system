@@ -4,8 +4,9 @@
 
 ## Release Status
 
-- Current release: `2.1.2-p1-current-bug-fixed`
-- Milestone: P1 bugfix complete — all code review issues resolved
+- Current release: `2.1.2-p2-p2.3-complete`
+- Milestone: P2.3 (Payroll Repository) complete — CRIT-001/CRIT-002 fixes applied, SOP compliance 10/10
+- Previous: P1 bugfix complete — all code review issues resolved
 
 ## Tech Stack
 

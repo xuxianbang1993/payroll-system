@@ -13,16 +13,16 @@ npm run dev
 
 ## 基线版本（main）
 
-- Git tag: `v2.1.2-p2-p2.2-aggregator`
+- Git tag: `v2.1.2-p2-p2.3-complete`
 - 分支基线: `main`
 
 ## 当前状态
 
 - P1 全部完成，已合并到 `main`
-- P2 薪资核算模块进行中（P2.1-P2.2 纯逻辑层已完成）
-- 发布 tag：`v2.1.2-p2-p2.2-aggregator`
+- P2 薪资核算模块进行中（P2.1-P2.3 已完成）
+- 发布 tag：`v2.1.2-p2-p2.3-complete`
 
-## P2 薪资核算进展（P2.1 — P2.2）
+## P2 薪资核算进展（P2.1 — P2.3）
 
 ### P2.1: calculator.ts — 单人工资条计算引擎
 - 纯函数 `calculatePaySlip(employee, input, socialConfig) → PaySlip`
@@ -39,8 +39,21 @@ npm run dev
 - 单元测试 7/7 PASS（含精度验证 3×0.105=0.315→0.32）
 - 代码审查：Opus 4.6 + pr-review-toolkit agent 双重校验，零缺陷通过
 
+### P2.3: sqlite-payroll.ts — Payroll 仓储层 CRUD + 持久化
+- **CRIT-001 修复**：添加月份格式验证（YYYY-MM），所有 5 个 public 函数都有保护
+- **CRIT-002 修复**：创建 migration 0003，添加 UNIQUE INDEX on (employee_id, payroll_month)，改 SELECT+INSERT/UPDATE 为标准 upsert 模式
+- `savePayrollInput(employeeId, month, payload) → PayrollPayloadRecord`
+- `listPayrollInputs(month) → PayrollPayloadRecord[]`
+- `savePayrollResult(employeeId, month, payload) → PayrollPayloadRecord`
+- `listPayrollResults(month) → PayrollPayloadRecord[]`
+- `deletePayrollByMonth(month) → { deletedInputs, deletedResults }`
+- 单元测试 10/10 PASS（CRUD + FK 约束 + 月份隔离）
+- 全量回归：113/113 PASS（P1 83 + P2.1 13 + P2.2 7 + P2.3 10）
+- 代码审查：Opus 4.6 发现 2 个 CRITICAL 问题，已全部修复
+- **SOP 合规评分**：修复前 7/10 → 修复后 10/10 ✅
+
 ### 全量回归
-- `npm run test`：103/103 PASS（含 P1 全部回归）
+- `npm run test`：113/113 PASS（含 P1 全部回归）
 
 ## 本次主线更新重点（P1 Bugfix）
 
