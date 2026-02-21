@@ -503,3 +503,79 @@ npx vitest run (全量) → 30 files / 103 tests PASS（含 P1 回归 + P2.1 cal
 
 #### Status
 - P2.2 审查通过，可进入 P2.3（Payroll repository contracts + SQLite CRUD）
+
+### P2.3 Codex Prompt Preparation (2026-02-19)
+
+- P2.3 Codex prompt 已准备完毕，待用户发送给 Codex 执行
+- 模式参考：读取了 contracts.ts、sqlite-employees.ts、sqlite-adapter.ts、sqlite-shared.ts、repository-ipc.ts、两个 migration SQL
+- 产出文件：contracts.ts（扩展）、sqlite-payroll.ts（新建）、sqlite-adapter.ts（接入）、payroll-repository.test.ts（新建）
+- 模型分级：Codex prompt 准备由 Opus 4.6 完成（中等任务，推荐 Sonnet），plans 更新由 Haiku 4.5 执行
+
+## Session: 2026-02-21 (P2.3 Code Review & Fixes)
+
+### Current Status
+- **Phase:** P2.3 — 代码审查 + 关键问题修复 + 重新验证
+- **Branch:** `codex/p2-payroll`
+
+### Scope
+- 对Codex交付的P2.3代码进行深度审查
+- 发现并修复2个CRITICAL SOP合规问题
+- 重新验证并关闭P2.3
+
+### Code Review Findings
+
+#### 初审结果（2026-02-21）
+- **功能完整性**: ✅ PASS（CRUD操作正确、事务安全、测试覆盖充分）
+- **SOP合规性**: 🚨 2个CRITICAL问题
+
+#### CRIT-001 — 月份格式无验证
+- **发现**: 所有5个public函数接受 `month: string` 完全不验证YYYY-MM格式
+- **SOP引用**: 开发策略文档 §P2.3 明确要求 `YYYY-MM` 格式
+- **修复**: 添加 `assertValidPayrollMonth()` 验证函数 + 在所有入口点调用
+
+#### CRIT-002 — 缺少UNIQUE约束
+- **发现**: `payroll_inputs` 和 `payroll_results` 表缺少 `(employee_id, payroll_month)` 的UNIQUE INDEX
+- **SOP引用**: 开发策略文档 §1.5 "外键约束" + P2.3 "事务安全"
+- **修复**:
+  1. 创建migration 0003 添加UNIQUE INDEX
+  2. 改SELECT+INSERT/UPDATE为标准upsert (INSERT ... ON CONFLICT ... DO UPDATE)
+
+### Fix Execution
+
+**修改文件**:
+1. `electron/db/repository/sqlite-payroll.ts` — 添加验证 + upsert改动
+2. `electron/db/migrations/0003_payroll_unique_index.sql` — 新建（包含安全去重逻辑）
+3. `tests/unit/services/payroll-repository.test.ts` — 加载m3 migration
+
+### Verification Results
+```
+npm run test -- tests/unit/services/payroll-repository.test.ts
+→ ✅ 10/10 PASS (16ms)
+
+npm run test (全量)
+→ ✅ 31 files / 113 tests PASS
+→ 含P1全部83个 + P2.1计算器13个 + P2.2聚合器7个 + P2.3仓库10个
+→ 无回归
+
+npm run build
+→ ✅ PASS
+```
+
+### Compliance Status
+
+| 检查项 | 修复前 | 修复后 | 状态 |
+|--------|--------|--------|------|
+| CRIT-001 月份格式验证 | ❌ | ✅ | PASS |
+| CRIT-002 UNIQUE约束 | ❌ | ✅ | PASS |
+| 与P1模式一致性 | ✅ | ✅ | PASS |
+| TypeScript strict | ✅ | ✅ | PASS |
+| 纯函数设计 | ✅ | ✅ | PASS |
+| 单元测试 | ✅ | ✅ | PASS |
+
+### Final Score: 10/10 ✅
+- **修复前**: 7/10（功能完整但SOP合规不足）
+- **修复后**: 10/10（全部CRITICAL问题已解决）
+
+### Status
+- **P2.3**: ✅ Complete (reviewed & fixed 2026-02-21)
+- **Ready for**: P2.4 (IPC + preload + renderer bridge)

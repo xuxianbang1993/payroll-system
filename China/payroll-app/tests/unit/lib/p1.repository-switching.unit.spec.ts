@@ -72,6 +72,21 @@ function createAdapter(overrides: Partial<RepositoryAdapter> = {}): RepositoryAd
     updateEmployee: vi.fn().mockReturnValue(baseEmployees[0]),
     deleteEmployee: vi.fn().mockReturnValue({ deletedPayrollInputs: 0, deletedPayrollResults: 0 }),
     replaceEmployees: vi.fn().mockReturnValue({ count: baseEmployees.length }),
+    savePayrollInput: vi.fn().mockReturnValue({
+      id: "input-1",
+      employeeId: 1,
+      payrollMonth: "2026-02",
+      payload: { tax: 100 },
+    }),
+    listPayrollInputs: vi.fn().mockReturnValue([]),
+    savePayrollResult: vi.fn().mockReturnValue({
+      id: "result-1",
+      employeeId: 1,
+      payrollMonth: "2026-02",
+      payload: { netPay: 9999 },
+    }),
+    listPayrollResults: vi.fn().mockReturnValue([]),
+    deletePayrollByMonth: vi.fn().mockReturnValue({ deletedInputs: 0, deletedResults: 0 }),
     exportBackup: vi.fn().mockReturnValue({
       version: 2,
       source: "payroll-system",

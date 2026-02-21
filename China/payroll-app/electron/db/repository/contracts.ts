@@ -109,6 +109,11 @@ export interface RepositoryAdapter {
   deleteEmployee: (id: number) => DeleteEmployeeResult;
   /** @deprecated Use addEmployee/updateEmployee/deleteEmployee instead. */
   replaceEmployees: (employees: EmployeeRecord[]) => ReplaceEmployeesResult;
+  savePayrollInput: (employeeId: number, month: string, payload: Record<string, unknown>) => PayrollPayloadRecord;
+  listPayrollInputs: (month: string) => PayrollPayloadRecord[];
+  savePayrollResult: (employeeId: number, month: string, payload: Record<string, unknown>) => PayrollPayloadRecord;
+  listPayrollResults: (month: string) => PayrollPayloadRecord[];
+  deletePayrollByMonth: (month: string) => { deletedInputs: number; deletedResults: number };
   exportBackup: () => BackupExportFile;
   importBackup: (payload: unknown) => ImportBackupResult;
   clearData: () => ClearDataResult;

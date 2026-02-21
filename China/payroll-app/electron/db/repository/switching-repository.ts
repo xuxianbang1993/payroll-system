@@ -4,6 +4,7 @@ import type {
   DeleteEmployeeResult,
   EmployeeRecord,
   ImportBackupResult,
+  PayrollPayloadRecord,
   ReplaceEmployeesResult,
   RepositoryAdapter,
   RepositoryContext,
@@ -138,6 +139,42 @@ export function createSwitchingRepository(
         employees,
         (adapter, cloned) => adapter.replaceEmployees(cloned),
       ) as ReplaceEmployeesResult;
+    },
+
+    savePayrollInput: (employeeId, month, payload): PayrollPayloadRecord => {
+      return writeByMode<{
+        employeeId: number;
+        month: string;
+        payload: Record<string, unknown>;
+      }>(
+        "savePayrollInput",
+        { employeeId, month, payload },
+        (adapter, cloned) => adapter.savePayrollInput(cloned.employeeId, cloned.month, cloned.payload),
+      ) as PayrollPayloadRecord;
+    },
+
+    listPayrollInputs: (month): PayrollPayloadRecord[] => getReadAdapter().listPayrollInputs(month),
+
+    savePayrollResult: (employeeId, month, payload): PayrollPayloadRecord => {
+      return writeByMode<{
+        employeeId: number;
+        month: string;
+        payload: Record<string, unknown>;
+      }>(
+        "savePayrollResult",
+        { employeeId, month, payload },
+        (adapter, cloned) => adapter.savePayrollResult(cloned.employeeId, cloned.month, cloned.payload),
+      ) as PayrollPayloadRecord;
+    },
+
+    listPayrollResults: (month): PayrollPayloadRecord[] => getReadAdapter().listPayrollResults(month),
+
+    deletePayrollByMonth: (month): { deletedInputs: number; deletedResults: number } => {
+      return writeByMode<string>(
+        "deletePayrollByMonth",
+        month,
+        (adapter, cloned) => adapter.deletePayrollByMonth(cloned),
+      ) as { deletedInputs: number; deletedResults: number };
     },
 
     exportBackup: (): BackupExportFile => getReadAdapter().exportBackup(),

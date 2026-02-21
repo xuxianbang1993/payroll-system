@@ -144,7 +144,7 @@ Phase 7 (Completed)
 
 ## Current Phase
 
-P2.3（待执行）
+P2.3（Codex prompt 已准备）
 
 ## Branch
 
@@ -171,12 +171,17 @@ P2.3（待执行）
 - **Status:** ✅ complete (reviewed 2026-02-19)
 
 ### P2.3: Payroll repository contracts + SQLite CRUD
-- [ ] 扩展 `contracts.ts` payroll CRUD 接口
-- [ ] 新建 `sqlite-payroll.ts` SQLite 操作
-- [ ] 接入 `sqlite-adapter.ts`
-- [ ] 新建 unit test
-- **前置：** P2.2 已审查合并
-- **Status:** pending
+- [x] 扩展 `contracts.ts` payroll CRUD 接口
+- [x] 新建 `sqlite-payroll.ts` SQLite 操作
+- [x] 接入 `sqlite-adapter.ts`
+- [x] 新建 unit test
+- [x] 代码审查：发现2个CRITICAL问题
+- [x] 修复CRIT-001（月份格式验证）
+- [x] 修复CRIT-002（UNIQUE约束 + Upsert）
+- [x] 新建migration 0003
+- [x] 重新验证：全量测试113/113 PASS
+- **前置：** P2.2 已审查合并 ✅
+- **Status:** ✅ complete (reviewed & fixed 2026-02-21)
 
 ### P2.4: IPC + preload + renderer bridge
 - [ ] 扩展 `repository-ipc.ts` — 5 个 payroll channels

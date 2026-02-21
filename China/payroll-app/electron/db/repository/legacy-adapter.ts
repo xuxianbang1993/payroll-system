@@ -1,9 +1,11 @@
 import type Store from "electron-store";
+import { randomUUID } from "node:crypto";
 
 import type {
   DeleteEmployeeResult,
   ImportBackupResult,
   NormalizedBackupData,
+  PayrollPayloadRecord,
   RepositoryAdapter,
   RepositorySettings,
 } from "./contracts.js";
@@ -48,6 +50,49 @@ function writeState(
   state: NormalizedBackupData,
 ): void {
   store.set(LEGACY_STATE_KEY, state as unknown as Record<string, unknown>);
+}
+
+function savePayrollPayloadRecord(
+  records: PayrollPayloadRecord[],
+  employeeId: number,
+  month: string,
+  payload: Record<string, unknown>,
+): { records: PayrollPayloadRecord[]; saved: PayrollPayloadRecord } {
+  const existingIndex = records.findIndex(
+    (record) => record.employeeId === employeeId && record.payrollMonth === month,
+  );
+
+  if (existingIndex >= 0) {
+    const existing = records[existingIndex]!;
+    const saved: PayrollPayloadRecord = {
+      ...existing,
+      payload,
+    };
+    const nextRecords = [...records];
+    nextRecords[existingIndex] = saved;
+    return { records: nextRecords, saved };
+  }
+
+  const saved: PayrollPayloadRecord = {
+    id: randomUUID(),
+    employeeId,
+    payrollMonth: month,
+    payload,
+  };
+
+  return {
+    records: [...records, saved],
+    saved,
+  };
+}
+
+function listPayrollPayloadsByMonth(
+  records: PayrollPayloadRecord[],
+  month: string,
+): PayrollPayloadRecord[] {
+  return records
+    .filter((record) => record.payrollMonth === month)
+    .sort((left, right) => left.employeeId - right.employeeId);
 }
 
 export function createLegacyRepositoryAdapter(
@@ -130,6 +175,48 @@ export function createLegacyRepositoryAdapter(
     return { deletedPayrollInputs: deletedInputs, deletedPayrollResults: deletedResults };
   };
 
+  const savePayrollInput: RepositoryAdapter["savePayrollInput"] = (employeeId, month, payload) => {
+    const state = readState(options.store);
+    const next = savePayrollPayloadRecord(state.payrollInputs, employeeId, month, payload);
+    writeState(options.store, {
+      ...state,
+      payrollInputs: next.records,
+    });
+    return next.saved;
+  };
+
+  const listPayrollInputs: RepositoryAdapter["listPayrollInputs"] = (month) => {
+    return listPayrollPayloadsByMonth(readState(options.store).payrollInputs, month);
+  };
+
+  const savePayrollResult: RepositoryAdapter["savePayrollResult"] = (employeeId, month, payload) => {
+    const state = readState(options.store);
+    const next = savePayrollPayloadRecord(state.payrollResults, employeeId, month, payload);
+    writeState(options.store, {
+      ...state,
+      payrollResults: next.records,
+    });
+    return next.saved;
+  };
+
+  const listPayrollResults: RepositoryAdapter["listPayrollResults"] = (month) => {
+    return listPayrollPayloadsByMonth(readState(options.store).payrollResults, month);
+  };
+
+  const deletePayrollByMonth: RepositoryAdapter["deletePayrollByMonth"] = (month) => {
+    const state = readState(options.store);
+    const deletedInputs = state.payrollInputs.filter((record) => record.payrollMonth === month).length;
+    const deletedResults = state.payrollResults.filter((record) => record.payrollMonth === month).length;
+
+    writeState(options.store, {
+      ...state,
+      payrollInputs: state.payrollInputs.filter((record) => record.payrollMonth !== month),
+      payrollResults: state.payrollResults.filter((record) => record.payrollMonth !== month),
+    });
+
+    return { deletedInputs, deletedResults };
+  };
+
   const exportBackup = () => buildBackupExport(readState(options.store));
 
   const importBackup = (payload: unknown): ImportBackupResult => {
@@ -175,6 +262,11 @@ export function createLegacyRepositoryAdapter(
     updateEmployee,
     deleteEmployee,
     replaceEmployees,
+    savePayrollInput,
+    listPayrollInputs,
+    savePayrollResult,
+    listPayrollResults,
+    deletePayrollByMonth,
     exportBackup,
     importBackup,
     clearData,
