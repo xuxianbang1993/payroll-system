@@ -184,11 +184,18 @@ P2.3（Codex prompt 已准备）
 - **Status:** ✅ complete (reviewed & fixed 2026-02-21)
 
 ### P2.4: IPC + preload + renderer bridge
-- [ ] 扩展 `repository-ipc.ts` — 5 个 payroll channels
-- [ ] 扩展 `preload.cts` + `electron-api.d.ts` + `p1-repository.ts`
-- [ ] 验证：`npm run build`
-- **前置：** P2.3 已审查合并
-- **Status:** pending
+- [x] 读取P2.4定义（P2阶段开发总纲.md）
+- [x] 审阅P1的repository-ipc.ts模式
+- [x] 审阅现有preload.cts + electron-api.d.ts
+- [x] 审阅p1-repository.ts的helper模式
+- [x] 用Opus 4.6生成详细Prompt
+- [x] 保存Prompt到plans/2026-02-21-p2.4-codex-prompt.md
+- [ ] Codex执行P2.4开发
+- [ ] 运行npm run build验证编译
+- [ ] Claude Code CLI代码审查（Opus 4.6）
+- [ ] 合并到main
+- **前置：** P2.3 已合并 ✅
+- **Status:** ✅ Prompt ready (2026-02-21), awaiting Codex execution
 
 ### P2.5: payroll-store.ts + unit test
 - [ ] 实现 `src/stores/payroll-store.ts`

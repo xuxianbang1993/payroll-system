@@ -579,3 +579,44 @@ npm run build
 ### Status
 - **P2.3**: ✅ Complete (reviewed & fixed 2026-02-21)
 - **Ready for**: P2.4 (IPC + preload + renderer bridge)
+
+## Session: 2026-02-21 (P2.4 Prompt Generation)
+
+### Current Status
+- **Phase:** P2.4 — Prompt生成完成
+- **Model**: Opus 4.6 (High-difficulty task)
+
+### Actions Taken
+- 读取P2阶段开发总纲.md中P2.4的定义
+- 读取SOP 05-mod-payroll.md和开发策略文档
+- 用Opus 4.6生成详细的P2.4 Codex Prompt
+- 保存到 `plans/2026-02-21-p2.4-codex-prompt.md`
+
+### Prompt Content
+**文件**: `plans/2026-02-21-p2.4-codex-prompt.md`
+
+**Sections**:
+1. Task Overview — 4层IPC模式说明
+2. Pre-flight Checks — 前置条件验证
+3. Files to Modify (4个文件，精确位置+代码示例)
+4. Channel Naming Convention — 5个channels定义表
+5. TypeScript Requirements — 类型要求
+6. Verification — npm run build
+7. Delivery Checklist — 交付物清单
+
+**5 IPC Channels**:
+- `repo:payroll:input:save` — savePayrollInput()
+- `repo:payroll:input:list` — listPayrollInputs()
+- `repo:payroll:result:save` — savePayrollResult()
+- `repo:payroll:result:list` — listPayrollResults()
+- `repo:payroll:result:delete` — deletePayrollByMonth()
+
+### Next Steps
+- 复制Prompt给Codex执行P2.4
+- Codex完成后交给Claude Code CLI审查（Opus 4.6）
+- 审查通过后合并到main
+- 生成P2.5 Prompt
+
+### Status
+- **P2.4 Prompt**: ✅ Ready for Codex
+- **Next milestone**: P2.4 Codex execution (expected 2026-02-22)
