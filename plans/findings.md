@@ -643,3 +643,33 @@ npm run test (全量)
 | 创建独立migration 0003 | 保持migration隔离，便于版本管理和回滚 |
 | 在migration中前置去重 | 支持对已有脏数据的生产环境应用 |
 | 验证所有5个public函数 | 确保没有漏网之鱼 |
+
+## P2.5 Preparation Findings (2026-02-22)
+
+### 现有基础设施确认
+
+| 层级 | 已有 | P2.5 需要 |
+|------|------|-----------|
+| 纯函数 | calculator.ts / aggregator.ts (P2.1/P2.2) | 直接调用 |
+| IPC bridge | 7个 payroll 函数 (P2.4) | 直接调用 |
+| 类型 | PayrollInput / PaySlip / AggregateResult / Employee / SocialConfig | 直接使用 |
+| Store 模式 | settings-store.ts / employee-store.ts | 复用 create<State>() + toErrorMessage() 模式 |
+| 月份 | app-store.ts defaultMonth 模式 | 复用 `new Date().toISOString().slice(0, 7)` |
+
+### 关键设计决策
+
+| 决策 | 选择 | 理由 |
+|------|------|------|
+| State 数据结构 | `Record<number, PayrollInput>` / `Record<number, PaySlip>` | employeeId 为 key，避免数组下标与 id 不对齐 |
+| Persist 中间件 | 不使用 | payroll 数据已由 IPC/SQLite 持久化；月度切换时 reset，无需 localStorage |
+| generateAll 策略 | 串行 for-loop | 避免 Zustand `set()` 并发竞态；每个 slip 独立错误不阻断其他 |
+| aggregate 初始值 | `null`（非 DEFAULT_AGGREGATE） | 区分"未生成任何 slip"和"生成但全为 0"两种语义 |
+| DEFAULT_AGGREGATE 导出 | 导出 `DEFAULT_AGGREGATE` const | P2.7 页面展示占位需要 |
+| updateInput vs generateSlip 分离 | 分离 | 输入保存和计算是独立操作，用户可先录入所有人的数据再批量生成 |
+| setMonth 实现 | `reset() + loadForMonth(month)` | 复用现有 action，保持 DRY |
+
+### Prompt 文件命名策略
+
+- 旧文件: `2026-02-21-p2.4-codex-prompt.md` → 保留作历史存档
+- 新文件: `P2-current-status-codex-prompt.md` → 滚动更新，始终代表 P2 阶段当前执行子阶段的 Codex prompt
+- 约定: P2.5 完成后，此文件将被替换为 P2.6 的 prompt

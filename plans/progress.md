@@ -741,3 +741,36 @@ npm run test  → ✅ 113/113 PASS（无回归）
 ### Status
 - **P2.4**: ✅ Complete (2026-02-22)
 - **Ready for**: P2.5 (payroll-store.ts)
+
+## Session: 2026-02-22 (P2.5 Prompt Generation)
+
+### Current Status
+- **Phase:** P2.5 — Prompt 生成完成，awaiting Codex execution
+- **前置条件**: P2.4 已合并（tag: v2.1.2-p2-p2.4，113/113 PASS✅）
+- **Model**: Sonnet 4.6（中等任务，省钱优先）
+- **Prompt文件**: `plans/P2-current-status-codex-prompt.md`
+
+### Actions Taken
+- 对齐 settings-store.ts / employee-store.ts（Zustand 模式）
+- 对齐 calculator.ts / aggregator.ts（函数签名）
+- 对齐 payroll.ts（PayrollInput / PaySlip / AggregateResult 类型）
+- 对齐 p1-repository.ts（7个 payroll 函数）
+- 读取 05-mod-payroll.md §一（页面UI需求，P2.6-P2.8前置）
+- 生成 P2.5 Codex Prompt → `plans/P2-current-status-codex-prompt.md`
+- 文件名滚动策略：P2-current-status-codex-prompt.md = 当前活跃 Codex prompt，随阶段更新
+
+### P2.5 Store 核心设计
+
+State: selectedMonth / employees / social / inputs(Record<id,Input>) / slips(Record<id,Slip>) / aggregate / loading / generating / messages
+
+8 Actions: loadForMonth / setMonth / updateInput / generateSlip / generateAll / clearResults / clearMessages / reset
+
+关键决策:
+- Record<number,...> 以 employeeId 为 key（非数组）
+- 无 persist 中间件（IPC/SQLite 已持久化）
+- generateAll 串行 for-loop（避免 Zustand set() 竞态）
+- aggregate = null when no slips
+
+### Status
+- **P2.5 Prompt**: ✅ Ready (2026-02-22)
+- **P2.5 Codex执行**: ⏳ Awaiting

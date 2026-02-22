@@ -238,10 +238,31 @@ P2.3（Codex prompt 已准备）
 **Status**: ✅ Complete (2026-02-22) — 0 Critical / 2 Important fixed / build + tests PASS
 
 ### P2.5: payroll-store.ts + unit test
-- [ ] 实现 `src/stores/payroll-store.ts`
-- [ ] 实现 `tests/unit/stores/payroll-store.test.ts`
-- **前置：** P2.1 + P2.2 + P2.4 已审查合并
-- **Status:** pending
+
+**定位**: 状态层，连接 calculator/aggregator + IPC bridge + UI
+
+**前置**: P2.1 ✅ + P2.2 ✅ + P2.4 ✅ 全部已合并
+
+**Prompt文件**: `plans/P2-current-status-codex-prompt.md`
+
+**产出** (2个新建文件，不修改已有文件):
+- `src/stores/payroll-store.ts` — `usePayrollStore` + `DEFAULT_AGGREGATE` export
+- `tests/unit/stores/payroll-store.test.ts` — 最少10个测试
+
+**关键规则**:
+- `inputs: Record<number, PayrollInput>` / `slips: Record<number, PaySlip>` (employeeId 为 key)
+- `aggregate: AggregateResult | null` — 无 slip 时为 null
+- 无 persist 中间件；i18n key 格式统一；无 `any` 类型
+
+**验证命令**: `npm run test -- tests/unit/stores/payroll-store.test.ts`
+
+- [x] 生成 P2.5 Codex Prompt（2026-02-22，文件: P2-current-status-codex-prompt.md）
+- [ ] **Codex执行P2.5开发**
+- [ ] **运行测试验证**
+- [ ] **Claude Code CLI代码审查**
+- [ ] **合并到main**
+
+**Status**: ⏳ Prompt ready (2026-02-22), awaiting Codex execution
 
 ### P2.6: MonthPicker + PayCard 组件
 - [ ] 实现 `src/components/MonthPicker.tsx`
