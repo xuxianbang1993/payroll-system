@@ -24,6 +24,19 @@ declare global {
       importBackup: (payload: unknown) => Promise<unknown>;
       clearData: () => Promise<unknown>;
       getStorageInfo: () => Promise<unknown>;
+      savePayrollInput: (
+        employeeId: number,
+        month: string,
+        payload: Record<string, unknown>,
+      ) => Promise<unknown>;
+      listPayrollInputs: (month: string) => Promise<unknown>;
+      savePayrollResult: (
+        employeeId: number,
+        month: string,
+        payload: Record<string, unknown>,
+      ) => Promise<unknown>;
+      listPayrollResults: (month: string) => Promise<unknown>;
+      deletePayrollByMonth: (month: string) => Promise<unknown>;
     };
     payrollFiles?: {
       saveBackupJson: (request: { payload: unknown; orgName?: string; suggestedPath?: string }) => Promise<unknown>;

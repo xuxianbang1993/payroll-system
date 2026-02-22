@@ -1,6 +1,7 @@
 import type { IpcMain } from "electron";
 import type {
   EmployeeRecord,
+  PayrollPayloadRecord,
   RepositoryAdapter,
   RepositorySettings,
 } from "../db/repository/contracts.js";
@@ -8,7 +9,7 @@ import type {
 /**
  * Register repository CRUD IPC handlers.
  *
- * Channels: repo:settings:*, repo:employees:*, repo:data:*
+ * Channels: repo:settings:*, repo:employees:*, repo:data:*, repo:payroll:*
  */
 export function registerRepositoryIpc(
   ipcMain: IpcMain,
@@ -74,5 +75,60 @@ export function registerRepositoryIpc(
 
   ipcMain.handle("repo:data:storage-info", () => {
     return getRepository().getStorageInfo();
+  });
+
+  // --- Payroll ---
+
+  ipcMain.handle(
+    "repo:payroll:input:save",
+    (
+      _event,
+      employeeId: unknown,
+      month: unknown,
+      payload: unknown,
+    ): PayrollPayloadRecord => {
+      if (typeof employeeId !== "number") throw new Error("Invalid employeeId");
+      if (typeof month !== "string") throw new Error("Invalid month");
+      if (!payload || typeof payload !== "object" || Array.isArray(payload)) throw new Error("Invalid payload");
+      return getRepository().savePayrollInput(
+        employeeId,
+        month,
+        payload as Record<string, unknown>,
+      );
+    },
+  );
+
+  ipcMain.handle("repo:payroll:input:list", (_event, month: unknown): PayrollPayloadRecord[] => {
+    if (typeof month !== "string") throw new Error("Invalid month");
+    return getRepository().listPayrollInputs(month);
+  });
+
+  ipcMain.handle(
+    "repo:payroll:result:save",
+    (
+      _event,
+      employeeId: unknown,
+      month: unknown,
+      payload: unknown,
+    ): PayrollPayloadRecord => {
+      if (typeof employeeId !== "number") throw new Error("Invalid employeeId");
+      if (typeof month !== "string") throw new Error("Invalid month");
+      if (!payload || typeof payload !== "object" || Array.isArray(payload)) throw new Error("Invalid payload");
+      return getRepository().savePayrollResult(
+        employeeId,
+        month,
+        payload as Record<string, unknown>,
+      );
+    },
+  );
+
+  ipcMain.handle("repo:payroll:result:list", (_event, month: unknown): PayrollPayloadRecord[] => {
+    if (typeof month !== "string") throw new Error("Invalid month");
+    return getRepository().listPayrollResults(month);
+  });
+
+  ipcMain.handle("repo:payroll:result:delete", (_event, month: unknown): { deletedInputs: number; deletedResults: number } => {
+    if (typeof month !== "string") throw new Error("Invalid month");
+    return getRepository().deletePayrollByMonth(month);
   });
 }

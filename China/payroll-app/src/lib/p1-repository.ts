@@ -36,6 +36,10 @@ export interface RepositoryDeleteEmployeeResult {
   deletedPayrollInputs: number;
   deletedPayrollResults: number;
 }
+export interface RepositoryDeletePayrollResult {
+  deletedInputs: number;
+  deletedResults: number;
+}
 
 export interface RepositoryStorageInfo {
   dbPath: string;
@@ -100,4 +104,48 @@ export function clearRepositoryData(): Promise<RepositoryClearDataResult | null>
 
 export function loadRepositoryStorageInfo(): Promise<RepositoryStorageInfo | null> {
   return invokeRepo<RepositoryStorageInfo>((r) => r.getStorageInfo());
+}
+
+export function saveRepositoryPayrollInput(
+  employeeId: number,
+  month: string,
+  payload: Record<string, unknown>,
+): Promise<RepositoryPayrollPayload | null> {
+  return invokeRepo<RepositoryPayrollPayload>((r) =>
+    r.savePayrollInput(employeeId, month, payload),
+  );
+}
+
+export async function listRepositoryPayrollInputs(
+  month: string,
+): Promise<RepositoryPayrollPayload[]> {
+  if (!window.payrollRepository) return [];
+  const result = await window.payrollRepository.listPayrollInputs(month);
+  return Array.isArray(result) ? (result as RepositoryPayrollPayload[]) : [];
+}
+
+export function saveRepositoryPayrollResult(
+  employeeId: number,
+  month: string,
+  payload: Record<string, unknown>,
+): Promise<RepositoryPayrollPayload | null> {
+  return invokeRepo<RepositoryPayrollPayload>((r) =>
+    r.savePayrollResult(employeeId, month, payload),
+  );
+}
+
+export async function listRepositoryPayrollResults(
+  month: string,
+): Promise<RepositoryPayrollPayload[]> {
+  if (!window.payrollRepository) return [];
+  const result = await window.payrollRepository.listPayrollResults(month);
+  return Array.isArray(result) ? (result as RepositoryPayrollPayload[]) : [];
+}
+
+export function deleteRepositoryPayrollByMonth(
+  month: string,
+): Promise<RepositoryDeletePayrollResult | null> {
+  return invokeRepo<RepositoryDeletePayrollResult>((r) =>
+    r.deletePayrollByMonth(month),
+  );
 }

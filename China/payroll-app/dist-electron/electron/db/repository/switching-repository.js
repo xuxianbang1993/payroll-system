@@ -73,6 +73,17 @@ export function createSwitchingRepository(options) {
         replaceEmployees: (employees) => {
             return writeByMode("replaceEmployees", employees, (adapter, cloned) => adapter.replaceEmployees(cloned));
         },
+        savePayrollInput: (employeeId, month, payload) => {
+            return writeByMode("savePayrollInput", { employeeId, month, payload }, (adapter, cloned) => adapter.savePayrollInput(cloned.employeeId, cloned.month, cloned.payload));
+        },
+        listPayrollInputs: (month) => getReadAdapter().listPayrollInputs(month),
+        savePayrollResult: (employeeId, month, payload) => {
+            return writeByMode("savePayrollResult", { employeeId, month, payload }, (adapter, cloned) => adapter.savePayrollResult(cloned.employeeId, cloned.month, cloned.payload));
+        },
+        listPayrollResults: (month) => getReadAdapter().listPayrollResults(month),
+        deletePayrollByMonth: (month) => {
+            return writeByMode("deletePayrollByMonth", month, (adapter, cloned) => adapter.deletePayrollByMonth(cloned));
+        },
         exportBackup: () => getReadAdapter().exportBackup(),
         importBackup: (payload) => {
             return writeByMode("importBackup", payload, (adapter, cloned) => adapter.importBackup(cloned));

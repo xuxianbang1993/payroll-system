@@ -23,6 +23,11 @@ const payrollRepository = {
     importBackup: (payload) => ipcRenderer.invoke("repo:data:backup:import", payload),
     clearData: () => ipcRenderer.invoke("repo:data:clear"),
     getStorageInfo: () => ipcRenderer.invoke("repo:data:storage-info"),
+    savePayrollInput: (employeeId, month, payload) => ipcRenderer.invoke("repo:payroll:input:save", employeeId, month, payload),
+    listPayrollInputs: (month) => ipcRenderer.invoke("repo:payroll:input:list", month),
+    savePayrollResult: (employeeId, month, payload) => ipcRenderer.invoke("repo:payroll:result:save", employeeId, month, payload),
+    listPayrollResults: (month) => ipcRenderer.invoke("repo:payroll:result:list", month),
+    deletePayrollByMonth: (month) => ipcRenderer.invoke("repo:payroll:result:delete", month),
 };
 const payrollFiles = {
     saveBackupJson: (request) => ipcRenderer.invoke("file:backup:save-json", request),

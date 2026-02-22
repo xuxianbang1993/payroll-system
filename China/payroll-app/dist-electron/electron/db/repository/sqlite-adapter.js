@@ -1,9 +1,11 @@
 import { createSqliteBackupActions } from "./sqlite-backup.js";
 import { createSqliteEmployeesActions } from "./sqlite-employees.js";
+import { createSqlitePayrollActions } from "./sqlite-payroll.js";
 import { createSqliteSettingsActions } from "./sqlite-settings.js";
 export function createSqliteRepositoryAdapter(options) {
     const settingsActions = createSqliteSettingsActions(options.db);
     const employeeActions = createSqliteEmployeesActions(options.db);
+    const payrollActions = createSqlitePayrollActions(options.db);
     const backupActions = createSqliteBackupActions({
         db: options.db,
         dbPath: options.dbPath,
@@ -19,6 +21,11 @@ export function createSqliteRepositoryAdapter(options) {
         updateEmployee: employeeActions.updateEmployee,
         deleteEmployee: employeeActions.deleteEmployee,
         replaceEmployees: employeeActions.replaceEmployees,
+        savePayrollInput: payrollActions.savePayrollInput,
+        listPayrollInputs: payrollActions.listPayrollInputs,
+        savePayrollResult: payrollActions.savePayrollResult,
+        listPayrollResults: payrollActions.listPayrollResults,
+        deletePayrollByMonth: payrollActions.deletePayrollByMonth,
         exportBackup: backupActions.exportBackup,
         importBackup: backupActions.importBackup,
         clearData: backupActions.clearData,

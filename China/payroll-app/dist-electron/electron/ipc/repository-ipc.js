@@ -1,7 +1,7 @@
 /**
  * Register repository CRUD IPC handlers.
  *
- * Channels: repo:settings:*, repo:employees:*, repo:data:*
+ * Channels: repo:settings:*, repo:employees:*, repo:data:*, repo:payroll:*
  */
 export function registerRepositoryIpc(ipcMain, getRepository) {
     // --- Settings ---
@@ -51,6 +51,40 @@ export function registerRepositoryIpc(ipcMain, getRepository) {
     });
     ipcMain.handle("repo:data:storage-info", () => {
         return getRepository().getStorageInfo();
+    });
+    // --- Payroll ---
+    ipcMain.handle("repo:payroll:input:save", (_event, employeeId, month, payload) => {
+        if (typeof employeeId !== "number")
+            throw new Error("Invalid employeeId");
+        if (typeof month !== "string")
+            throw new Error("Invalid month");
+        if (!payload || typeof payload !== "object" || Array.isArray(payload))
+            throw new Error("Invalid payload");
+        return getRepository().savePayrollInput(employeeId, month, payload);
+    });
+    ipcMain.handle("repo:payroll:input:list", (_event, month) => {
+        if (typeof month !== "string")
+            throw new Error("Invalid month");
+        return getRepository().listPayrollInputs(month);
+    });
+    ipcMain.handle("repo:payroll:result:save", (_event, employeeId, month, payload) => {
+        if (typeof employeeId !== "number")
+            throw new Error("Invalid employeeId");
+        if (typeof month !== "string")
+            throw new Error("Invalid month");
+        if (!payload || typeof payload !== "object" || Array.isArray(payload))
+            throw new Error("Invalid payload");
+        return getRepository().savePayrollResult(employeeId, month, payload);
+    });
+    ipcMain.handle("repo:payroll:result:list", (_event, month) => {
+        if (typeof month !== "string")
+            throw new Error("Invalid month");
+        return getRepository().listPayrollResults(month);
+    });
+    ipcMain.handle("repo:payroll:result:delete", (_event, month) => {
+        if (typeof month !== "string")
+            throw new Error("Invalid month");
+        return getRepository().deletePayrollByMonth(month);
     });
 }
 //# sourceMappingURL=repository-ipc.js.map
