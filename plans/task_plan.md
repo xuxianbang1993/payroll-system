@@ -229,13 +229,13 @@ P2.3（Codex prompt 已准备）
 - [x] 审阅p1-repository.ts的helper模式
 - [x] 用Opus 4.6生成详细Prompt
 - [x] 保存Prompt到plans/2026-02-21-p2.4-codex-prompt.md
-- [ ] **Codex执行P2.4开发**（复制Prompt给Codex）
-- [ ] **运行npm run build验证编译**（Codex完成后，0 TS errors）
-- [ ] **Claude Code CLI代码审查（Opus 4.6）**（final review：channel命名/类型完整/preload暴露）
-- [ ] **合并到main**
-- [ ] **生成P2.5 Prompt**
+- [x] **Codex执行P2.4开发**（GPT-5.3-codex xhigh 读取 Prompt，完成4文件扩展）
+- [x] **运行npm run build验证编译**（0 TS errors）
+- [x] **Claude Code CLI代码审查（Opus 4.6）**（2 Important修复：Array payload guard + delete return type）
+- [x] **合并到main**（fast-forward, tag: v2.1.2-p2-p2.4）
+- [x] **分支清理**（local + remote codex/P2-P2.4 删除）
 
-**Status**: ✅ Prompt ready (2026-02-21), 交付物检查清单已准备，awaiting Codex execution
+**Status**: ✅ Complete (2026-02-22) — 0 Critical / 2 Important fixed / build + tests PASS
 
 ### P2.5: payroll-store.ts + unit test
 - [ ] 实现 `src/stores/payroll-store.ts`

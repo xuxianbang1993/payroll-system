@@ -4,9 +4,9 @@
 
 ## Release Status
 
-- Current release: `2.1.2-p2-p2.3-complete`
-- Milestone: P2.3 (Payroll Repository) complete — CRIT-001/CRIT-002 fixes applied, SOP compliance 10/10
-- Previous: P1 bugfix complete — all code review issues resolved
+- Current release: `v2.1.2-p2-p2.4`
+- Milestone: P2.4 (IPC + Preload + Renderer Bridge) complete — payroll 5-channel IPC bridge wired, Opus 4.6 review 0 Critical / 2 Important fixed
+- Previous: P2.3 (Payroll Repository) complete — CRIT-001/CRIT-002 fixes applied, SOP compliance 10/10
 
 ## Tech Stack
 
@@ -143,17 +143,40 @@ node scripts/generate-p1-xlsx-report.mjs
 - 技术架构不变：React + TypeScript + Vite + Tailwind/shadcn
 - 约束：只做布局与样式统一，不改业务逻辑、route 和 IPC
 
-## Current Status Snapshot (2026-02-17)
+## Current Status Snapshot (2026-02-22)
 
-- Branch: `main` (merged from `bugfix/P1-current-issue`)
-- Tag: `v2.1.2-p1-current-bug-fixed`
-- Tests: 83 unit + 4 E2E, all passing
+- Branch: `main` (merged from `codex/P2-P2.4`)
+- Tag: `v2.1.2-p2-p2.4`
+- Tests: 113 unit, all passing (P1 83 + P2.1 13 + P2.2 7 + P2.3 10)
 - Build: tsc + vite + tsc-electron all passing
-- P1 bugfix complete, ready for P2
+- P2.4 IPC bridge complete, ready for P2.5
+
+## P2 Progress (Current)
+
+### P2.1 ✅ calculator.ts — 单人工资条计算引擎
+- 纯函数 `calculatePaySlip(employee, input, socialConfig) → PaySlip`
+- decimal.js 全覆盖；社保六险逐项 round(2) 后求和
+- 13/13 PASS；Opus 4.6 零缺陷通过
+
+### P2.2 ✅ aggregator.ts — 全员汇总纯函数
+- 纯函数 `aggregatePaySlips(slips, filterCompany?) → { sale, manage, total }`
+- 精度双轨制：累加原始值后统一 round(2)（区别于 calculator 逐项 round）
+- 7/7 PASS；Opus 4.6 零缺陷通过
+
+### P2.3 ✅ sqlite-payroll.ts — Payroll 仓储层 CRUD
+- CRIT-001 修复：月份格式 YYYY-MM 验证（`assertValidPayrollMonth`）
+- CRIT-002 修复：UNIQUE INDEX on (employee_id, payroll_month) + upsert
+- 10/10 PASS；SOP 合规 10/10
+
+### P2.4 ✅ IPC + Preload + Renderer Bridge
+- 5个channels: repo:payroll:input:save/list, repo:payroll:result:save/list/delete
+- 4个文件扩展（无新建）：repository-ipc.ts / preload.cts / electron-api.d.ts / p1-repository.ts
+- I-1 修复：Array payload 防护（`Array.isArray` guard）
+- I-2 修复：delete handler 显式返回类型注解
+- `npm run build` 零错误；113/113 全量回归通过
 
 ## Next Steps
 
-1. Start P2 payroll implementation (`codex/p2-payroll-foundation`)
-2. `calculator.ts` + `calculator.test.ts`
-3. `/payroll/employee`, `/payroll/detail`
-4. `payroll-flow.spec.ts`
+1. P2.5: `payroll-store.ts` + `tests/unit/stores/payroll-store.test.ts`
+2. P2.6: `MonthPicker.tsx` + `PayCard.tsx`
+3. P2.7-P2.10: 页面 → E2E → 关门

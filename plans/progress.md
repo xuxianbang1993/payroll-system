@@ -659,6 +659,85 @@ npm run build
 
 ### Status
 - **P2.4 Prompt**: ✅ Ready for Codex (2026-02-21)
-- **P2.4 Codex执行**: ⏳ Awaiting（expected 2026-02-22）
-- **P2.4 Claude Code final review**: ⏳ Pending
-- **Next milestone**: P2.4 completion + P2.5 kickoff (expected 2026-02-22~23)
+- **P2.4 Codex执行**: ✅ Complete (2026-02-22)
+- **P2.4 Claude Code final review**: ✅ Complete (Opus 4.6, 0 Critical, 2 Important fixed)
+- **Next milestone**: P2.5 kickoff
+
+## Session: 2026-02-22 (P2.4 IPC + Preload + Renderer Bridge)
+
+### Current Status
+- **Phase:** P2.4 — Codex开发完成，代码审查完成，已合并main
+- **Branch:** `codex/P2-P2.4`（已合并删除）
+- **Model:** Codex (GPT-5.3-codex xhigh) 开发 + Claude Sonnet 4.6 监督 + Opus 4.6 代码审查
+
+### Scope
+- 打通 renderer→main 的 payroll 数据通路，复用 P1 四层模式
+- 4个文件扩展（无新建）：repository-ipc.ts / preload.cts / electron-api.d.ts / p1-repository.ts
+- 5个IPC channels: repo:payroll:input:save/list, repo:payroll:result:save/list/delete
+
+### Actions Taken
+- 创建分支 `codex/P2-P2.4`
+- Codex (GPT-5.3-codex xhigh) 执行 P2.4 开发，读取 `plans/2026-02-21-p2.4-codex-prompt.md`
+- Codex Pre-flight checks 通过（contracts.ts 含5个payroll方法 + PayrollPayloadRecord已定义）
+- Codex 完成4个文件扩展，`npm run build` 零错误
+- find-skills 匹配最佳代码审查技能（obra/superpowers@requesting-code-review, 10.3K installs）
+- Opus 4.6 执行深度代码审查（SOP §0.2 高难度 = 跨层联动 > 4文件）
+
+### Code Review Results (Opus 4.6)
+
+#### Review Outcome: Fix Required Before Merge (2 Important issues)
+
+- **审查方：** Opus 4.6 (superpowers:code-reviewer subagent)
+- **Critical：** 0 个
+- **Important：** 2 个（已修复）
+
+**I-1 — Array payload 绕过验证（数据完整性）**
+- `typeof [] === "object"` 为 true，数组可绕过原有 payload 检查
+- 修复：在2个save handler 加 `|| Array.isArray(payload)` 防护
+- 与项目现有 `asObject` / `parseJsonRecord` 防护策略一致
+
+**I-2 — delete handler 缺少显式返回类型注解**
+- 其他4个handler均有返回类型注解，delete handler漏掉
+- 修复：添加 `): { deletedInputs: number; deletedResults: number } =>` 注解
+
+**Strengths:**
+- 零 `any` 类型 ✅
+- Channel命名一致 (`repo:payroll:{input|result}:{save|list|delete}`) ✅
+- 类型链路完整（contracts→ipc→preload→api.d.ts→p1-repository）✅
+- preload typed parameters 正确 ✅
+- list函数用直接array pattern，save/delete用invokeRepo<T> ✅
+- 有益偏差：Codex添加了显式handler返回类型（超出plan要求）✅
+
+### Verification Results
+
+```
+npm run build → ✅ 0 TypeScript errors
+npm run test  → ✅ 113/113 PASS（无回归）
+```
+
+| 检查项 | 状态 |
+|--------|------|
+| 5 ipcMain.handle 在 `// --- Payroll ---` section | ✅ |
+| JSDoc 更新含 `repo:payroll:*` | ✅ |
+| runtime validation 全覆盖（含Array.isArray guard） | ✅ |
+| preload 5个方法，typed参数 | ✅ |
+| electron-api.d.ts 5个签名，Promise<unknown>返回 | ✅ |
+| p1-repository.ts 5个函数 + RepositoryDeletePayrollResult | ✅ |
+| 无新建文件 | ✅ |
+| 无any类型 | ✅ |
+| npm run build 零错误 | ✅ |
+
+### Git Flow
+
+| 步骤 | 结果 |
+|------|------|
+| 分支创建 | `codex/P2-P2.4` |
+| Commit | `7a71f11` — feat(P2.4): Wire payroll IPC bridge |
+| Tag | `v2.1.2-p2-p2.4` |
+| 合并 | Fast-forward merge → main |
+| Push main + tag | origin/main + origin/v2.1.2-p2-p2.4 |
+| 分支清理 | local + remote codex/P2-P2.4 删除 |
+
+### Status
+- **P2.4**: ✅ Complete (2026-02-22)
+- **Ready for**: P2.5 (payroll-store.ts)

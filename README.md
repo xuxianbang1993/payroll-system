@@ -13,16 +13,16 @@ npm run dev
 
 ## 基线版本（main）
 
-- Git tag: `v2.1.2-p2-p2.3-complete`
+- Git tag: `v2.1.2-p2-p2.4`
 - 分支基线: `main`
 
 ## 当前状态
 
 - P1 全部完成，已合并到 `main`
-- P2 薪资核算模块进行中（P2.1-P2.3 已完成）
-- 发布 tag：`v2.1.2-p2-p2.3-complete`
+- P2 薪资核算模块进行中（P2.1-P2.4 已完成）
+- 发布 tag：`v2.1.2-p2-p2.4`
 
-## P2 薪资核算进展（P2.1 — P2.3）
+## P2 薪资核算进展（P2.1 — P2.4）
 
 ### P2.1: calculator.ts — 单人工资条计算引擎
 - 纯函数 `calculatePaySlip(employee, input, socialConfig) → PaySlip`
@@ -52,10 +52,24 @@ npm run dev
 - 代码审查：Opus 4.6 发现 2 个 CRITICAL 问题，已全部修复
 - **SOP 合规评分**：修复前 7/10 → 修复后 10/10 ✅
 
+### P2.4: IPC + Preload + Renderer Bridge — payroll 数据通路打通
+- 四层模式（contracts → ipc → preload → api.d.ts → p1-repository）完整实装
+- 5 个 IPC channels：`repo:payroll:input:save/list`、`repo:payroll:result:save/list/delete`
+- 4 个已有文件扩展（无新建文件）：repository-ipc.ts / preload.cts / electron-api.d.ts / p1-repository.ts
+- `RepositoryDeletePayrollResult` 接口新增
+- 代码审查：Opus 4.6（find-skills 最优匹配）
+  - I-1 修复：Array payload 防护（`Array.isArray` guard），防止静默数据损坏
+  - I-2 修复：delete handler 补充显式返回类型注解
+- 验证：`npm run build` 零 TypeScript 错误；113/113 全量测试通过（无回归）
+- **SOP 合规**：全链路无 `any`，channel 命名符合规范，runtime validation 全覆盖 ✅
+
 ### 全量回归
 - `npm run test`：113/113 PASS（含 P1 全部回归）
 
-## 本次主线更新重点（P1 Bugfix）
+## 下一步
+
+- P2.5（下一阶段）：`payroll-store.ts` — 状态层，连接 calculator/aggregator 与 IPC bridge
+- P2.6-P2.10（待开发）：MonthPicker/PayCard 组件 → 页面 → E2E → 关门
 
 Code review 发现问题全部修复（Batch A-G）：
 
@@ -98,8 +112,9 @@ Code review 发现问题全部修复（Batch A-G）：
 
 ## 下一步
 
-- P2.3-P2.10（进行中）：Payroll repository CRUD → IPC → store → UI 组件 → 页面 → E2E → 里程碑关门。
-- P3（未开始）：`voucher` 模块（`voucherGenerator.ts`、`VoucherPage`、`voucher-flow.spec.ts`）。
-- P4（未开始）：安装包与离线验收（`B-01`~`B-04`）。
+- P2.5（下一阶段）：`payroll-store.ts` — 状态层，连接 calculator/aggregator 与 IPC bridge
+- P2.6-P2.10（待开发）：MonthPicker/PayCard 组件 → 页面 → E2E → 关门
+- P3（未开始）：`voucher` 模块
+- P4（未开始）：安装包与离线验收
 
-推荐下一开发分支：`codex/P2-payroll-P2.3`（以 `main` 最新提交为基线）。
+推荐下一开发分支：`codex/P2-P2.5`（以 `main` 最新提交为基线）。
