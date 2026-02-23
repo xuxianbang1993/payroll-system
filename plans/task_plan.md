@@ -257,12 +257,14 @@ P2.3（Codex prompt 已准备）
 **验证命令**: `npm run test -- tests/unit/stores/payroll-store.test.ts`
 
 - [x] 生成 P2.5 Codex Prompt（2026-02-22，文件: P2-current-status-codex-prompt.md）
-- [ ] **Codex执行P2.5开发**
-- [ ] **运行测试验证**
-- [ ] **Claude Code CLI代码审查**
+- [x] **Codex执行P2.5开发**（GPT-5.3-codex xhigh，2026-02-23，分支: codex/P2-P2.5）
+  - [x] 新建 `src/stores/payroll-store.ts`（258 行，8 actions，导出 usePayrollStore + DEFAULT_AGGREGATE）
+  - [x] 新建 `tests/unit/stores/payroll-store.test.ts`（531 行，12 测试用例）
+- [x] **运行测试验证**（125/125 PASS，含原 113 + 新增 12，零回归）
+- [x] **Claude Code CLI代码审查**（Opus 4.6，1 Critical + 3 Important found and fixed）
 - [ ] **合并到main**
 
-**Status**: ⏳ Prompt ready (2026-02-22), awaiting Codex execution
+**Status**: ⏳ 审查通过，待合并 (2026-02-23)
 
 ### P2.6: MonthPicker + PayCard 组件
 - [ ] 实现 `src/components/MonthPicker.tsx`

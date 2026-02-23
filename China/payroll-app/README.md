@@ -4,9 +4,9 @@
 
 ## Release Status
 
-- Current release: `v2.1.2-p2-p2.4`
-- Milestone: P2.4 (IPC + Preload + Renderer Bridge) complete — payroll 5-channel IPC bridge wired, Opus 4.6 review 0 Critical / 2 Important fixed
-- Previous: P2.3 (Payroll Repository) complete — CRIT-001/CRIT-002 fixes applied, SOP compliance 10/10
+- Current release: `v2.1.2-p2-p2.5`
+- Milestone: P2.5 (Payroll Store) complete — Zustand state layer wired, Opus 4.6 review 1 Critical / 3 Important fixed, 130/130 PASS
+- Previous: P2.4 (IPC + Preload + Renderer Bridge) complete — 5-channel IPC bridge, 0 Critical / 2 Important fixed
 
 ## Tech Stack
 
@@ -143,13 +143,13 @@ node scripts/generate-p1-xlsx-report.mjs
 - 技术架构不变：React + TypeScript + Vite + Tailwind/shadcn
 - 约束：只做布局与样式统一，不改业务逻辑、route 和 IPC
 
-## Current Status Snapshot (2026-02-22)
+## Current Status Snapshot (2026-02-23)
 
-- Branch: `main` (merged from `codex/P2-P2.4`)
-- Tag: `v2.1.2-p2-p2.4`
-- Tests: 113 unit, all passing (P1 83 + P2.1 13 + P2.2 7 + P2.3 10)
+- Branch: `main` (merged from `codex/P2-P2.5`)
+- Tag: `v2.1.2-p2-p2.5`
+- Tests: 130 unit, all passing (P1 83 + P2.1 13 + P2.2 7 + P2.3 10 + P2.5 17)
 - Build: tsc + vite + tsc-electron all passing
-- P2.4 IPC bridge complete, ready for P2.5
+- P2.5 payroll store complete, ready for P2.6
 
 ## P2 Progress (Current)
 
@@ -175,8 +175,16 @@ node scripts/generate-p1-xlsx-report.mjs
 - I-2 修复：delete handler 显式返回类型注解
 - `npm run build` 零错误；113/113 全量回归通过
 
+### P2.5 ✅ payroll-store.ts — Zustand 状态层
+- 2个新建文件：`src/stores/payroll-store.ts`（258行）+ `tests/unit/stores/payroll-store.test.ts`（531行）
+- 8个 actions：loadForMonth / setMonth / updateInput / generateSlip / generateAll / clearResults / clearMessages / reset
+- 导出：`usePayrollStore` + `DEFAULT_AGGREGATE`（P2.6-P2.7 依赖）
+- CRIT-001 修复：提取 `_computeAndSaveSlip()` 私有 helper，消除 `generateAll` flag 抖动
+- IMPORTANT 修复×3：stale messages 清除 + clearMessages/reset 测试 + error-path 测试覆盖
+- 130/130 全量回归通过
+
 ## Next Steps
 
-1. P2.5: `payroll-store.ts` + `tests/unit/stores/payroll-store.test.ts`
-2. P2.6: `MonthPicker.tsx` + `PayCard.tsx`
-3. P2.7-P2.10: 页面 → E2E → 关门
+1. P2.6: `MonthPicker.tsx` + `PayCard.tsx`
+2. P2.7: `PayrollByEmpPage.tsx`
+3. P2.8-P2.10: 明细表 → E2E → 关门

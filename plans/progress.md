@@ -774,3 +774,35 @@ State: selectedMonth / employees / social / inputs(Record<id,Input>) / slips(Rec
 ### Status
 - **P2.5 Prompt**: ✅ Ready (2026-02-22)
 - **P2.5 Codex执行**: ⏳ Awaiting
+
+## Session: 2026-02-23 (P2.5 Codex Execution)
+
+### Current Status
+- **Phase:** P2.5 — 开发完成，代码审查进行中
+- **分支**: `codex/P2-P2.5`
+- **Model**: GPT-5.3-codex (xhigh reasoning)
+- **审查Model**: Claude Code Opus 4.6
+
+### Actions Taken
+- 读取 plans 三个文件 + SOP PRD 文件 + P2-current-status-codex-prompt.md（Haiku subagent）
+- 创建 git 分支 `codex/P2-P2.5`
+- 调用 Codex MCP (GPT-5.3-codex xhigh) 执行 P2.5 开发
+  - Pre-flight checks 全部通过（calculator/aggregator/p1-repository/payroll types）
+  - 参考 settings-store.ts / employee-store.ts 模式
+  - 新建 `src/stores/payroll-store.ts`（258行）
+  - 新建 `tests/unit/stores/payroll-store.test.ts`（531行）
+- 测试验证：`npm run test` → **125/125 PASS**（原 113 + 新增 12，零回归）
+- 启动 Opus 4.6 代码审查（后台运行中）
+- 更新 plans 三个文件（task_plan.md / progress.md / P2阶段开发总纲.md）
+
+### P2.5 产出摘要
+
+| 文件 | 状态 | 行数 | 说明 |
+|------|------|------|------|
+| `src/stores/payroll-store.ts` | 新建 | 258 | usePayrollStore + DEFAULT_AGGREGATE 导出，8 actions，无 persist，无 any |
+| `tests/unit/stores/payroll-store.test.ts` | 新建 | 531 | 12 测试用例，4 员工 fixtures，全 mock |
+
+### Status
+- **P2.5 Codex执行**: ✅ Complete (2026-02-23) — 125/125 PASS
+- **P2.5 Opus审查**: ✅ Complete — 1 Critical + 3 Important fixed, 130/130 PASS
+- **P2.5 合并**: ⏳ 进行中
