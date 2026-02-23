@@ -805,4 +805,38 @@ State: selectedMonth / employees / social / inputs(Record<id,Input>) / slips(Rec
 ### Status
 - **P2.5 Codex执行**: ✅ Complete (2026-02-23) — 125/125 PASS
 - **P2.5 Opus审查**: ✅ Complete — 1 Critical + 3 Important fixed, 130/130 PASS
-- **P2.5 合并**: ⏳ 进行中
+- **P2.5 合并**: ✅ Complete — commit 0ca79d6, tag v2.1.2-p2-p2.5, pushed to origin
+
+## Session: 2026-02-23 (P2.6 Prompt Generation)
+
+### Current Status
+- **Phase:** P2.6 — Prompt 生成完成，awaiting Codex execution
+- **前置条件**: P2.5 已合并（tag: v2.1.2-p2-p2.5，130/130 PASS ✅）
+- **Model**: Sonnet 4.6（Prompt 生成）
+- **Prompt 文件**: `plans/P2-current-status-codex-prompt.md`（完全覆盖，P2.5 prompt 已替换）
+
+### Actions Taken
+- 读取 `P2阶段开发总纲.md` P2.6 定义
+- 读取 `05-mod-payroll.md §一`（MonthPicker + PayCard UI 需求）
+- 读取 `薪酬系统-开发策略文档.md` v3.6（开发规范）
+- 读取 `app-store.ts`（selectedMonth + setSelectedMonth 接口确认）
+- 确认 `@radix-ui/react-collapsible` 已安装，`collapsible.tsx` 不存在需新建
+- 生成 P2.6 Codex Prompt → `plans/P2-current-status-codex-prompt.md`
+
+### P2.6 核心设计
+
+**产出（3 个新建文件，不修改已有文件）：**
+- `src/components/ui/collapsible.tsx` — Radix UI Collapsible shadcn/ui 封装
+- `src/components/MonthPicker.tsx` — 受控年月选择器，禁止未来月，i18n keys
+- `src/components/PayCard.tsx` — Collapsible 卡片，7 字段输入，结果三分组展示
+
+**关键设计决策：**
+- MonthPicker 受控组件（props: value + onChange），父组件负责 store 联动
+- PayCard 本地 useState 管理表单（保持简单，不引入 react-hook-form）
+- PayCard 分离"保存输入"和"生成工资条"两个操作按钮
+- 结果展示三分组：收入明细 / 单位承担 / 个人扣除 + 实发突出显示
+- 验证：`npm run build` 零错误 + `npm run test` 130/130 PASS（无回归）
+
+### Status
+- **P2.6 Prompt**: ✅ Ready (2026-02-23)
+- **P2.6 Codex执行**: ⏳ Awaiting

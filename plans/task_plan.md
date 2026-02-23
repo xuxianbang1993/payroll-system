@@ -267,10 +267,15 @@ P2.3（Codex prompt 已准备）
 **Status**: ✅ Complete (2026-02-23)
 
 ### P2.6: MonthPicker + PayCard 组件
-- [ ] 实现 `src/components/MonthPicker.tsx`
-- [ ] 实现 `src/components/PayCard.tsx`
-- **前置：** P2.5 已审查合并
-- **Status:** pending
+- [ ] 实现 `src/components/ui/collapsible.tsx`（Radix UI 封装）
+- [ ] 实现 `src/components/MonthPicker.tsx`（受控年月选择器）
+- [ ] 实现 `src/components/PayCard.tsx`（Collapsible 卡片，7 字段输入 + 结果展示）
+- [ ] `npm run build` 零错误
+- [ ] Claude Code CLI 代码审查（Opus 4.6）
+- [ ] 合并到 main
+- **前置：** P2.5 已审查合并 ✅
+- **Prompt 文件：** `plans/P2-current-status-codex-prompt.md`（2026-02-23 已生成）
+- **Status:** ⏳ Prompt ready (2026-02-23), awaiting Codex execution
 
 ### P2.7: PayrollByEmpPage
 - [ ] 实现 `src/pages/payroll/PayrollByEmpPage.tsx`

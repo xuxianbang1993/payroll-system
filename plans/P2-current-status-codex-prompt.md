@@ -1,606 +1,282 @@
-# P2.5 Codex Prompt: payroll-store.ts + Unit Test
+# P2.6 Codex Prompt: MonthPicker.tsx + PayCard.tsx
 
-**Generated:** 2026-02-22
+**Generated:** 2026-02-23
 **Model:** GPT-5.3-codex xhigh
 **Status:** Ready to send to Codex
-**Previous prompt:** 2026-02-21-p2.4-codex-prompt.md (archived, P2.4 complete)
+**Previous prompt:** P2.5 (payroll-store.ts, archived, complete)
 
 ---
 
-## Task Overview
+## ⛔ 严格执行范围（必读，不可违反）
 
-Implement the **state layer** that glues P2.1 (calculator), P2.2 (aggregator), and P2.4 (IPC bridge) together.
+你只能完成以下 **P2.6** 的工作。**不可提前实现 P2.7、P2.8 或任何其他阶段的内容。**
 
-Create **exactly 2 new files** — no modification of existing files:
+### 允许新建的文件（仅限以下 3 个）
 
-1. `src/stores/payroll-store.ts`
-2. `tests/unit/stores/payroll-store.test.ts`
+1. `src/components/ui/collapsible.tsx` — shadcn/ui Collapsible 封装
+2. `src/components/MonthPicker.tsx` — 年月选择器
+3. `src/components/PayCard.tsx` — 员工薪资卡片
 
-The store is responsible for:
-- Loading employees + settings from repository
-- Loading / saving payroll **inputs** (monthly variable data) via P2.4 IPC bridge
-- Calling `calculatePaySlip` to generate individual `PaySlip` objects
-- Calling `aggregatePaySlips` to compute totals
-- Persisting results via P2.4 IPC bridge
-- Managing month switching with reset + reload
+### 禁止修改任何已有文件
 
----
-
-## Pre-flight Checks
-
-Before writing any code, verify these conditions hold:
-
-1. `src/services/calculator.ts` exports:
-   ```typescript
-   export function calculatePaySlip(employee: Employee, input: PayrollInput, social: SocialConfig): PaySlip
-   ```
-
-2. `src/services/aggregator.ts` exports:
-   ```typescript
-   export function aggregatePaySlips(slips: PaySlip[], filterCompany?: string): AggregateResult
-   ```
-
-3. `src/lib/p1-repository.ts` exports all 7 payroll-related functions:
-   - `listRepositoryEmployees()` — existing P1
-   - `loadRepositorySettings()` — existing P1
-   - `saveRepositoryPayrollInput(employeeId, month, payload)` — P2.4
-   - `listRepositoryPayrollInputs(month)` — P2.4
-   - `saveRepositoryPayrollResult(employeeId, month, payload)` — P2.4
-   - `listRepositoryPayrollResults(month)` — P2.4
-   - `deleteRepositoryPayrollByMonth(month)` — P2.4
-
-4. `src/types/payroll.ts` exports: `Employee`, `PayrollInput`, `PaySlip`, `SocialConfig`, `AggregateResult`, `AggregateGroup`, `EmployeeType`
-
-If any condition is not met, stop and report.
+- ❌ 不得修改 `src/stores/payroll-store.ts`
+- ❌ 不得修改 `src/stores/app-store.ts`
+- ❌ 不得修改 `src/types/payroll.ts`
+- ❌ 不得修改任何路由文件、页面文件
+- ❌ 不得修改 `src/components/ui/` 下的任何已有文件
 
 ---
 
-## File 1: `src/stores/payroll-store.ts`
+## Pre-flight Checks（开始写代码前必须验证）
 
-### Pattern to Follow
+在写任何代码之前，逐一确认以下条件：
 
-Match `settings-store.ts` and `employee-store.ts` exactly:
-- `create<State>()` from `zustand` — **no** `persist` middleware (payroll data is month-scoped, managed by IPC, not localStorage)
-- `toErrorMessage()` from `@/utils/error` for all error handling
-- All `errorMessage` / `noticeMessage` values are **i18n keys** — never hard-coded Chinese
-- TypeScript strict: no `any`, all types explicit
+1. `src/stores/payroll-store.ts` 导出 `usePayrollStore`（含 `setMonth` action）和 `DEFAULT_AGGREGATE`
+2. `src/stores/app-store.ts` 导出 `useAppStore`，包含：
+   - `selectedMonth: string`
+   - `setSelectedMonth: (month: string) => void`
+3. `src/types/payroll.ts` 导出 `Employee`, `PayrollInput`, `PaySlip`, `EmployeeType`
+4. `src/utils/format.ts` 导出 `formatAmount(value: number): string`
+5. `node_modules/@radix-ui/react-collapsible` 或 `node_modules/radix-ui` 中存在 Collapsible 相关导出
+6. `src/components/ui/` 下已有：`card.tsx`, `button.tsx`, `select.tsx`, `input.tsx`, `label.tsx`, `badge.tsx`
 
-### Imports
+如果任何一项不满足，停止并报告，不要继续。
+
+---
+
+## 联网查证要求（SOP §1.2 强制）
+
+在实现前必须联网查证以下内容：
+
+| 需查证内容 | 目标文档 |
+|-----------|---------|
+| `@radix-ui/react-collapsible` 实际导出的组件名和 import 路径 | npm / GitHub |
+| shadcn/ui collapsible 组件的标准实现方式 | ui.shadcn.com |
+
+如果联网失败，停止并告知用户，**不可凭记忆编写**。
+
+---
+
+## File 1: `src/components/ui/collapsible.tsx`
+
+参照 shadcn/ui 的组件封装模式（同 `card.tsx`、`button.tsx`），将 Radix UI Collapsible 封装为项目可用的 UI 组件。
+
+要求：
+- 从实际安装的 radix-ui 包导入（联网确认正确 import 路径）
+- 导出：`Collapsible`, `CollapsibleTrigger`, `CollapsibleContent`
+- 遵循 shadcn/ui 标准模式，不做多余封装
+
+---
+
+## File 2: `src/components/MonthPicker.tsx`
+
+### 功能定义
+
+年月选择器（YYYY-MM 格式）。受控组件。
+
+### Props 接口
 
 ```typescript
-import { create } from "zustand";
-
-import { aggregatePaySlips } from "@/services/aggregator";
-import { calculatePaySlip } from "@/services/calculator";
-import {
-  deleteRepositoryPayrollByMonth,
-  listRepositoryEmployees,
-  listRepositoryPayrollInputs,
-  listRepositoryPayrollResults,
-  loadRepositorySettings,
-  saveRepositoryPayrollInput,
-  saveRepositoryPayrollResult,
-} from "@/lib/p1-repository";
-import { toErrorMessage } from "@/utils/error";
-import type {
-  AggregateGroup,
-  AggregateResult,
-  Employee,
-  PayrollInput,
-  PaySlip,
-  SocialConfig,
-} from "@/types/payroll";
-```
-
-### State Interface
-
-```typescript
-interface PayrollStoreState {
-  // Data
-  selectedMonth: string;
-  employees: Employee[];
-  social: SocialConfig | null;
-  inputs: Record<number, PayrollInput>;  // employeeId → saved input
-  slips: Record<number, PaySlip>;        // employeeId → generated PaySlip
-  aggregate: AggregateResult | null;     // null until at least one slip exists
-
-  // Status
-  loading: boolean;
-  generating: boolean;
-  errorMessage: string;
-  noticeMessage: string;
-
-  // Actions
-  loadForMonth: (month: string) => Promise<void>;
-  setMonth: (month: string) => Promise<void>;
-  updateInput: (employeeId: number, input: PayrollInput) => Promise<boolean>;
-  generateSlip: (employeeId: number) => Promise<boolean>;
-  generateAll: () => Promise<void>;
-  clearResults: (month: string) => Promise<boolean>;
-  clearMessages: () => void;
-  reset: () => void;
+interface MonthPickerProps {
+  value: string;           // "YYYY-MM" 格式
+  onChange: (month: string) => void;
+  disabled?: boolean;
 }
 ```
 
-### Default Values
+### UI 设计
+
+- 显示当前年月（YYYY年MM月 格式展示）
+- 向前/向后切换月份的按钮（`<` `>`），使用 `lucide-react` 的 `ChevronLeft` / `ChevronRight`
+- 点击 `<` 减一个月，点击 `>` 加一个月
+- 禁止选择未来月份（不允许 onChange 触发未来日期）
+- disabled 时按钮不可点击
+
+### 月份计算规则
 
 ```typescript
-const defaultMonth = new Date().toISOString().slice(0, 7); // "YYYY-MM"
-
-const DEFAULT_AGGREGATE_GROUP: AggregateGroup = {
-  fullGrossPay: 0,
-  cSocial: 0,
-  cFund: 0,
-  wSocial: 0,
-  wFund: 0,
-  tax: 0,
-  netPay: 0,
-  absentDeduct: 0,
-};
-
-export const DEFAULT_AGGREGATE: AggregateResult = {
-  sale: { ...DEFAULT_AGGREGATE_GROUP },
-  manage: { ...DEFAULT_AGGREGATE_GROUP },
-  total: { ...DEFAULT_AGGREGATE_GROUP },
-};
-
-const INITIAL_STATE = {
-  selectedMonth: defaultMonth,
-  employees: [] as Employee[],
-  social: null as SocialConfig | null,
-  inputs: {} as Record<number, PayrollInput>,
-  slips: {} as Record<number, PaySlip>,
-  aggregate: null as AggregateResult | null,
-  loading: false,
-  generating: false,
-  errorMessage: "",
-  noticeMessage: "",
-};
+// 当前月 = new Date().toISOString().slice(0, 7)
+// 前一月 = year-01 的边界处理好（从 YYYY-01 退到 (YYYY-1)-12）
+// 后一月 = 不超过当前月（今日所在月份）
 ```
 
-### Action Implementations
+### 样式
 
-#### `loadForMonth(month: string)`
+- 使用 shadcn/ui 设计系统 token（`text-foreground`, `text-muted-foreground` 等）
+- 紧凑布局，适合放在页面顶部
+- 所有文本走 i18n（`t('payroll.monthPicker.label')` 等），不硬编码中文
+
+### i18n Key 规范
+
+| 用途 | Key |
+|------|-----|
+| 年份显示 | `payroll.monthPicker.year` |
+| 月份显示 | `payroll.monthPicker.month` |
+| 上一月 aria-label | `payroll.monthPicker.prevMonth` |
+| 下一月 aria-label | `payroll.monthPicker.nextMonth` |
+
+> **注意：** 不需要在 locale 文件中添加这些 key，这超出 P2.6 范围。
+
+---
+
+## File 3: `src/components/PayCard.tsx`
+
+### 功能定义
+
+员工薪资卡片，对应 PRD §1.3（05-mod-payroll.md）。使用 Collapsible 实现展开/收起交互。
+
+### Props 接口
 
 ```typescript
-loadForMonth: async (month) => {
-  set({ loading: true, errorMessage: "", noticeMessage: "" });
-  try {
-    const [employees, settings, rawInputs, rawResults] = await Promise.all([
-      listRepositoryEmployees(),
-      loadRepositorySettings(),
-      listRepositoryPayrollInputs(month),
-      listRepositoryPayrollResults(month),
-    ]);
-
-    const inputs: Record<number, PayrollInput> = rawInputs.reduce<Record<number, PayrollInput>>(
-      (acc, r) => ({ ...acc, [r.employeeId]: r.payload as PayrollInput }),
-      {},
-    );
-
-    const slips: Record<number, PaySlip> = rawResults.reduce<Record<number, PaySlip>>(
-      (acc, r) => ({ ...acc, [r.employeeId]: r.payload as PaySlip }),
-      {},
-    );
-
-    const slipList = Object.values(slips);
-    const aggregate = slipList.length > 0 ? aggregatePaySlips(slipList) : null;
-
-    set({
-      loading: false,
-      selectedMonth: month,
-      employees,
-      social: settings?.social ?? null,
-      inputs,
-      slips,
-      aggregate,
-    });
-  } catch (error) {
-    set({ loading: false, errorMessage: `error.payrollLoadFailed|${toErrorMessage(error)}` });
-  }
-},
+interface PayCardProps {
+  employee: Employee;
+  input?: PayrollInput;      // 当月已保存的输入，undefined 表示尚未输入
+  slip?: PaySlip;            // 当月已生成的工资条，undefined 表示尚未生成
+  onUpdateInput: (employeeId: number, input: PayrollInput) => Promise<boolean>;
+  onGenerateSlip: (employeeId: number) => Promise<boolean>;
+  generating?: boolean;      // 全局 generating 标志，禁用操作中的按钮
+}
 ```
 
-#### `setMonth(month: string)`
+### 收起状态（collapsed）— PRD §1.3
+
+显示内容：
+- 姓名（`employee.name`）
+- 职位（`employee.position`）
+- 公司（`employee.company`）
+- 基本工资（`formatAmount(employee.baseSalary)`）
+- 状态 Badge：
+  - `slip` 为 undefined → Badge variant `secondary`，文字 key: `payroll.card.statusNotGenerated`
+  - `slip` 存在 → Badge variant `default`，文字 key: `payroll.card.statusGenerated`，同行显示 `formatAmount(slip.netPay)`
+
+右侧：展开/收起箭头图标（ChevronDown / ChevronUp，用 Collapsible state 控制旋转）
+
+### 展开状态（expanded）— PRD §1.3
+
+#### 输入区（7 个字段）
+
+使用受控表单（本地 `useState` 管理输入，不用 react-hook-form，保持简单）：
+
+| 字段 | 类型 | 对应 PayrollInput 字段 |
+|------|------|----------------------|
+| 绩效等级 | Select 下拉 | `perfGrade` |
+| 绩效工资 | number Input | `perfSalary` |
+| 提成 | number Input | `commission` |
+| 奖金 | number Input | `bonus` |
+| 缺勤小时数 | number Input | `absentHours` |
+| 所得税 | number Input | `tax` |
+| 其他调整（可正可负） | number Input | `otherAdj` |
+
+**绩效等级下拉选项：** `""（未选）`, `"S"`, `"A"`, `"B"`, `"C"`, `"D"`
+
+**输入初始值：** 从 `input` prop 初始化，`input` prop 变化时同步更新（`useEffect`）
+
+**「保存输入」按钮：** 点击时调用 `onUpdateInput(employee.id, localInput)`，按钮 key: `payroll.card.saveInput`，generating 时 disabled
+
+#### 「生成工资条」按钮
+
+- 点击调用 `onGenerateSlip(employee.id)`
+- 按钮 i18n key: `payroll.card.generateSlip`
+- generating 时 disabled + 显示 loading 状态
+
+#### 计算结果展示（`slip` 存在时渲染）
+
+分三个分组展示，每行"标签 + 金额"格式：
+
+**收入明细：**
+- 固定收入 → `formatAmount(slip.base)` （key: `payroll.card.result.base`）
+- 绩效工资 → `formatAmount(slip.perfSalary)` （key: `payroll.card.result.perfSalary`）
+- 提成 → `formatAmount(slip.commission)` （key: `payroll.card.result.commission`）
+- 奖金 → `formatAmount(slip.bonus)` （key: `payroll.card.result.bonus`）
+- 缺勤扣款 → `formatAmount(slip.absentDeduct)` （key: `payroll.card.result.absentDeduct`）
+- 应发工资 → `formatAmount(slip.grossPay)` （key: `payroll.card.result.grossPay`，加粗）
+
+**单位承担：**
+- 单位社保 → `formatAmount(slip.cSocial)` （key: `payroll.card.result.cSocial`）
+- 单位公积金 → `formatAmount(slip.cFund)` （key: `payroll.card.result.cFund`）
+- 单位总额 → `formatAmount(slip.cTotal)` （key: `payroll.card.result.cTotal`，加粗）
+
+**个人扣除：**
+- 个人社保 → `formatAmount(slip.wSocial)` （key: `payroll.card.result.wSocial`）
+- 个人公积金 → `formatAmount(slip.wFund)` （key: `payroll.card.result.wFund`）
+- 个人所得税 → `formatAmount(slip.tax)` （key: `payroll.card.result.tax`）
+- 扣除合计 → `formatAmount(slip.totalDeduct)` （key: `payroll.card.result.totalDeduct`，加粗）
+
+**实发工资（突出显示）：**
+- `formatAmount(slip.netPay)` — 大字体，primary 颜色（key: `payroll.card.result.netPay`）
+
+### 样式规范
+
+- 使用 `Card`, `CardHeader`, `CardContent` 来自 `@/components/ui/card`
+- 使用 `Collapsible`, `CollapsibleTrigger`, `CollapsibleContent` 来自 `@/components/ui/collapsible`
+- 使用 `Button`, `Input`, `Select`, `Label`, `Badge` 来自对应 `@/components/ui/*`
+- 使用 `cn()` 来自 `@/lib/utils`
+- 遵循 shadcn/ui 设计 token，不硬编码颜色值
+- 输入区 grid 布局（`grid grid-cols-2 gap-3`）
+- 结果区三组间用 `<hr>` 或 spacing 分隔
+
+### TypeScript 要求
+
+- **禁止 `any` 类型**
+- 所有 props 有完整类型
+- 本地表单状态类型为 `PayrollInput`（允许字段为 undefined）
+- 数字 Input 的 `onChange` 处理 `parseFloat(e.target.value) || 0`
+
+---
+
+## 导入模式参考
+
+参照已有组件（如 `EmployeeDetail.tsx`）的导入风格：
 
 ```typescript
-setMonth: async (month) => {
-  // Reset data fields immediately, then reload
-  set({ ...INITIAL_STATE, selectedMonth: month });
-  await get().loadForMonth(month);
-},
-```
-
-#### `updateInput(employeeId: number, input: PayrollInput)`
-
-```typescript
-updateInput: async (employeeId, input) => {
-  set({ generating: true, errorMessage: "", noticeMessage: "" });
-  try {
-    const result = await saveRepositoryPayrollInput(
-      employeeId,
-      get().selectedMonth,
-      input as Record<string, unknown>,
-    );
-    if (!result) {
-      set({ generating: false, errorMessage: "error.payrollInputSaveUnavailable" });
-      return false;
-    }
-    set({
-      inputs: { ...get().inputs, [employeeId]: input },
-      generating: false,
-      noticeMessage: "success.payrollInputSaved",
-    });
-    return true;
-  } catch (error) {
-    set({ generating: false, errorMessage: `error.payrollInputSaveFailed|${toErrorMessage(error)}` });
-    return false;
-  }
-},
-```
-
-#### `generateSlip(employeeId: number)`
-
-```typescript
-generateSlip: async (employeeId) => {
-  const employee = get().employees.find((e) => e.id === employeeId);
-  if (!employee) {
-    set({ errorMessage: "error.employeeNotFound" });
-    return false;
-  }
-  const social = get().social;
-  if (!social) {
-    set({ errorMessage: "error.socialConfigNotLoaded" });
-    return false;
-  }
-
-  set({ generating: true, errorMessage: "" });
-  try {
-    const input = get().inputs[employeeId] ?? {};
-    const slip = calculatePaySlip(employee, input, social);
-
-    const result = await saveRepositoryPayrollResult(
-      employeeId,
-      get().selectedMonth,
-      slip as Record<string, unknown>,
-    );
-    if (!result) {
-      set({ generating: false, errorMessage: "error.payrollResultSaveUnavailable" });
-      return false;
-    }
-
-    const nextSlips = { ...get().slips, [employeeId]: slip };
-    const slipList = Object.values(nextSlips);
-    const aggregate = aggregatePaySlips(slipList);
-
-    set({
-      slips: nextSlips,
-      aggregate,
-      generating: false,
-      noticeMessage: "success.payrollSlipGenerated",
-    });
-    return true;
-  } catch (error) {
-    set({ generating: false, errorMessage: `error.payrollGenerateFailed|${toErrorMessage(error)}` });
-    return false;
-  }
-},
-```
-
-#### `generateAll()`
-
-Use **sequential** loop (not `Promise.all`) to avoid Zustand `set()` race conditions:
-
-```typescript
-generateAll: async () => {
-  set({ generating: true, errorMessage: "", noticeMessage: "" });
-  try {
-    for (const employee of get().employees) {
-      await get().generateSlip(employee.id);
-    }
-    set({ generating: false, noticeMessage: "success.payrollAllGenerated" });
-  } catch (error) {
-    set({ generating: false, errorMessage: `error.payrollGenerateAllFailed|${toErrorMessage(error)}` });
-  }
-},
-```
-
-#### `clearResults(month: string)`
-
-```typescript
-clearResults: async (month) => {
-  set({ generating: true, errorMessage: "", noticeMessage: "" });
-  try {
-    const result = await deleteRepositoryPayrollByMonth(month);
-    if (!result) {
-      set({ generating: false, errorMessage: "error.payrollClearUnavailable" });
-      return false;
-    }
-    set({
-      slips: {},
-      aggregate: null,
-      generating: false,
-      noticeMessage: "success.payrollResultsCleared",
-    });
-    return true;
-  } catch (error) {
-    set({ generating: false, errorMessage: `error.payrollClearFailed|${toErrorMessage(error)}` });
-    return false;
-  }
-},
-```
-
-#### `clearMessages()` and `reset()`
-
-```typescript
-clearMessages: () => {
-  set({ errorMessage: "", noticeMessage: "" });
-},
-
-reset: () => {
-  set({ ...INITIAL_STATE });
-},
-```
-
-### Export
-
-```typescript
-export const usePayrollStore = create<PayrollStoreState>((set, get) => ({
-  ...INITIAL_STATE,
-  loadForMonth: async (month) => { /* ... */ },
-  setMonth: async (month) => { /* ... */ },
-  updateInput: async (employeeId, input) => { /* ... */ },
-  generateSlip: async (employeeId) => { /* ... */ },
-  generateAll: async () => { /* ... */ },
-  clearResults: async (month) => { /* ... */ },
-  clearMessages: () => { /* ... */ },
-  reset: () => { /* ... */ },
-}));
+import { useTranslation } from "react-i18next";
+import { ChevronDown, ChevronUp, ChevronLeft, ChevronRight } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { formatAmount } from "@/utils/format";
+import type { Employee, PayrollInput, PaySlip } from "@/types/payroll";
 ```
 
 ---
 
-## File 2: `tests/unit/stores/payroll-store.test.ts`
-
-### Test File Location
-
-`tests/unit/stores/payroll-store.test.ts` — matches the locked test layout (`tests/unit/**/*.{test,spec}.{ts,tsx}`).
-
-### Mock Setup
-
-```typescript
-import { describe, it, expect, vi, beforeEach } from "vitest";
-
-vi.mock("@/lib/p1-repository", () => ({
-  listRepositoryEmployees: vi.fn(),
-  loadRepositorySettings: vi.fn(),
-  listRepositoryPayrollInputs: vi.fn(),
-  listRepositoryPayrollResults: vi.fn(),
-  saveRepositoryPayrollInput: vi.fn(),
-  saveRepositoryPayrollResult: vi.fn(),
-  deleteRepositoryPayrollByMonth: vi.fn(),
-}));
-
-vi.mock("@/services/calculator", () => ({
-  calculatePaySlip: vi.fn(),
-}));
-
-vi.mock("@/services/aggregator", () => ({
-  aggregatePaySlips: vi.fn(),
-}));
-
-import * as repo from "@/lib/p1-repository";
-import { calculatePaySlip } from "@/services/calculator";
-import { aggregatePaySlips } from "@/services/aggregator";
-import { usePayrollStore } from "@/stores/payroll-store";
-```
-
-### Fixtures (4-employee, per SOP 4.10)
-
-```typescript
-import type { Employee, SocialConfig, PayrollInput, PaySlip } from "@/types/payroll";
-
-const EMPLOYEES: Employee[] = [
-  { id: 1, name: "张三", idCard: "110101199001011001", companyShort: "AC", company: "AC公司",
-    dept: "销售部", position: "销售员", type: "sales", baseSalary: 5000, subsidy: 500,
-    hasSocial: true, hasLocalPension: false, fundAmount: 1000 },
-  { id: 2, name: "李四", idCard: "110101199002022002", companyShort: "AC", company: "AC公司",
-    dept: "销售部", position: "销售主管", type: "sales", baseSalary: 6000, subsidy: 0,
-    hasSocial: false, hasLocalPension: false, fundAmount: 0 },
-  { id: 3, name: "王五", idCard: "110101199003033003", companyShort: "BC", company: "BC公司",
-    dept: "管理部", position: "经理", type: "management", baseSalary: 8000, subsidy: 1000,
-    hasSocial: true, hasLocalPension: true, fundAmount: 2000 },
-  { id: 4, name: "赵六", idCard: "110101199004044004", companyShort: "BC", company: "BC公司",
-    dept: "管理部", position: "助理", type: "management", baseSalary: 4000, subsidy: 0,
-    hasSocial: true, hasLocalPension: false, fundAmount: 500 },
-];
-
-const SOCIAL: SocialConfig = {
-  compPension: 16, compLocalPension: 1, compUnemploy: 0.5, compMedical: 8,
-  compInjury: 0.3, compMaternity: 0.8, workerPension: 8, workerUnemploy: 0.5,
-  workerMedical: 2, pensionBase: 5000, unemploymentBase: 5000,
-  medicalBase: 5000, injuryBase: 5000, maternityBase: 5000,
-};
-
-const MONTH = "2026-02";
-
-const MOCK_SLIP: PaySlip = {
-  base: 5500, perfSalary: 0, commission: 0, bonus: 0, totalPerf: 0, otherAdj: 0,
-  fullGrossPay: 5500, absentH: 0, absentDeduct: 0, grossPay: 5500,
-  cPension: 800, cLocalPension: 0, cUnemploy: 25, cMedical: 400, cInjury: 15,
-  cMaternity: 40, cSocial: 1280, cFund: 1000, cTotal: 2280,
-  wPension: 400, wUnemploy: 25, wMedical: 100, wSocial: 525, wFund: 1000,
-  tax: 0, totalDeduct: 1525, netPay: 3975, hourlyRate: 31.61,
-  perfGrade: "", type: "sales", companyShort: "AC",
-};
-```
-
-### Test Cases (minimum 10 cases)
-
-```typescript
-describe("usePayrollStore", () => {
-  beforeEach(() => {
-    usePayrollStore.setState(/* reset to initial state */);
-    vi.clearAllMocks();
-  });
-
-  describe("loadForMonth", () => {
-    it("loads employees, social, inputs, and results for the given month", async () => {
-      // Mock all 4 Promise.all calls
-      // Verify state after loadForMonth(MONTH)
-      // Check: employees, social, inputs keyed by employeeId, slips keyed by employeeId
-    });
-
-    it("sets aggregate to null when no results exist for the month", async () => {
-      // rawResults = []
-      // aggregate should be null after load
-    });
-
-    it("computes aggregate when results are present", async () => {
-      // rawResults has 1 result, aggregatePaySlips should be called
-    });
-
-    it("sets errorMessage with toErrorMessage pattern when repository throws", async () => {
-      // listRepositoryEmployees throws new Error("DB error")
-      // errorMessage should be "error.payrollLoadFailed|DB error"
-    });
-  });
-
-  describe("setMonth", () => {
-    it("resets state and reloads for the new month", async () => {
-      // Pre-populate state with old month data
-      // Call setMonth("2026-03")
-      // Verify loadForMonth called with "2026-03"
-      // Verify old data cleared
-    });
-  });
-
-  describe("updateInput", () => {
-    it("saves input via IPC and updates inputs state", async () => {
-      // Mock saveRepositoryPayrollInput to return a RepositoryPayrollPayload
-      // Call updateInput(1, { perfSalary: 1000 })
-      // Verify inputs[1] updated, noticeMessage set
-    });
-
-    it("sets error when repository returns null", async () => {
-      // saveRepositoryPayrollInput returns null
-      // errorMessage should be "error.payrollInputSaveUnavailable"
-    });
-  });
-
-  describe("generateSlip", () => {
-    it("calls calculatePaySlip with employee, input, and social; saves and updates state", async () => {
-      // Load employees + social into state
-      // Mock calculatePaySlip to return MOCK_SLIP
-      // Mock saveRepositoryPayrollResult to return payload
-      // Call generateSlip(1)
-      // Verify: slips[1] === MOCK_SLIP, aggregatePaySlips called, noticeMessage set
-    });
-
-    it("returns false and sets error when employee not found", async () => {
-      // Call generateSlip(999) with empty employees state
-      // errorMessage should be "error.employeeNotFound"
-    });
-
-    it("returns false and sets error when social config not loaded", async () => {
-      // employees present, social === null
-      // errorMessage should be "error.socialConfigNotLoaded"
-    });
-  });
-
-  describe("generateAll", () => {
-    it("calls generateSlip for each employee sequentially", async () => {
-      // employees = [emp1, emp2]
-      // Spy on generateSlip
-      // Call generateAll()
-      // Verify generateSlip called twice, noticeMessage "success.payrollAllGenerated"
-    });
-  });
-
-  describe("clearResults", () => {
-    it("calls deleteRepositoryPayrollByMonth and resets slips and aggregate", async () => {
-      // Pre-populate slips state
-      // Mock deleteRepositoryPayrollByMonth to return { deletedInputs: 4, deletedResults: 4 }
-      // Call clearResults(MONTH)
-      // Verify slips = {}, aggregate = null, noticeMessage set
-    });
-  });
-});
-```
-
----
-
-## TypeScript Requirements
-
-- **No `any` type.** Use explicit casts at IPC boundaries only:
-  - `r.payload as PayrollInput` (input deserialization from `Record<string, unknown>`)
-  - `r.payload as PaySlip` (result deserialization from `Record<string, unknown>`)
-  - `slip as Record<string, unknown>` (serialization before IPC save)
-  - `input as Record<string, unknown>` (serialization before IPC save)
-- Use `get().social!` only after null-guard check
-- All function parameters and return types must be explicit
-- `Record<number, PayrollInput>` and `Record<number, PaySlip>` for indexed state (not arrays)
-
-## i18n Key Conventions
-
-**Error keys** (follow `error.payroll*` namespace):
-- `"error.payrollLoadFailed|<detail>"` — load failure with detail
-- `"error.payrollInputSaveUnavailable"` — repository null return on input save
-- `"error.payrollInputSaveFailed|<detail>"` — input save exception
-- `"error.payrollResultSaveUnavailable"` — repository null return on result save
-- `"error.payrollGenerateFailed|<detail>"` — generateSlip exception
-- `"error.payrollGenerateAllFailed|<detail>"` — generateAll exception
-- `"error.payrollClearUnavailable"` — repository null return on delete
-- `"error.payrollClearFailed|<detail>"` — clearResults exception
-- `"error.socialConfigNotLoaded"` — social is null when generateSlip called
-- `"error.employeeNotFound"` — employeeId not in state
-
-**Notice keys:**
-- `"success.payrollInputSaved"` — updateInput succeeded
-- `"success.payrollSlipGenerated"` — single generateSlip succeeded
-- `"success.payrollAllGenerated"` — generateAll completed
-- `"success.payrollResultsCleared"` — clearResults succeeded
-
-> You do **NOT** need to add these keys to i18n locale JSON files. That is out of scope for P2.5.
-
----
-
-## Verification
+## 验证命令
 
 ```bash
-npm run test -- tests/unit/stores/payroll-store.test.ts
+cd "/Users/xuxianbang/Documents/payroll system/China/payroll-app"
+npm run build
 ```
 
-Then run full regression:
-
-```bash
-npm run test
-```
-
-**Success criteria:**
-1. All payroll-store tests pass
-2. Full test suite passes (113+ tests, no regressions)
+**成功标准：**
+- TypeScript 编译零错误（tsc + tsc-electron）
+- Vite 构建零错误
+- 全量测试无回归（`npm run test` 应仍 130/130 PASS）
 
 ---
 
-## Delivery Checklist
+## 交付清单
 
-- [ ] `src/stores/payroll-store.ts` — all 8 actions implemented, no `any`, i18n keys, no hard-coded Chinese
-- [ ] `src/stores/payroll-store.ts` — `usePayrollStore` exported, `DEFAULT_AGGREGATE` exported (needed by P2.7)
-- [ ] `tests/unit/stores/payroll-store.test.ts` — min 10 test cases, all mocks correct, 4-employee fixtures
-- [ ] No existing files modified
-- [ ] `npm run test -- tests/unit/stores/payroll-store.test.ts` passes
-- [ ] `npm run test` full regression passes
+- [ ] `src/components/ui/collapsible.tsx` — Radix UI Collapsible 封装，shadcn/ui 模式
+- [ ] `src/components/MonthPicker.tsx` — 受控年月选择器，禁止未来月，i18n keys
+- [ ] `src/components/PayCard.tsx` — Collapsible 卡片，7 字段输入，结果三分组展示
+- [ ] 无现有文件被修改
+- [ ] `npm run build` 零错误
+- [ ] `npm run test` 130/130 PASS（无回归）
 
 ---
 
-## Next Steps After P2.5 Completion
+## 下一阶段（P2.6 完成后）
 
-1. Claude Code CLI reviews (Sonnet 4.6 / Opus 4.6 depending on complexity found)
-2. Merge to main, tag `v2.1.2-p2-p2.5`
-3. Start P2.6: `MonthPicker.tsx` + `PayCard.tsx` (UI components)
+1. Claude Code CLI（Opus 4.6）代码审查
+2. 审查通过后合并 main，tag `v2.1.2-p2-p2.6`
+3. 启动 P2.7：`PayrollByEmpPage.tsx`（使用 MonthPicker + PayCard）
 
-**Reference docs:**
-- `plans/P2阶段开发总纲.md` — P2 overall architecture and P2.5 definition
-- `China/Devolop files SOP/05-mod-payroll.md` — Payroll UI + calculation rules
-- `China/Devolop files SOP/薪酬系统-开发策略文档.md` — Development standards v3.6
+**参考文档：**
+- `plans/P2阶段开发总纲.md` — P2.6 完整定义
+- `China/Devolop files SOP/05-mod-payroll.md §一` — 页面 UI 需求
+- `China/Devolop files SOP/薪酬系统-开发策略文档.md` — 开发规范 v3.6
