@@ -262,9 +262,9 @@ P2.3（Codex prompt 已准备）
   - [x] 新建 `tests/unit/stores/payroll-store.test.ts`（531 行，12 测试用例）
 - [x] **运行测试验证**（125/125 PASS，含原 113 + 新增 12，零回归）
 - [x] **Claude Code CLI代码审查**（Opus 4.6，1 Critical + 3 Important found and fixed）
-- [ ] **合并到main**
+- [x] **合并到main**（fast-forward, commit 0ca79d6, tag v2.1.2-p2-p2.5, pushed to origin）
 
-**Status**: ⏳ 审查通过，待合并 (2026-02-23)
+**Status**: ✅ Complete (2026-02-23)
 
 ### P2.6: MonthPicker + PayCard 组件
 - [ ] 实现 `src/components/MonthPicker.tsx`
