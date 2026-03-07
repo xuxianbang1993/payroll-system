@@ -13,16 +13,16 @@ npm run dev
 
 ## 基线版本（main）
 
-- Git tag: `v2.1.2-p2-p2.5`
+- Git tag: `P2.1.2-P2`
 - 分支基线: `main`
 
 ## 当前状态
 
 - P1 全部完成，已合并到 `main`
-- P2 薪资核算模块进行中（P2.1-P2.5 已完成）
-- 发布 tag：`v2.1.2-p2-p2.5`
+- P2 薪资核算模块全部完成（P2.1-P2.10）
+- 发布 tag：`P2.1.2-P2`
 
-## P2 薪资核算进展（P2.1 — P2.5）
+## P2 薪资核算进展（P2.1 — P2.10）
 
 ### P2.1: calculator.ts — 单人工资条计算引擎
 - 纯函数 `calculatePaySlip(employee, input, socialConfig) → PaySlip`
@@ -62,17 +62,44 @@ npm run dev
   - IMPORTANT：stale messages 清除 + clearMessages/reset 测试 + error-path 覆盖
 - 全量回归：130/130 PASS（零回归）
 
+### P2.6: MonthPicker.tsx + PayCard.tsx — UI 组件层
+- `MonthPicker`：YYYY年MM月显示、prev/next 导航、max=当前月
+- `PayCard`：Collapsible 员工卡片，折叠/展开，输入表单 + 生成按钮 + PaySlip 结果展示
+- `ui/collapsible.tsx`：shadcn/ui Radix 包装
+- 3 语言 i18n 全覆盖（zh-CN/zh-HK/en）
+
+### P2.7: PayrollByEmpPage.tsx — 按员工录入页
+- 路由 `/payroll/employee`，替换 ModulePlaceholderPage
+- MonthPicker + 4 统计卡片 + 全部生成按钮 + PayCard 列表
+- 集成 payroll-store 全部 actions
+
+### P2.8: PayrollDetailPage.tsx — 28 列全员明细表
+- 路由 `/payroll/detail`，TanStack Table 分组表格
+- 6 列组：基本信息(2) + 收入(7) + 工资汇总(2) + 单位承担(9) + 个人扣除(7) + 最终(1)
+- 按公司主体分组 + 小计行 + 全员合计行
+- decimal.js 精确汇总（先累加后 round）
+- Sticky 首列 + 横向滚动 + tabular-nums 对齐
+
+### P2.9: E2E 测试 — payroll-flow.spec.ts
+- 4 个 Playwright 测试用例覆盖：页面加载 + 明细表 + 月份导航 + 生成按钮状态
+
+### P2.10: 全量回归 + Critical 修复
+- 130/130 单元测试 PASS，0 TypeScript 错误，Vite 构建通过
+- 浏览器自动化验证全部页面（P1 + P2）零回归
+- 5 个 CRITICAL 问题修复：
+  - C-1: PayrollDetailPage base 字段去除 subsidy 双重计算
+  - C-2: PayCard handleNumericChange 空字段返回 undefined 而非 0
+  - C-3: generateAll 追踪失败员工，不再静默显示成功
+  - C-4: PayCard 结果区新增 otherAdj/wPension/wUnemploy/wMedical 明细行
+  - C-5: MonthPicker/payroll-store 使用本地时间替换 UTC
+
 ### 全量回归
 - `npm run test`：130/130 PASS（含 P1 全部回归）
 
 ## 下一步
 
-- P2.6（下一阶段）：`MonthPicker.tsx` + `PayCard.tsx` — UI 组件层
-- P2.7-P2.10（待开发）：页面 → E2E → 关门
 - P3（未开始）：`voucher` 模块
 - P4（未开始）：安装包与离线验收
-
-推荐下一开发分支：`codex/P2-P2.6`（以 `main` 最新提交为基线）。
 
 Code review 发现问题全部修复（Batch A-G）：
 

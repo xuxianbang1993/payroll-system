@@ -42,7 +42,8 @@ interface PayrollStoreState {
   reset: () => void;
 }
 
-const defaultMonth = new Date().toISOString().slice(0, 7);
+const now = new Date();
+const defaultMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
 
 const DEFAULT_AGGREGATE_GROUP: AggregateGroup = {
   fullGrossPay: 0,
@@ -227,14 +228,25 @@ export const usePayrollStore = create<PayrollStoreState>((set, get) => ({
     set({ generating: true, errorMessage: "", noticeMessage: "" });
 
     try {
+      const failures: number[] = [];
       for (const employee of get().employees) {
-        await _computeAndSaveSlip(employee.id, set, get);
+        const ok = await _computeAndSaveSlip(employee.id, set, get);
+        if (!ok) {
+          failures.push(employee.id);
+        }
       }
 
-      set({
-        generating: false,
-        noticeMessage: "success.payrollAllGenerated",
-      });
+      if (failures.length > 0) {
+        set({
+          generating: false,
+          errorMessage: `error.payrollGenerateAllFailed|${failures.length} employee(s) failed`,
+        });
+      } else {
+        set({
+          generating: false,
+          noticeMessage: "success.payrollAllGenerated",
+        });
+      }
     } catch (error) {
       set({
         generating: false,

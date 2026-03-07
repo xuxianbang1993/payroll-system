@@ -19,17 +19,18 @@ describe("P0 layout navigation", () => {
     });
   });
 
-  it("shows month picker on payroll routes", () => {
+  it("shows month picker on routes with showMonthPicker flag", () => {
     render(
-      <MemoryRouter initialEntries={["/payroll/employee"]}>
+      <MemoryRouter initialEntries={["/voucher"]}>
         <Routes>
           <Route path="/" element={<AppLayout />}>
-            <Route path="payroll/employee" element={<div>Payroll Page</div>} />
+            <Route path="voucher" element={<div>Voucher Page</div>} />
           </Route>
         </Routes>
       </MemoryRouter>,
     );
 
+    // Voucher route has showMonthPicker=true; payroll pages manage their own MonthPicker
     expect(screen.getByDisplayValue("2026-02")).toBeInTheDocument();
   });
 

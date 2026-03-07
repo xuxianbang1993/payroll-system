@@ -169,7 +169,16 @@
     "employeeSaveRepositoryUnavailable": "儲存員工失敗：Repository 介面不可用",
     "employeeNameEmpty": "姓名不可為空",
     "employeeNotFound": "未找到要操作的員工",
-    "numericFieldInvalid": "{{reason}} 必須為大於等於 0 的數字"
+    "numericFieldInvalid": "{{reason}} 必須為大於等於 0 的數字",
+    "socialConfigNotLoaded": "社保設定尚未載入，請先檢查系統設定",
+    "payrollLoadFailed": "載入薪資資料失敗：{{reason}}",
+    "payrollResultSaveUnavailable": "儲存工資條失敗：Repository 介面不可用",
+    "payrollGenerateFailed": "生成工資條失敗：{{reason}}",
+    "payrollInputSaveUnavailable": "儲存月度輸入失敗：Repository 介面不可用",
+    "payrollInputSaveFailed": "儲存月度輸入失敗：{{reason}}",
+    "payrollGenerateAllFailed": "批量生成工資條失敗：{{reason}}",
+    "payrollClearUnavailable": "清空工資條失敗：Repository 介面不可用",
+    "payrollClearFailed": "清空工資條失敗：{{reason}}"
   },
   "success": {
     "orgNameSaved": "組織名稱已儲存",
@@ -178,7 +187,11 @@
     "employeeAdded": "員工已新增",
     "employeeUpdated": "員工已更新",
     "employeeDeleted": "員工已刪除",
-    "employeeListUpdated": "員工列表已更新"
+    "employeeListUpdated": "員工列表已更新",
+    "payrollInputSaved": "月度輸入已儲存",
+    "payrollSlipGenerated": "工資條已生成",
+    "payrollAllGenerated": "全部員工工資條已生成",
+    "payrollResultsCleared": "當月工資條已清空"
   },
   "settings": {
     "org": {
@@ -245,6 +258,123 @@
         "deleteConfirm": "確認刪除公司主體 {{short}} 嗎？"
       },
       "empty": "暫無公司主體，請先新增。"
+    }
+  },
+  "payroll": {
+    "monthPicker": {
+      "label": "工資月份",
+      "prevMonth": "上一月",
+      "nextMonth": "下一月",
+      "year": "{{year}}年",
+      "month": "{{month}}月"
+    },
+    "page": {
+      "title": "按員工錄入",
+      "description": "選擇工資月份，按員工錄入變數並生成工資條。",
+      "stats": {
+        "employeeCount": "員工人數",
+        "grossPayTotal": "應發工資合計",
+        "netPayTotal": "實發工資合計",
+        "cSocialTotal": "單位社保合計"
+      },
+      "action": {
+        "generateAll": "全部生成",
+        "generating": "生成中...",
+        "export": "匯出"
+      },
+      "notice": {
+        "allGenerated": "全部員工工資條已生成。",
+        "generateFailed": "批量生成失敗，請檢查輸入後重試。"
+      },
+      "empty": {
+        "noEmployees": "找不到員工，請先在員工列表維護員工資料。"
+      }
+    },
+    "card": {
+      "statusGenerated": "已生成",
+      "statusNotGenerated": "未生成",
+      "baseSalary": "基本工資",
+      "input": {
+        "perfGrade": "績效等級",
+        "perfGradePlaceholder": "請選擇",
+        "perfGradeUnset": "未設定",
+        "perfSalary": "績效工資",
+        "commission": "提成",
+        "bonus": "獎金",
+        "absentHours": "缺勤小時數",
+        "tax": "所得稅",
+        "otherAdj": "其他調整"
+      },
+      "saveInput": "儲存輸入",
+      "generateSlip": "生成工資條",
+      "result": {
+        "income": "收入明細",
+        "base": "基本工資+補助",
+        "perfSalary": "績效工資",
+        "commission": "提成",
+        "bonus": "獎金",
+        "absentDeduct": "缺勤扣款",
+        "otherAdj": "其他調整",
+        "grossPay": "應發工資",
+        "company": "單位承擔",
+        "cSocial": "單位社保合計",
+        "cFund": "單位公積金",
+        "cTotal": "單位承擔總額",
+        "personal": "個人扣除",
+        "wPension": "個人養老",
+        "wUnemploy": "個人失業",
+        "wMedical": "個人醫療",
+        "wSocial": "個人社保合計",
+        "wFund": "個人公積金",
+        "tax": "所得稅",
+        "totalDeduct": "個人扣除合計",
+        "netPay": "實發工資"
+      }
+    },
+    "detail": {
+      "title": "全員明細表",
+      "description": "28欄明細 + 按公司分組小計 + 全員合計",
+      "group": {
+        "basicInfo": "基本資訊",
+        "income": "收入",
+        "paySummary": "工資彙總",
+        "employerBurden": "單位承擔",
+        "personalDeduction": "個人扣除",
+        "final": "最終"
+      },
+      "col": {
+        "name": "姓名",
+        "position": "職位",
+        "base": "基本工資",
+        "subsidy": "補助",
+        "perfSalary": "績效工資",
+        "commission": "提成",
+        "bonus": "獎金",
+        "absentDeduct": "缺勤扣款",
+        "otherAdj": "其他調整",
+        "fullGrossPay": "應計工資",
+        "grossPay": "應發工資",
+        "cPension": "單位養老",
+        "cLocalPension": "地方補貼",
+        "cUnemploy": "單位失業",
+        "cMedical": "單位醫療",
+        "cInjury": "單位工傷",
+        "cMaternity": "單位生育",
+        "cSocial": "單位社保合計",
+        "cFund": "單位公積金",
+        "cTotal": "單位總額",
+        "wPension": "個人養老",
+        "wUnemploy": "個人失業",
+        "wMedical": "個人醫療",
+        "wSocial": "個人社保合計",
+        "wFund": "個人公積金",
+        "tax": "所得稅",
+        "totalDeduct": "個人扣除合計",
+        "netPay": "實發工資"
+      },
+      "subtotal": "小計",
+      "grandTotal": "全員合計",
+      "empty": "當月無工資資料，請先在按員工頁面生成工資條。"
     }
   },
   "employee": {

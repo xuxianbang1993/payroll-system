@@ -4,9 +4,9 @@
 
 ## Release Status
 
-- Current release: `v2.1.2-p2-p2.5`
-- Milestone: P2.5 (Payroll Store) complete — Zustand state layer wired, Opus 4.6 review 1 Critical / 3 Important fixed, 130/130 PASS
-- Previous: P2.4 (IPC + Preload + Renderer Bridge) complete — 5-channel IPC bridge, 0 Critical / 2 Important fixed
+- Current release: `P2.1.2-P2`
+- Milestone: P2 (Payroll Module) **COMPLETE** — all 10 sub-phases delivered, 5 Critical fixes applied, 130/130 PASS
+- Previous: P2.5 (Payroll Store) complete — Zustand state layer wired
 
 ## Tech Stack
 
@@ -108,10 +108,6 @@ Code review 发现问题全部修复：
 
 ## Remaining Work
 
-- P2 `payroll`:
-  - `calculator.ts` + `calculator.test.ts`
-  - `/payroll/employee`, `/payroll/detail`
-  - `payroll-flow.spec.ts`
 - P3 `voucher`:
   - `voucherGenerator.ts` + `voucherGenerator.test.ts`
   - `/voucher`
@@ -143,15 +139,15 @@ node scripts/generate-p1-xlsx-report.mjs
 - 技术架构不变：React + TypeScript + Vite + Tailwind/shadcn
 - 约束：只做布局与样式统一，不改业务逻辑、route 和 IPC
 
-## Current Status Snapshot (2026-02-23)
+## Current Status Snapshot (2026-03-07)
 
-- Branch: `main` (merged from `codex/P2-P2.5`)
-- Tag: `v2.1.2-p2-p2.5`
+- Branch: `main`
+- Tag: `P2.1.2-P2`
 - Tests: 130 unit, all passing (P1 83 + P2.1 13 + P2.2 7 + P2.3 10 + P2.5 17)
 - Build: tsc + vite + tsc-electron all passing
-- P2.5 payroll store complete, ready for P2.6
+- P2 payroll module COMPLETE
 
-## P2 Progress (Current)
+## P2 Progress (Complete)
 
 ### P2.1 ✅ calculator.ts — 单人工资条计算引擎
 - 纯函数 `calculatePaySlip(employee, input, socialConfig) → PaySlip`
@@ -183,8 +179,30 @@ node scripts/generate-p1-xlsx-report.mjs
 - IMPORTANT 修复×3：stale messages 清除 + clearMessages/reset 测试 + error-path 测试覆盖
 - 130/130 全量回归通过
 
+### P2.6 ✅ MonthPicker.tsx + PayCard.tsx — UI 组件层
+- `MonthPicker`：YYYY年MM月显示、prev/next 导航、max=当前月
+- `PayCard`：Collapsible 员工卡片，折叠/展开，输入表单 + 生成按钮 + PaySlip 结果展示
+- `ui/collapsible.tsx`：shadcn/ui Radix 包装
+- 3 语言 i18n 全覆盖
+
+### P2.7 ✅ PayrollByEmpPage.tsx — 按员工录入页
+- 路由 `/payroll/employee`，替换 ModulePlaceholderPage
+- MonthPicker + 4 统计卡片 + 全部生成按钮 + PayCard 列表
+- 集成 payroll-store 全部 actions
+
+### P2.8 ✅ PayrollDetailPage.tsx — 28 列全员明细表
+- 路由 `/payroll/detail`，TanStack Table 分组表格
+- 6 列组：基本信息(2) + 收入(7) + 工资汇总(2) + 单位承担(9) + 个人扣除(7) + 最终(1)
+- decimal.js 精确汇总 + Sticky 首列 + 横向滚动
+
+### P2.9 ✅ E2E 测试 — payroll-flow.spec.ts
+- 4 个 Playwright 测试用例
+
+### P2.10 ✅ 全量回归 + Critical 修复
+- 130/130 PASS，零回归
+- 5 个 CRITICAL 修复：base 双重计算、空字段清除、generateAll 静默失败、PayCard 结果明细缺失、UTC 时间 bug
+
 ## Next Steps
 
-1. P2.6: `MonthPicker.tsx` + `PayCard.tsx`
-2. P2.7: `PayrollByEmpPage.tsx`
-3. P2.8-P2.10: 明细表 → E2E → 关门
+1. P3: Voucher module
+2. P4: Packaging & acceptance

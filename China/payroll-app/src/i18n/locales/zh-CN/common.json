@@ -169,7 +169,16 @@
     "employeeSaveRepositoryUnavailable": "保存员工失败：仓储接口不可用",
     "employeeNameEmpty": "姓名不能为空",
     "employeeNotFound": "未找到要操作的员工",
-    "numericFieldInvalid": "{{reason}} 必须是大于等于 0 的数字"
+    "numericFieldInvalid": "{{reason}} 必须是大于等于 0 的数字",
+    "socialConfigNotLoaded": "社保配置尚未加载，请先检查系统设置",
+    "payrollLoadFailed": "加载薪资数据失败：{{reason}}",
+    "payrollResultSaveUnavailable": "保存工资条失败：仓储接口不可用",
+    "payrollGenerateFailed": "生成工资条失败：{{reason}}",
+    "payrollInputSaveUnavailable": "保存月度输入失败：仓储接口不可用",
+    "payrollInputSaveFailed": "保存月度输入失败：{{reason}}",
+    "payrollGenerateAllFailed": "批量生成工资条失败：{{reason}}",
+    "payrollClearUnavailable": "清空工资条失败：仓储接口不可用",
+    "payrollClearFailed": "清空工资条失败：{{reason}}"
   },
   "success": {
     "orgNameSaved": "组织名称已保存",
@@ -178,7 +187,11 @@
     "employeeAdded": "员工已新增",
     "employeeUpdated": "员工已更新",
     "employeeDeleted": "员工已删除",
-    "employeeListUpdated": "员工列表已更新"
+    "employeeListUpdated": "员工列表已更新",
+    "payrollInputSaved": "月度输入已保存",
+    "payrollSlipGenerated": "工资条已生成",
+    "payrollAllGenerated": "全部员工工资条已生成",
+    "payrollResultsCleared": "当月工资条已清空"
   },
   "settings": {
     "org": {
@@ -245,6 +258,123 @@
         "deleteConfirm": "确认删除公司主体 {{short}} 吗？"
       },
       "empty": "暂无公司主体，请先新增。"
+    }
+  },
+  "payroll": {
+    "monthPicker": {
+      "label": "工资月份",
+      "prevMonth": "上一月",
+      "nextMonth": "下一月",
+      "year": "{{year}}年",
+      "month": "{{month}}月"
+    },
+    "page": {
+      "title": "按员工录入",
+      "description": "选择工资月份，按员工录入变量并生成工资条。",
+      "stats": {
+        "employeeCount": "员工人数",
+        "grossPayTotal": "应发工资合计",
+        "netPayTotal": "实发工资合计",
+        "cSocialTotal": "单位社保合计"
+      },
+      "action": {
+        "generateAll": "全部生成",
+        "generating": "生成中...",
+        "export": "导出"
+      },
+      "notice": {
+        "allGenerated": "全部员工工资条已生成。",
+        "generateFailed": "批量生成失败，请检查输入后重试。"
+      },
+      "empty": {
+        "noEmployees": "未找到员工，请先在员工列表中维护员工数据。"
+      }
+    },
+    "card": {
+      "statusGenerated": "已生成",
+      "statusNotGenerated": "未生成",
+      "baseSalary": "基本工资",
+      "input": {
+        "perfGrade": "绩效等级",
+        "perfGradePlaceholder": "请选择",
+        "perfGradeUnset": "未设定",
+        "perfSalary": "绩效工资",
+        "commission": "提成",
+        "bonus": "奖金",
+        "absentHours": "缺勤小时数",
+        "tax": "所得税",
+        "otherAdj": "其他调整"
+      },
+      "saveInput": "保存输入",
+      "generateSlip": "生成工资条",
+      "result": {
+        "income": "收入明细",
+        "base": "基本工资+补助",
+        "perfSalary": "绩效工资",
+        "commission": "提成",
+        "bonus": "奖金",
+        "absentDeduct": "缺勤扣款",
+        "otherAdj": "其他调整",
+        "grossPay": "应发工资",
+        "company": "单位承担",
+        "cSocial": "单位社保合计",
+        "cFund": "单位公积金",
+        "cTotal": "单位承担总额",
+        "personal": "个人扣除",
+        "wPension": "个人养老",
+        "wUnemploy": "个人失业",
+        "wMedical": "个人医疗",
+        "wSocial": "个人社保合计",
+        "wFund": "个人公积金",
+        "tax": "所得税",
+        "totalDeduct": "个人扣除合计",
+        "netPay": "实发工资"
+      }
+    },
+    "detail": {
+      "title": "全员明细表",
+      "description": "28列明细 + 按公司分组小计 + 全员合计",
+      "group": {
+        "basicInfo": "基本信息",
+        "income": "收入",
+        "paySummary": "工资汇总",
+        "employerBurden": "单位承担",
+        "personalDeduction": "个人扣除",
+        "final": "最终"
+      },
+      "col": {
+        "name": "姓名",
+        "position": "职位",
+        "base": "基本工资",
+        "subsidy": "补助",
+        "perfSalary": "绩效工资",
+        "commission": "提成",
+        "bonus": "奖金",
+        "absentDeduct": "缺勤扣款",
+        "otherAdj": "其他调整",
+        "fullGrossPay": "应计工资",
+        "grossPay": "应发工资",
+        "cPension": "单位养老",
+        "cLocalPension": "地方补贴",
+        "cUnemploy": "单位失业",
+        "cMedical": "单位医疗",
+        "cInjury": "单位工伤",
+        "cMaternity": "单位生育",
+        "cSocial": "单位社保合计",
+        "cFund": "单位公积金",
+        "cTotal": "单位总额",
+        "wPension": "个人养老",
+        "wUnemploy": "个人失业",
+        "wMedical": "个人医疗",
+        "wSocial": "个人社保合计",
+        "wFund": "个人公积金",
+        "tax": "所得税",
+        "totalDeduct": "个人扣除合计",
+        "netPay": "实发工资"
+      },
+      "subtotal": "小计",
+      "grandTotal": "全员合计",
+      "empty": "当月无工资数据，请先在按员工页面生成工资条。"
     }
   },
   "employee": {

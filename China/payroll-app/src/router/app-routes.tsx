@@ -7,6 +7,8 @@ import { ImportExportPage } from "@/pages/employee/ImportExportPage";
 import { BackupPage } from "@/pages/data/BackupPage";
 import { StoragePage } from "@/pages/data/StoragePage";
 import { OverviewPage } from "@/pages/home/OverviewPage";
+import { PayrollByEmpPage } from "@/pages/payroll/PayrollByEmpPage";
+import { PayrollDetailPage } from "@/pages/payroll/PayrollDetailPage";
 import { CompanyPage } from "@/pages/settings/CompanyPage";
 import { OrgSettingsPage } from "@/pages/settings/OrgSettingsPage";
 import { SocialConfigPage } from "@/pages/settings/SocialConfigPage";
@@ -92,16 +94,14 @@ export const appRoutes: AppRouteRecord[] = [
     titleKey: "nav.page.payrollByEmp",
     category: "payroll",
     groupKey: "nav.group.monthlyCalc",
-    showMonthPicker: true,
-    element: <ModulePlaceholderPage titleKey="nav.page.payrollByEmp" />,
+    element: <PayrollByEmpPage />,
   },
   {
     path: "/payroll/detail",
     titleKey: "nav.page.payrollDetail",
     category: "payroll",
     groupKey: "nav.group.monthlyCalc",
-    showMonthPicker: true,
-    element: <ModulePlaceholderPage titleKey="nav.page.payrollDetail" />,
+    element: <PayrollDetailPage />,
   },
   {
     path: "/voucher",

@@ -169,7 +169,16 @@
     "employeeSaveRepositoryUnavailable": "Failed to save employee: Repository interface unavailable",
     "employeeNameEmpty": "Employee name cannot be empty",
     "employeeNotFound": "Employee not found",
-    "numericFieldInvalid": "{{reason}} must be a number greater than or equal to 0"
+    "numericFieldInvalid": "{{reason}} must be a number greater than or equal to 0",
+    "socialConfigNotLoaded": "Social configuration is not loaded yet. Please check system settings first",
+    "payrollLoadFailed": "Failed to load payroll data: {{reason}}",
+    "payrollResultSaveUnavailable": "Failed to save payslip: Repository interface unavailable",
+    "payrollGenerateFailed": "Failed to generate payslip: {{reason}}",
+    "payrollInputSaveUnavailable": "Failed to save monthly input: Repository interface unavailable",
+    "payrollInputSaveFailed": "Failed to save monthly input: {{reason}}",
+    "payrollGenerateAllFailed": "Failed to generate all payslips: {{reason}}",
+    "payrollClearUnavailable": "Failed to clear payslips: Repository interface unavailable",
+    "payrollClearFailed": "Failed to clear payslips: {{reason}}"
   },
   "success": {
     "orgNameSaved": "Organization name saved",
@@ -178,7 +187,11 @@
     "employeeAdded": "Employee added",
     "employeeUpdated": "Employee updated",
     "employeeDeleted": "Employee deleted",
-    "employeeListUpdated": "Employee list updated"
+    "employeeListUpdated": "Employee list updated",
+    "payrollInputSaved": "Monthly input saved",
+    "payrollSlipGenerated": "Payslip generated",
+    "payrollAllGenerated": "Payslips generated for all employees",
+    "payrollResultsCleared": "Payslips for this month were cleared"
   },
   "settings": {
     "org": {
@@ -245,6 +258,123 @@
         "deleteConfirm": "Delete company entity {{short}}?"
       },
       "empty": "No company entities yet. Add one first."
+    }
+  },
+  "payroll": {
+    "monthPicker": {
+      "label": "Payroll Month",
+      "prevMonth": "Previous month",
+      "nextMonth": "Next month",
+      "year": "{{year}}",
+      "month": "/{{month}}"
+    },
+    "page": {
+      "title": "By Employee",
+      "description": "Choose payroll month, input employee variables, and generate payslips.",
+      "stats": {
+        "employeeCount": "Employee Count",
+        "grossPayTotal": "Gross Pay Total",
+        "netPayTotal": "Net Pay Total",
+        "cSocialTotal": "Employer Social Total"
+      },
+      "action": {
+        "generateAll": "Generate All",
+        "generating": "Generating...",
+        "export": "Export"
+      },
+      "notice": {
+        "allGenerated": "Payslips for all employees have been generated.",
+        "generateFailed": "Batch generation failed. Please review inputs and retry."
+      },
+      "empty": {
+        "noEmployees": "No employees found. Please add employee data first."
+      }
+    },
+    "card": {
+      "statusGenerated": "Generated",
+      "statusNotGenerated": "Not Generated",
+      "baseSalary": "Base Salary",
+      "input": {
+        "perfGrade": "Perf. Grade",
+        "perfGradePlaceholder": "Select",
+        "perfGradeUnset": "Not Set",
+        "perfSalary": "Perf. Salary",
+        "commission": "Commission",
+        "bonus": "Bonus",
+        "absentHours": "Absent Hours",
+        "tax": "Income Tax",
+        "otherAdj": "Other Adjustment"
+      },
+      "saveInput": "Save Input",
+      "generateSlip": "Generate Payslip",
+      "result": {
+        "income": "Income Details",
+        "base": "Base + Subsidy",
+        "perfSalary": "Perf. Salary",
+        "commission": "Commission",
+        "bonus": "Bonus",
+        "absentDeduct": "Absent Deduction",
+        "otherAdj": "Other Adjustment",
+        "grossPay": "Gross Pay",
+        "company": "Employer Burden",
+        "cSocial": "Employer Social Insurance",
+        "cFund": "Employer Housing Fund",
+        "cTotal": "Employer Total",
+        "personal": "Personal Deductions",
+        "wPension": "Employee Pension",
+        "wUnemploy": "Employee Unemployment",
+        "wMedical": "Employee Medical",
+        "wSocial": "Employee Social Insurance",
+        "wFund": "Employee Housing Fund",
+        "tax": "Income Tax",
+        "totalDeduct": "Total Deductions",
+        "netPay": "Net Pay"
+      }
+    },
+    "detail": {
+      "title": "Payroll Detail Table",
+      "description": "28 columns + company-level subtotals + grand total",
+      "group": {
+        "basicInfo": "Basic Info",
+        "income": "Income",
+        "paySummary": "Pay Summary",
+        "employerBurden": "Employer Burden",
+        "personalDeduction": "Personal Deductions",
+        "final": "Final"
+      },
+      "col": {
+        "name": "Name",
+        "position": "Position",
+        "base": "Base Salary",
+        "subsidy": "Subsidy",
+        "perfSalary": "Performance Pay",
+        "commission": "Commission",
+        "bonus": "Bonus",
+        "absentDeduct": "Absence Deduction",
+        "otherAdj": "Other Adjustment",
+        "fullGrossPay": "Accrued Pay",
+        "grossPay": "Gross Pay",
+        "cPension": "Employer Pension",
+        "cLocalPension": "Local Subsidy",
+        "cUnemploy": "Employer Unemployment",
+        "cMedical": "Employer Medical",
+        "cInjury": "Employer Injury",
+        "cMaternity": "Employer Maternity",
+        "cSocial": "Employer Social Total",
+        "cFund": "Employer Housing Fund",
+        "cTotal": "Employer Total",
+        "wPension": "Employee Pension",
+        "wUnemploy": "Employee Unemployment",
+        "wMedical": "Employee Medical",
+        "wSocial": "Employee Social Total",
+        "wFund": "Employee Housing Fund",
+        "tax": "Income Tax",
+        "totalDeduct": "Total Personal Deductions",
+        "netPay": "Net Pay"
+      },
+      "subtotal": "Subtotal",
+      "grandTotal": "Grand Total",
+      "empty": "No payroll data for this month. Generate payslips first on the By Employee page."
     }
   },
   "employee": {
