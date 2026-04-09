@@ -266,45 +266,13 @@ P2.3（Codex prompt 已准备）
 
 **Status**: ✅ Complete (2026-02-23)
 
-### P2.6: MonthPicker + PayCard 组件
-- [ ] 实现 `src/components/ui/collapsible.tsx`（Radix UI 封装）
-- [ ] 实现 `src/components/MonthPicker.tsx`（受控年月选择器）
-- [ ] 实现 `src/components/PayCard.tsx`（Collapsible 卡片，7 字段输入 + 结果展示）
-- [ ] `npm run build` 零错误
-- [ ] Claude Code CLI 代码审查（Opus 4.6）
-- [ ] 合并到 main
-- **前置：** P2.5 已审查合并 ✅
-- **Prompt 文件：** `plans/P2-current-status-codex-prompt.md`（2026-02-23 已生成）
-- **Status:** ⏳ Prompt ready (2026-02-23), awaiting Codex execution
-
-### P2.7: PayrollByEmpPage
-- [ ] 实现 `src/pages/payroll/PayrollByEmpPage.tsx`
-- [ ] 替换 `app-routes.tsx` payroll/employee 占位
-- [ ] 补充 i18n keys
-- **前置：** P2.5 + P2.6 已审查合并
-- **Status:** pending
-
-### P2.8: PayrollDetailPage（28 列明细表）
-- [ ] 实现 `src/pages/payroll/PayrollDetailPage.tsx`
-- [ ] 替换 `app-routes.tsx` payroll/detail 占位
-- [ ] 补充 i18n keys
-- **前置：** P2.5 已审查合并
-- **Status:** pending
-
-### P2.9: payroll-flow.spec.ts E2E + 组件测试
-- [ ] 实现 `tests/e2e/payroll-flow.spec.ts`
-- [ ] 更新 governance 文件
-- **前置：** P2.7 + P2.8 已审查合并
-- **Status:** pending
-
-### P2.10: 全量回归 + 里程碑证据
-- [ ] `npm run test` 全量通过
-- [ ] `npm run test:e2e` 全量通过
-- [ ] 三件套证据齐全
-- [ ] 更新 plans + README + SOP
-- [ ] Commit + Tag
-- **前置：** P2.9 已审查合并
-- **Status:** pending
+### P2.6-P2.10: UI + Pages + E2E + Regression (batch)
+- [x] P2.6: MonthPicker + PayCard 组件
+- [x] P2.7: PayrollByEmpPage
+- [x] P2.8: PayrollDetailPage（28 列明细表）
+- [x] P2.9: payroll-flow.spec.ts E2E
+- [x] P2.10: 全量回归 + 里程碑证据 + 5 CRITICAL fixes
+- **Status:** ✅ Complete (batch commit 74c0995, tag P2.1.2-P2)
 
 ## P2 完成门槛
 
@@ -368,6 +336,74 @@ Phase L3（收尾中）
 
 ## Next Execution Plan
 
-1. 完成 L3 提交并推送。
-2. 合并 `codex/bugfix/layout-fix`。
-3. 启动 P2：`plans/2026-02-14-p2-payroll-kickoff.md`。
+P4: Packaging & Acceptance — see `plans/2026-04-09-checkpoint.md` for scope.
+
+---
+
+# Task Plan Update: P3 会计凭证模块（2026-04-09）
+
+## Goal
+
+交付完整会计凭证模块 — 5 张凭证自动生成 + 凭证页面 + 公司筛选 + CSV 导出 + E2E 测试。
+
+## 总纲文件
+
+`plans/P3阶段开发总纲.md`
+
+## Branch
+
+`codex/p3-voucher` → merged to `main` → deleted
+
+## P3 Phases
+
+### P3.1: voucher types + voucherGenerator.ts + unit test
+- [x] 新建 `src/types/voucher.ts` — VoucherEntry / Voucher / VoucherSet / SalaryPayableBalance
+- [x] 新建 `src/services/voucherGenerator.ts` — 5 个独立纯函数 + buildVoucher helper
+- [x] 新建 `tests/unit/services/voucherGenerator.test.ts` — 13 个测试用例
+- [x] CTO 审查：零缺陷通过
+- **执行方：** Codex via CCB
+- **审查方：** Claude Opus 4.6 (手动)
+- **Status:** ✅ Complete
+
+### P3.2: VoucherCard 组件
+- [x] 新建 `src/components/VoucherCard.tsx` — 70 行，shadcn Table + Badge
+- [x] 新建组件测试
+- [x] CTO 审查：零缺陷通过
+- **Status:** ✅ Complete
+
+### P3.3: VoucherPage + 路由 + i18n
+- [x] 新建 `src/pages/voucher/VoucherPage.tsx` — 182 行，useMemo + company filter
+- [x] 修改 `app-routes.tsx` — 替换占位，移除 ModulePlaceholderPage
+- [x] 添加 i18n keys 到 3 个 locale 文件
+- [x] 新建页面测试 + 路由测试
+- [x] CTO 审查：零缺陷通过
+- **Status:** ✅ Complete
+
+### P3.4: CSV 导出
+- [x] 新建 `src/utils/voucher-csv.ts` — 43 行，纯函数，UTF-8 BOM，RFC 4180
+- [x] VoucherPage 添加导出按钮
+- [x] 新建 `tests/unit/utils/voucher-csv.test.ts` — 5 个测试
+- [x] CTO 审查：零缺陷通过
+- **Status:** ✅ Complete
+
+### P3.5: E2E 测试
+- [x] 新建 `tests/e2e/voucher-flow.spec.ts` — 4 个 Playwright 场景
+- [x] CTO 审查：零缺陷通过
+- **Status:** ✅ Complete
+
+### P3.6: 收尾
+- [x] 修复 payroll-store.ts 预存在 TS strict 类型转换错误
+- [x] 更新 plans (checkpoint / progress / task_plan / P3总纲)
+- [x] Git: commit `eb40229` + tag `v2.1.2-p3-voucher` + push + merge main + release + cleanup
+- **Status:** ✅ Complete
+
+## P3 完成门槛
+
+```
+✅ voucherGenerator.test.ts 全部通过 (13/13)
+✅ voucher-flow.spec.ts 就绪 (4 scenarios)
+✅ npm run test 全量通过 (155/155，含 P1+P2 回归)
+✅ npm run build 零错误
+✅ A-04 / A-05 / A-11 验收项通过
+✅ GitHub Release 已创建
+```

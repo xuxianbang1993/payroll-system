@@ -673,3 +673,53 @@ npm run test (全量)
 - 旧文件: `2026-02-21-p2.4-codex-prompt.md` → 保留作历史存档
 - 新文件: `P2-current-status-codex-prompt.md` → 滚动更新，始终代表 P2 阶段当前执行子阶段的 Codex prompt
 - 约定: P2.5 完成后，此文件将被替换为 P2.6 的 prompt
+
+---
+
+## P3 Voucher Module Findings (2026-04-09)
+
+### 基线确认
+
+- P2 全部完成，main HEAD `8a1169d`（tag `P2.1.2-P2`）
+- P2 测试状态：130 unit ✅ + E2E ✅
+- aggregator.ts (P2.2) 可直接被 P3 消费
+- `/voucher` 路由为占位 ModulePlaceholderPage
+
+### 架构决策
+
+| 决策 | 选择 | 理由 |
+|------|------|------|
+| 凭证数据结构 | VoucherEntry → Voucher → VoucherSet 三层 | 最小化耦合，组件只需 Voucher，页面需 VoucherSet |
+| 生成函数返回 null | 全部分录为 0 时返回 null | 比返回空数组语义更明确，页面直接 filter(Boolean) |
+| 科目名称硬编码中文 | 会计科目是领域术语，不走 i18n | 会计准则中科目名称是固定的 |
+| 不新建 voucher-store | 凭证从 payroll slips 实时计算，无独立状态 | 避免状态冗余，遵循 YAGNI |
+| CSV 不用 SheetJS | 凭证 CSV 结构简单（5 列），Blob 下载 | 减少依赖，YAGNI |
+| 公司筛选在页面层 | aggregatePaySlips(slips, filterCompany) 已支持 | 复用 P2.2 能力，不重复实现 |
+| P3.2+P3.3 合并为一个 Codex prompt | UI 组件和页面紧耦合 | 分开发送增加上下文切换成本 |
+
+### 执行发现
+
+1. **Codex prompt 边界锁定有效** — 5 个子阶段全部一次审查通过（零返工），归因于精确的类型定义、函数签名、科目名称、测试场景在 prompt 中全部锁死
+2. **CCB 异步通信稳定** — 5 次 `/ask codex` 均成功，无超时或丢失
+3. **预存在 build 错误** — payroll-store.ts 有 TS strict 类型转换问题（`as Record<string, unknown>` → `as unknown as Record<string, unknown>`），在 P3 session 中修复
+4. **code-reviewer agent 403** — subagent_type: "code-reviewer" 遇到认证错误，改为 CTO 手动审查完成全部代码复查
+
+### CTO 审查清单（全部通过）
+
+| 检查项 | P3.1 | P3.2 | P3.3 | P3.4 | P3.5 |
+|--------|------|------|------|------|------|
+| decimal.js 全覆盖 | ✅ | N/A | N/A | N/A | N/A |
+| 纯函数 | ✅ | N/A | N/A | ✅ | N/A |
+| 无 any | ✅ | ✅ | ✅ | ✅ | ✅ |
+| i18n 合规 | N/A | ✅ | ✅ | ✅ | N/A |
+| 单一职责 | ✅ | ✅ | ✅ | ✅ | ✅ |
+| ≤300 行 | ✅(139) | ✅(70) | ✅(182) | ✅(43) | ✅(69) |
+| PRD 对齐 | ✅ | ✅ | ✅ | ✅ | ✅ |
+
+### 验收快照
+
+| 编号 | 验收项 | 状态 |
+|:----:|--------|------|
+| A-04 | 5 张凭证全部借贷平衡 | ✅ |
+| A-05 | 按公司筛选正确 | ✅ |
+| A-11 | 应付职工薪酬-人员工资余额 = 0 | ✅ |

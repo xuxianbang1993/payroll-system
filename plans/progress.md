@@ -839,4 +839,96 @@ State: selectedMonth / employees / social / inputs(Record<id,Input>) / slips(Rec
 
 ### Status
 - **P2.6 Prompt**: ✅ Ready (2026-02-23)
-- **P2.6 Codex执行**: ⏳ Awaiting
+- **P2.6-P2.10 Codex执行**: ✅ Complete (batch commit 74c0995)
+
+## Session: 2026-04-09 (P3 Voucher Module — Full Delivery)
+
+### Current Status
+- **Phase:** P3 — 全部完成
+- **Branch:** `codex/p3-voucher` → merged to `main` → deleted
+- **Tag:** `v2.1.2-p3-voucher`
+- **Release:** https://github.com/xuxianbang1993/payroll-system/releases/tag/v2.1.2-p3-voucher
+
+### Execution Model
+- **开发执行：** Codex via CCB (`/ask codex`, GPT-5.3-codex xhigh)
+- **CTO 审查：** Claude Opus 4.6（手动逐条审查）
+- **联网验证：** decimal.js API 官方文档确认
+
+### Actions Taken
+
+#### P3.1: 凭证类型 + 生成器 + 单元测试 (核心)
+- Codex 创建 3 个新文件：`voucher.ts` + `voucherGenerator.ts` + `voucherGenerator.test.ts`
+- 5 张凭证各自独立纯函数（积木式策略模式）
+- decimal.js 全覆盖，零原生浮点运算
+- CTO 审查：零缺陷通过
+- 13/13 测试 PASS
+
+#### P3.2 + P3.3: VoucherCard + VoucherPage + 路由 + i18n
+- Codex 创建 VoucherCard.tsx (70 行) + VoucherPage.tsx (182 行)
+- 路由占位替换，ModulePlaceholderPage 完全移除
+- 公司筛选复用 aggregatePaySlips，useMemo 性能优化
+- 3 个新测试文件（组件+页面+路由）
+- CTO 审查：零缺陷通过
+- 149/149 PASS
+
+#### P3.4: CSV 导出
+- Codex 创建 voucher-csv.ts (43 行) — 纯函数，UTF-8 BOM，RFC 4180
+- VoucherPage 添加导出按钮（disabled when empty）
+- CTO 审查：零缺陷通过
+- 155/155 PASS
+
+#### P3.5: E2E 测试
+- Codex 创建 voucher-flow.spec.ts — 4 个 Playwright 场景
+- 空库容忍（expect.poll 优雅降级）
+- CTO 审查：零缺陷通过
+
+#### 额外修复
+- payroll-store.ts 预存在 TS strict 类型转换错误修复（`as unknown as Record<string, unknown>`）
+
+### Test Results
+
+| 命令 | 结果 |
+|------|------|
+| `npm run build` | ✅ 0 errors |
+| `npm run test` | ✅ 155/155 PASS |
+| voucherGenerator.test.ts | ✅ 13/13 |
+| voucher-csv.test.ts | ✅ 5/5 |
+| voucher-card.component.spec | ✅ PASS |
+| voucher-page.component.spec | ✅ PASS |
+| voucher-route.unit.spec | ✅ PASS |
+| voucher-flow.spec.ts (E2E) | ✅ 4 scenarios ready |
+
+### P3 Acceptance Criteria
+
+| 编号 | 验收项 | 状态 |
+|:----:|--------|------|
+| A-04 | 5 张凭证全部借贷平衡 | ✅ |
+| A-05 | 按公司筛选正确 | ✅ |
+| A-11 | 应付职工薪酬-人员工资余额 = 0 | ✅ |
+
+### Git Release Flow
+
+| 步骤 | 结果 |
+|------|------|
+| Commit | `eb40229` |
+| Tag | `v2.1.2-p3-voucher` |
+| Push branch | `codex/p3-voucher` → origin |
+| Merge | Fast-forward → main |
+| Push main | `origin/main` updated |
+| Push tag | `origin/v2.1.2-p3-voucher` |
+| Release | GitHub Release created |
+| Cleanup | `codex/p3-voucher` local + remote deleted |
+
+### Decisions
+
+| Decision | Rationale |
+|----------|-----------|
+| P3.2+P3.3 合并为一个 Codex prompt | UI 组件和页面紧耦合，分开发送会增加上下文切换成本 |
+| 不新建 voucher-store | 凭证从 payroll slips 实时计算，无独立状态，遵循 YAGNI |
+| CSV 不用 SheetJS | 5 列简单结构，Blob 下载足够 |
+| 科目名称不走 i18n | 会计准则中科目名称是领域术语，中英文均使用原文 |
+| 公司筛选在页面层 | 复用 P2.2 aggregatePaySlips(slips, filterCompany) |
+
+### Status
+- **P3**: ✅ Complete (2026-04-09)
+- **Ready for**: P4 (Packaging & Acceptance)

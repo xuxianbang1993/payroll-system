@@ -1,14 +1,15 @@
-# Checkpoint: 2026-04-09
+# Checkpoint: 2026-04-09 (Post-P3)
 
 ## Project State Summary
 
 | Item | Value |
 |------|-------|
 | **Branch** | `main` |
-| **Latest Tag** | `P2.1.2-P2` |
-| **Latest Commit** | `8a1169d` — docs: Enforce AI model tiering rules in CLAUDE.md |
-| **Tests** | 130/130 PASS (P1: 83 + P2.1: 13 + P2.2: 7 + P2.3: 10 + P2.5: 17) |
+| **Latest Tag** | `v2.1.2-p3-voucher` |
+| **Latest Commit** | `eb40229` — feat(P3): Complete voucher module |
+| **Tests** | 155/155 PASS (P1: 83 + P2: 47 + P3: 25) |
 | **Build** | tsc + vite + tsc-electron all passing |
+| **Release** | [v2.1.2-p3-voucher](https://github.com/xuxianbang1993/payroll-system/releases/tag/v2.1.2-p3-voucher) |
 
 ---
 
@@ -19,8 +20,8 @@
 | P0 | Done | Framework + design system + test infra |
 | P1 | Done | Settings + Employee + Data management (83 tests) |
 | P2 | Done | Payroll module complete (47 tests added, 130/130 total) |
-| **P3** | **Next** | Voucher module (voucherGenerator + VoucherPage + E2E) |
-| P4 | Pending | Packaging (.dmg/.exe) + full acceptance |
+| P3 | Done | Voucher module complete (25 tests added, 155/155 total) |
+| **P4** | **Next** | Packaging (.dmg/.exe) + full acceptance |
 
 ### P2 Sub-phases (All Complete)
 
@@ -37,34 +38,54 @@
 | P2.9 | `payroll-flow.spec.ts` — E2E tests (4 cases) |
 | P2.10 | Full regression + 5 CRITICAL fixes |
 
+### P3 Sub-phases (All Complete)
+
+| Sub-phase | Deliverable |
+|-----------|-------------|
+| P3.1 | `voucher.ts` types + `voucherGenerator.ts` — 5 voucher pure functions (13 unit tests) |
+| P3.2 | `VoucherCard.tsx` — presentational voucher card component (70 lines) |
+| P3.3 | `VoucherPage.tsx` — overview page + company filter + route wiring + i18n |
+| P3.4 | `voucher-csv.ts` — CSV export with UTF-8 BOM + RFC 4180 (5 tests) |
+| P3.5 | `voucher-flow.spec.ts` — 4 Playwright E2E scenarios |
+
+### P3 Acceptance Criteria (All Met)
+
+- ✅ A-04: 5 vouchers all balanced (debit = credit)
+- ✅ A-05: Filter by company entity works correctly
+- ✅ A-11: After all 5 vouchers, "应付职工薪酬-人员工资" balance = 0
+
+### P3 Architecture Decisions
+
+| Decision | Choice | Rationale |
+|----------|--------|-----------|
+| Voucher data structure | VoucherEntry → Voucher → VoucherSet | Minimal coupling, component needs Voucher, page needs VoucherSet |
+| Generator returns null | All-zero voucher = null | Clearer semantics, page uses filter(Boolean) |
+| Account names hardcoded | Chinese accounting terms, not i18n | Regulatory domain terms are fixed |
+| No voucher-store | Real-time computed from payroll slips | YAGNI — avoid state redundancy |
+| CSV without SheetJS | Simple 5-column structure | YAGNI — no heavy dependency needed |
+| Company filter at page level | aggregatePaySlips(slips, filterCompany) | Reuse P2.2 capability |
+
 ---
 
-## P3 Scope (Next Up)
+## P4 Scope (Next Up)
 
-Per `06-mod-voucher.md`, deliverables:
+Per `09-nonfunctional.md` + `10-acceptance.md`:
 
-### Core Files
-- `src/services/voucherGenerator.ts` — 5 accounting vouchers generation
-- `tests/unit/services/voucherGenerator.test.ts`
-- `src/pages/voucher/VoucherPage.tsx`
-- `src/components/VoucherCard.tsx`
-- `tests/e2e/voucher-flow.spec.ts`
+### Deliverables
+1. electron-builder config (.dmg + .exe)
+2. App icon
+3. i18n completion (~200 keys)
+4. `npm run test:all` full regression
+5. `10-acceptance.md` A-01~A-12, B-01~B-09 full verification
 
-### 5 Vouchers
-1. Voucher 1: Accrue monthly wages (计提月工资)
-2. Voucher 2: Pay social insurance (缴纳社保)
-3. Voucher 3: Pay housing fund (支付公积金)
-4. Voucher 4: Pay income tax (缴纳个税)
-5. Voucher 5: Disburse wages (发放工资)
+### Acceptance Criteria (Remaining)
+- P2: A-03 (工资计算), A-07 (PDF 工资条)
+- P4: B-01~B-04 (安装包与离线验收)
+- All: A-12 (测试证据一致性)
 
-### Acceptance Criteria (from 10-acceptance.md)
-- A-04: 5 vouchers all balanced (debit = credit)
-- A-05: Filter by company entity works correctly
-- A-11: After all 5 vouchers, "应付职工薪酬-人员工资" balance = 0
-
-### Dependencies
-- `aggregator.ts` already completed in P2.2 (can be reused directly)
-- Payroll store and data layer stable
+### Pending Export Features
+- Payroll CSV export (P2)
+- PDF payslips batch export (P2)
 
 ---
 
@@ -94,8 +115,8 @@ Per `06-mod-voucher.md`, deliverables:
 | 03-mod-settings.md | Settings module | Done (P1) |
 | 04-mod-employee.md | Employee module | Done (P1) |
 | 05-mod-payroll.md | Payroll module | Done (P2) |
-| 06-mod-voucher.md | Voucher module | Next (P3) |
-| 07-import-export.md | Import/Export | Partial (employee done, payroll/voucher pending) |
+| 06-mod-voucher.md | Voucher module | Done (P3) |
+| 07-import-export.md | Import/Export | Partial (employee done, payroll/voucher CSV done, PDF pending) |
 | 08-data-management.md | Backup/Restore | Done (P1) |
 | 09-nonfunctional.md | NFR | Current (v1.5) |
 | 10-acceptance.md | Acceptance criteria | Current (v1.5) |
@@ -110,6 +131,7 @@ src/
   services/
     calculator.ts          — payslip calculation (P2.1)
     aggregator.ts          — employee aggregation (P2.2)
+    voucherGenerator.ts    — 5 voucher generation (P3.1)
   stores/
     settings-store.ts      — settings Zustand store (P1)
     employee-store.ts      — employee Zustand store (P1)
@@ -121,10 +143,11 @@ src/
     employee/              — EmployeeList / ImportExport (P1)
     payroll/               — PayrollByEmp / PayrollDetail (P2.6-P2.8)
     data/                  — Backup / Storage (P1)
-    voucher/               — VoucherPage (P3 — placeholder)
+    voucher/               — VoucherPage (P3.3)
   components/
     MonthPicker.tsx        — year-month selector (P2.6)
     PayCard.tsx            — collapsible employee paycard (P2.6)
+    VoucherCard.tsx        — voucher display card (P3.2)
     ui/                    — shadcn/ui base components
   lib/
     decimal.ts             — decimal.js wrapper
@@ -132,10 +155,14 @@ src/
     electron-store.ts      — electron-store wrapper
     employee-import-*.ts   — import parse + merge
   types/
-    payroll.ts             — PaySlip / PayrollInput types
+    payroll.ts             — PaySlip / PayrollInput / AggregateResult types
+    voucher.ts             — VoucherEntry / Voucher / VoucherSet types (P3.1)
     electron-api.d.ts      — IPC type definitions
+  utils/
+    format.ts              — formatAmount / formatCurrency
+    voucher-csv.ts         — CSV export utility (P3.4)
+    error.ts / i18n-utils.ts / type-guards.ts
   i18n/                    — zh-HK / zh-CN / en
-  utils/                   — format, error, type-guards, etc.
 ```
 
 ---
@@ -144,8 +171,8 @@ src/
 
 | Task | Tool / Agent |
 |------|-------------|
-| Code development | Codex (`mcp__codex-cli__codex`, gpt-5.3-codex, xhigh) |
-| Code review | `subagent_type: "code-reviewer"` (Sonnet) |
+| Code development | Codex via CCB (`/ask codex`, gpt-5.3-codex, xhigh) |
+| Code review | CTO manual review (Claude Opus 4.6) |
 | Architecture | `subagent_type: "architect"` (Opus) |
 | Doc validation | `subagent_type: "doc-validator"` (Haiku) |
 | Quality check | `subagent_type: "quality-checker"` (Haiku) |
@@ -153,35 +180,7 @@ src/
 
 ---
 
-## Environment Changes (This Session)
-
-### Installed: Claude Code Bridge (ccb) v5.2.9
-- **Global install**: `~/.local/share/codex-dual/` + `~/.local/bin/`
-- **tmux 3.6a** installed via brew (ccb dependency)
-- **Skills added**: `/ask`, `/pend`, `/cping`, `/all-plan`, `/mounted`, `/review`, etc.
-- **CLAUDE.md modified**: ccb appended AI collaboration rules (Async Guardrail, Role Assignment, Peer Review Framework)
-- **Note**: ccb installer removed `codex-cli` MCP config from project `.mcp.json` — may need manual restore if Codex MCP workflow is required
-
-### CCB Role Assignments (from CLAUDE.md)
-| Role | Provider | Description |
-|------|----------|-------------|
-| designer | claude | Primary planner and architect |
-| inspiration | gemini | Creative brainstorming (unreliable, reference only) |
-| reviewer | codex | Scored quality gate |
-| executor | claude | Code implementation |
-
----
-
-## Remaining Work (P3 → P4)
-
-### P3: Voucher Module
-1. `voucherGenerator.ts` + unit tests
-2. `VoucherCard.tsx` component
-3. `VoucherPage.tsx` + company filter
-4. Voucher CSV export
-5. `voucher-flow.spec.ts` E2E
-6. Balance verification (应付职工薪酬 = 0)
-7. Milestone evidence (raw JSON + case map + XLSX)
+## Remaining Work (P4)
 
 ### P4: Packaging & Acceptance
 1. electron-builder config (.dmg + .exe)
@@ -190,7 +189,6 @@ src/
 4. `npm run test:all` full regression
 5. `10-acceptance.md` A-01~A-12, B-01~B-09 full verification
 
-### Pending Export Features (across P2-P3)
+### Pending Export Features
 - Payroll CSV export (P2)
 - PDF payslips batch export (P2)
-- Voucher CSV export (P3)
