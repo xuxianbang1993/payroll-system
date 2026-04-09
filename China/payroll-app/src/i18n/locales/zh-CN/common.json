@@ -72,6 +72,22 @@
     },
     "enterAction": "进入：{{page}}"
   },
+  "voucher": {
+    "debit": "借方",
+    "credit": "贷方",
+    "total": "合计",
+    "balanced": "借贷平衡",
+    "unbalanced": "借贷不平衡",
+    "filterAll": "全部公司",
+    "balanceCheck": "余额校验",
+    "salaryPayable": "应付职工薪酬-人员工资",
+    "creditTotal": "贷方合计",
+    "debitTotal": "借方合计",
+    "balance": "余额",
+    "noData": "当前月份暂无工资数据，请先在薪资核算模块生成工资条",
+    "voucherCount": "共 {{count}} 张凭证",
+    "exportCsv": "导出CSV"
+  },
   "data": {
     "backup": {
       "title": "数据备份与恢复",

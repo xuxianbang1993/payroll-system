@@ -72,6 +72,22 @@
     },
     "enterAction": "Enter: {{page}}"
   },
+  "voucher": {
+    "debit": "Debit",
+    "credit": "Credit",
+    "total": "Total",
+    "balanced": "Balanced",
+    "unbalanced": "Unbalanced",
+    "filterAll": "All Companies",
+    "balanceCheck": "Balance Check",
+    "salaryPayable": "Salary Payable",
+    "creditTotal": "Credit Total",
+    "debitTotal": "Debit Total",
+    "balance": "Balance",
+    "noData": "No payroll data for this month. Please generate payslips in the Payroll module first.",
+    "voucherCount": "{{count}} voucher(s) generated",
+    "exportCsv": "Export CSV"
+  },
   "data": {
     "backup": {
       "title": "Backup and Restore",

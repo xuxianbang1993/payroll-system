@@ -1,7 +1,6 @@
 import type { ReactElement } from "react";
 
 import type { NavCategoryId } from "@/config/navigation";
-import { ModulePlaceholderPage } from "@/pages/ModulePlaceholderPage";
 import { EmployeeListPage } from "@/pages/employee/EmployeeListPage";
 import { ImportExportPage } from "@/pages/employee/ImportExportPage";
 import { BackupPage } from "@/pages/data/BackupPage";
@@ -12,6 +11,7 @@ import { PayrollDetailPage } from "@/pages/payroll/PayrollDetailPage";
 import { CompanyPage } from "@/pages/settings/CompanyPage";
 import { OrgSettingsPage } from "@/pages/settings/OrgSettingsPage";
 import { SocialConfigPage } from "@/pages/settings/SocialConfigPage";
+import { VoucherPage } from "@/pages/voucher/VoucherPage";
 
 export interface AppRouteMeta {
   path: string;
@@ -109,7 +109,7 @@ export const appRoutes: AppRouteRecord[] = [
     category: "voucher",
     groupKey: "nav.group.voucher",
     showMonthPicker: true,
-    element: <ModulePlaceholderPage titleKey="nav.page.voucherOverview" />,
+    element: <VoucherPage />,
   },
   {
     path: "/data/backup",

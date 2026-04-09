@@ -72,6 +72,22 @@
     },
     "enterAction": "進入：{{page}}"
   },
+  "voucher": {
+    "debit": "借方",
+    "credit": "贷方",
+    "total": "合計",
+    "balanced": "借貸平衡",
+    "unbalanced": "借貸不平衡",
+    "filterAll": "全部公司",
+    "balanceCheck": "餘額校驗",
+    "salaryPayable": "應付職工薪酬-人員工資",
+    "creditTotal": "貸方合計",
+    "debitTotal": "借方合計",
+    "balance": "餘額",
+    "noData": "當前月份暫無工資數據，請先在薪資核算模組生成工資條",
+    "voucherCount": "共 {{count}} 張憑證",
+    "exportCsv": "導出CSV"
+  },
   "data": {
     "backup": {
       "title": "資料備份與恢復",

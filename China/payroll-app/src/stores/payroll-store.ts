@@ -106,7 +106,7 @@ async function _computeAndSaveSlip(
     const result = await saveRepositoryPayrollResult(
       employeeId,
       get().selectedMonth,
-      slip as Record<string, unknown>,
+      slip as unknown as Record<string, unknown>,
     );
 
     if (result === null) {
@@ -153,7 +153,7 @@ export const usePayrollStore = create<PayrollStoreState>((set, get) => ({
       }, {});
 
       const slips = rawResults.reduce<Record<number, PaySlip>>((acc, r) => {
-        acc[r.employeeId] = r.payload as PaySlip;
+        acc[r.employeeId] = r.payload as unknown as PaySlip;
         return acc;
       }, {});
 
@@ -187,7 +187,7 @@ export const usePayrollStore = create<PayrollStoreState>((set, get) => ({
       const result = await saveRepositoryPayrollInput(
         employeeId,
         get().selectedMonth,
-        input as Record<string, unknown>,
+        input as unknown as Record<string, unknown>,
       );
 
       if (result === null) {
